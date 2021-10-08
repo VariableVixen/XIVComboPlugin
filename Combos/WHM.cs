@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class WHM {
 		public const byte JobID = 24;
 
@@ -47,7 +46,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == WHM.AfflatusSolace) {
 				WHMGauge gauge = GetJobGauge<WHMGauge>();
-				if (gauge.NumBloodLily == 3)
+				if (gauge.BloodLily == 3)
 					return WHM.AfflatusMisery;
 			}
 
@@ -61,7 +60,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == WHM.AfflatusRapture) {
 				WHMGauge gauge = GetJobGauge<WHMGauge>();
-				if (gauge.NumBloodLily == 3)
+				if (gauge.BloodLily == 3)
 					return WHM.AfflatusMisery;
 			}
 
@@ -88,10 +87,10 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == WHM.Cure2) {
 				WHMGauge gauge = GetJobGauge<WHMGauge>();
-				if (IsEnabled(CustomComboPreset.WhiteMageSolaceMiseryFeature) && gauge.NumBloodLily == 3)
+				if (IsEnabled(CustomComboPreset.WhiteMageSolaceMiseryFeature) && gauge.BloodLily == 3)
 					return WHM.AfflatusMisery;
 
-				if (level >= WHM.Levels.AfflatusSolace && gauge.NumLilies > 0)
+				if (level >= WHM.Levels.AfflatusSolace && gauge.Lily > 0)
 					return WHM.AfflatusSolace;
 
 				return actionID;
@@ -99,10 +98,10 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 
 			if (actionID == WHM.Medica) {
 				WHMGauge gauge = GetJobGauge<WHMGauge>();
-				if (IsEnabled(CustomComboPreset.WhiteMageRaptureMiseryFeature) && gauge.NumBloodLily == 3)
+				if (IsEnabled(CustomComboPreset.WhiteMageRaptureMiseryFeature) && gauge.BloodLily == 3)
 					return WHM.AfflatusMisery;
 
-				if (level >= WHM.Levels.AfflatusRapture && gauge.NumLilies > 0)
+				if (level >= WHM.Levels.AfflatusRapture && gauge.Lily > 0)
 					return WHM.AfflatusRapture;
 
 				return WHM.Medica;

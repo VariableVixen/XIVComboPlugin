@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class WAR {
 		public const byte JobID = 21;
 
@@ -102,7 +101,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 
 				if (comboTime > 0) {
 					if (lastComboMove == WAR.Overpower && level >= WAR.Levels.MythrilTempest) {
-						byte gauge = GetJobGauge<WARGauge>().BeastGaugeAmount;
+						byte gauge = GetJobGauge<WARGauge>().BeastGauge;
 						if (IsEnabled(CustomComboPreset.WarriorGaugeOvercapFeature) && gauge >= 90 && level >= WAR.Levels.MythrilTempestTrait)
 							return OriginalHook(WAR.Decimate);
 

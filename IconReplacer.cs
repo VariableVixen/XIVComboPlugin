@@ -4,21 +4,21 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Actors.Types;
-using Dalamud.Game.Text;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.JobGauge.Types;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Statuses;
 using Dalamud.Hooking;
-using Dalamud.Plugin;
+using Dalamud.Logging;
+using Dalamud.Utility;
 
 using XIVComboVeryExpandedPlugin.Combos;
-
-using Structs = Dalamud.Game.ClientState.Structs;
 
 namespace XIVComboVeryExpandedPlugin {
 	// why would you make me do this
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal class IconReplacer {
-		private readonly DalamudPluginInterface Interface;
 		private readonly PluginAddressResolver Address;
 		private readonly XIVComboVeryExpandedConfiguration Configuration;
 
@@ -33,14 +33,13 @@ namespace XIVComboVeryExpandedPlugin {
 		private IntPtr ActionManager = IntPtr.Zero;
 
 		private readonly HashSet<uint> CustomIds = new();
-		private List<CustomCombo> CustomCombos;
+		private List<CustomCombo> CustomCombos = null!;
 
-		public IconReplacer(DalamudPluginInterface pluginInterface, XIVComboVeryExpandedConfiguration configuration) {
-			this.Interface = pluginInterface;
+		public IconReplacer(XIVComboVeryExpandedConfiguration configuration) {
 			this.Configuration = configuration;
 
 			this.Address = new PluginAddressResolver();
-			this.Address.Setup(pluginInterface.TargetModuleScanner);
+			this.Address.Setup(XIVComboVeryExpandedPlugin.scanner);
 
 			CustomCombo.Initialize(this, configuration);
 			this.UpdateCustomCombos();
@@ -63,7 +62,7 @@ namespace XIVComboVeryExpandedPlugin {
 		}
 
 		private void UpdateCustomCombos() {
-			this.CustomCombos = Assembly.GetAssembly(typeof(CustomCombo)).GetTypes()
+			this.CustomCombos = Assembly.GetAssembly(typeof(CustomCombo))!.GetTypes()
 				.Where(t => t.BaseType == typeof(CustomCombo))
 				.Select(t => Activator.CreateInstance(t))
 				.Cast<CustomCombo>()
@@ -109,10 +108,10 @@ namespace XIVComboVeryExpandedPlugin {
 			try {
 				this.ActionManager = actionManager;
 
-				if (this.LocalPlayer == null || !this.CustomIds.Contains(actionID))
+				if (LocalPlayer == null || !this.CustomIds.Contains(actionID))
 					return this.OriginalHook(actionID);
 
-				return this.GetNewAction(actionID, this.LastComboMove, this.ComboTime, this.LocalPlayer.Level);
+				return this.GetNewAction(actionID, this.LastComboMove, this.ComboTime, LocalPlayer.Level);
 			}
 			catch (Exception ex) {
 				PluginLog.Error(ex, "Don't crash the game");
@@ -122,17 +121,17 @@ namespace XIVComboVeryExpandedPlugin {
 
 		#region Getters
 
-		internal bool HasCondition(ConditionFlag flag) => this.Interface.ClientState.Condition[flag];
+		internal static bool HasCondition(ConditionFlag flag) => XIVComboVeryExpandedPlugin.conditions[flag];
 
-		internal PlayerCharacter LocalPlayer => this.Interface.ClientState.LocalPlayer;
+		internal static PlayerCharacter LocalPlayer => XIVComboVeryExpandedPlugin.client.LocalPlayer!;
 
-		internal Actor CurrentTarget => this.Interface.ClientState.Targets.CurrentTarget;
+		internal static GameObject? CurrentTarget => XIVComboVeryExpandedPlugin.targets.Target;
 
 		internal uint LastComboMove => (uint)Marshal.ReadInt32(this.Address.LastComboMove);
 
 		internal float ComboTime => Marshal.PtrToStructure<float>(this.Address.ComboTimer);
 
-		internal T GetJobGauge<T>() => this.Interface.ClientState.JobGauges.Get<T>();
+		internal static T GetJobGauge<T>() where T : JobGaugeBase => XIVComboVeryExpandedPlugin.jobGauge.Get<T>();
 
 		internal uint OriginalHook(uint actionID) => this.GetIconHook.Original(this.ActionManager, actionID);
 
@@ -140,52 +139,44 @@ namespace XIVComboVeryExpandedPlugin {
 
 		#region Effects
 
-		internal bool HasEffect(short effectId) => this.FindEffect(effectId) != null;
+		internal static bool HasEffect(short effectId) => FindEffect(effectId) != null;
 
-		internal bool TargetHasEffect(short effectId) => this.FindTargetEffect(effectId) != null;
+		internal static bool TargetHasEffect(short effectId) => FindTargetEffect(effectId) != null;
 
-		internal Structs.StatusEffect? FindEffect(short effectId) => FindEffect(effectId, this.LocalPlayer, null);
+		internal static Status? FindEffect(short effectId) => FindEffect(effectId, LocalPlayer, null);
 
-		internal float EffectDuration(short effectId) {
-			Structs.StatusEffect? eff = this.FindEffect(effectId);
-			if (eff.HasValue)
-				return (byte)eff?.Duration;
-			return 0;
+		internal static float EffectDuration(short effectId) {
+			Status? eff = FindEffect(effectId);
+			return eff?.RemainingTime ?? 0;
 		}
 
-		internal float EffectStacks(short effectId) {
-			Structs.StatusEffect? eff = this.FindEffect(effectId);
-			if (eff.HasValue)
-				return (byte)eff?.StackCount;
-			return 0;
+		internal static float EffectStacks(short effectId) {
+			Status? eff = FindEffect(effectId);
+			return eff?.StackCount ?? 0;
 		}
 
-		internal float TargetEffectDuration(short effectId) {
-			Structs.StatusEffect? eff = this.FindTargetEffect(effectId);
-			if (eff.HasValue)
-				return (byte)eff?.Duration;
-			return 0;
+		internal static float TargetEffectDuration(short effectId) {
+			Status? eff = FindTargetEffect(effectId);
+			return eff?.RemainingTime ?? 0;
 		}
 
-		internal float TargetEffectStacks(short effectId) {
-			Structs.StatusEffect? eff = this.FindTargetEffect(effectId);
-			if (eff.HasValue)
-				return (byte)eff?.StackCount;
-			return 0;
+		internal static float TargetEffectStacks(short effectId) {
+			Status? eff = FindTargetEffect(effectId);
+			return eff?.StackCount ?? 0;
 		}
 
-		internal Structs.StatusEffect? FindTargetEffect(short effectId) => FindEffect(effectId, this.CurrentTarget, this.LocalPlayer?.ActorId);
+		internal static Status? FindTargetEffect(short effectId) => FindEffect(effectId, CurrentTarget, LocalPlayer?.ObjectId);
 
-		internal static Structs.StatusEffect? FindEffect(short effectId, Actor actor, int? ownerId) {
-			if (actor == null)
+		internal static Status? FindEffect(short effectId, GameObject? actor, uint? sourceId) {
+			if (actor is null)
 				return null;
-
-			foreach (Structs.StatusEffect status in actor.StatusEffects) {
-				if (status.EffectId == effectId) {
-					if (!ownerId.HasValue || status.OwnerId == ownerId)
-						return status;
+			if (actor is BattleChara chara)
+				foreach (Status status in chara.StatusList) {
+					if (status.StatusId == effectId) {
+						if (!sourceId.HasValue || status.SourceID == sourceId)
+							return status;
+					}
 				}
-			}
 
 			return null;
 		}
@@ -200,8 +191,8 @@ namespace XIVComboVeryExpandedPlugin {
 			if (this.CooldownGroups.TryGetValue(actionID, out byte cooldownGroup))
 				return cooldownGroup;
 
-			Lumina.Excel.ExcelSheet<Lumina.Excel.GeneratedSheets.Action> sheet = this.Interface.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>();
-			Lumina.Excel.GeneratedSheets.Action row = sheet.GetRow(actionID);
+			Lumina.Excel.ExcelSheet<Lumina.Excel.GeneratedSheets.Action> sheet = XIVComboVeryExpandedPlugin.data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>()!;
+			Lumina.Excel.GeneratedSheets.Action row = sheet.GetRow(actionID)!;
 
 			return this.CooldownGroups[actionID] = row.CooldownGroup;
 		}

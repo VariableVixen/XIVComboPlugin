@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class BLM {
 		public const byte JobID = 25;
 
@@ -58,8 +57,8 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == BLM.Enochian) {
 				BLMGauge gauge = GetJobGauge<BLMGauge>();
-				if (gauge.IsEnoActive()) {
-					if (gauge.InUmbralIce() && level >= BLM.Levels.Blizzard4) {
+				if (gauge.IsEnochianActive) {
+					if (gauge.InUmbralIce && level >= BLM.Levels.Blizzard4) {
 						if (Configuration.IsEnabled(CustomComboPreset.BlackThunderFeature)
 							&& gauge.ElementTimeRemaining >= 5000
 							&& HasEffect(BLM.Buffs.Thundercloud)
@@ -103,7 +102,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 				if (level < BLM.Levels.Fire3)
 					return BLM.Fire;
 
-				if (gauge.InAstralFire() && (level < BLM.Levels.Enochian || gauge.IsEnoActive())) {
+				if (gauge.InAstralFire && (level < BLM.Levels.Enochian || gauge.IsEnochianActive)) {
 					if (HasEffect(BLM.Buffs.Firestarter))
 						return BLM.Fire3;
 					return BLM.Fire;
@@ -120,7 +119,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == BLM.Transpose) {
 				BLMGauge gauge = GetJobGauge<BLMGauge>();
-				if (gauge.InUmbralIce() && gauge.IsEnoActive() && level >= BLM.Levels.UmbralSoul)
+				if (gauge.InUmbralIce && gauge.IsEnochianActive && level >= BLM.Levels.UmbralSoul)
 					return BLM.UmbralSoul;
 			}
 
@@ -147,7 +146,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == BLM.Blizzard) {
 				BLMGauge gauge = GetJobGauge<BLMGauge>();
-				if (level >= BLM.Levels.Blizzard3 && !gauge.InUmbralIce())
+				if (level >= BLM.Levels.Blizzard3 && !gauge.InUmbralIce)
 					return BLM.Blizzard3;
 			}
 
@@ -166,7 +165,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == BLM.Fire) {
 				BLMGauge gauge = GetJobGauge<BLMGauge>();
-				if (level >= BLM.Levels.Fire3 && (!gauge.InAstralFire() || HasEffect(BLM.Buffs.Firestarter)))
+				if (level >= BLM.Levels.Fire3 && (!gauge.InAstralFire || HasEffect(BLM.Buffs.Firestarter)))
 					return OriginalHook(BLM.Fire3);
 			}
 

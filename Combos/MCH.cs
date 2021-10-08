@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class MCH {
 		public const byte JobID = 31;
 
@@ -100,7 +99,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID is MCH.HeatBlast or MCH.AutoCrossbow) {
 				MCHGauge gauge = GetJobGauge<MCHGauge>();
-				if (!gauge.IsOverheated() && level >= MCH.Levels.Hypercharge)
+				if (!gauge.IsOverheated && level >= MCH.Levels.Hypercharge)
 					return MCH.Hypercharge;
 
 				if (level < MCH.Levels.AutoCrossbow)
@@ -117,7 +116,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == MCH.SpreadShot) {
 				MCHGauge gauge = GetJobGauge<MCHGauge>();
-				if (gauge.IsOverheated() && level >= MCH.Levels.AutoCrossbow)
+				if (gauge.IsOverheated && level >= MCH.Levels.AutoCrossbow)
 					return MCH.AutoCrossbow;
 			}
 
@@ -131,7 +130,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID is MCH.RookAutoturret or MCH.AutomatonQueen) {
 				MCHGauge gauge = GetJobGauge<MCHGauge>();
-				if (gauge.IsRobotActive())
+				if (gauge.IsRobotActive)
 					return OriginalHook(MCH.QueenOverdrive);
 			}
 

@@ -1,7 +1,8 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Enums;
+using Dalamud.Game.ClientState.JobGauge.Types;
+using Dalamud.Game.ClientState.Statuses;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class BRD {
 		public const byte JobID = 23;
 
@@ -48,7 +49,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == BRD.WanderersMinuet) {
-				if (GetJobGauge<BRDGauge>().ActiveSong == CurrentSong.WANDERER)
+				if (GetJobGauge<BRDGauge>().Song == Song.WANDERER)
 					return BRD.PitchPerfect;
 			}
 
@@ -62,7 +63,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID is BRD.HeavyShot or BRD.BurstShot) {
 				BRDGauge gauge = GetJobGauge<BRDGauge>();
-				if (gauge.SoulVoiceValue == 100 && IsEnabled(CustomComboPreset.BardApexFeature))
+				if (gauge.SoulVoice == 100 && IsEnabled(CustomComboPreset.BardApexFeature))
 					return BRD.ApexArrow;
 
 				if (HasEffect(BRD.Buffs.StraightShotReady))
@@ -79,14 +80,14 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == BRD.IronJaws) {
 				if (level < BRD.Levels.IronJaws) {
-					Dalamud.Game.ClientState.Structs.StatusEffect? venomous = FindTargetEffect(BRD.Debuffs.VenomousBite);
-					Dalamud.Game.ClientState.Structs.StatusEffect? windbite = FindTargetEffect(BRD.Debuffs.Windbite);
-					if (venomous.HasValue && windbite.HasValue) {
-						if (venomous?.Duration < windbite?.Duration)
+					Status? venomous = FindTargetEffect(BRD.Debuffs.VenomousBite);
+					Status? windbite = FindTargetEffect(BRD.Debuffs.Windbite);
+					if (venomous is not null && windbite is not null) {
+						if (venomous.RemainingTime < windbite.RemainingTime)
 							return BRD.VenomousBite;
 						return BRD.Windbite;
 					}
-					else if (windbite.HasValue || level < BRD.Levels.Windbite) {
+					else if (windbite is not null || level < BRD.Levels.Windbite) {
 						return BRD.VenomousBite;
 					}
 
@@ -116,20 +117,17 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		}
 	}
 
-	// internal class BardApexFeature : CustomCombo
-	// {
-	//     protected override CustomComboPreset Preset => CustomComboPreset.BardApexFeature;
-	// 
-	//     protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level)
-	//     {
-	//         if (actionID == BRD.QuickNock)
-	//         {
-	//             var gauge = GetJobGauge<BRDGauge>();
-	//             if (gauge.SoulVoiceValue == 100)
-	//                 return BRD.ApexArrow;
-	//         }
-	// 
-	//         return actionID;
-	//     }
-	// }
+	internal class BardApexFeature: CustomCombo {
+		protected override CustomComboPreset Preset => CustomComboPreset.BardApexFeature;
+
+		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
+			if (actionID == BRD.QuickNock) {
+				BRDGauge? gauge = GetJobGauge<BRDGauge>();
+				if (gauge.SoulVoice == 100)
+					return BRD.ApexArrow;
+			}
+
+			return actionID;
+		}
+	}
 }

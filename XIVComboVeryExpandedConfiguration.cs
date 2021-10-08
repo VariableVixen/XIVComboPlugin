@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using Dalamud.Configuration;
-using Dalamud.Plugin;
+using Dalamud.Logging;
 
 using Newtonsoft.Json;
 
@@ -30,7 +30,7 @@ namespace XIVComboVeryExpandedPlugin {
 #pragma warning disable IDE1006 // Naming Styles
 
 		[Flags]
-		[Obsolete]
+		[Obsolete("Old config versions")]
 		public enum LegacyCustomComboPreset: long {
 			None = 0,
 			DragoonJumpFeature = 1L << 44,
@@ -109,12 +109,12 @@ namespace XIVComboVeryExpandedPlugin {
 
 		public void Upgrade() {
 			if (this.Version < 3)
-				this.UpgradeToVersion3();
+				this.upgradeToVersion3();
 			if (this.Version == 3)
-				this.UpgradeToVersion4();
+				this.upgradeToVersion4();
 		}
 
-		private void UpgradeToVersion3() {
+		private void upgradeToVersion3() {
 			PluginLog.Information("Upgrading configuration to version 3");
 			foreach (object _ in Enum.GetValues(typeof(CustomComboPreset)))
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -123,7 +123,7 @@ namespace XIVComboVeryExpandedPlugin {
 			this.Version = 3;
 		}
 
-		private void UpgradeToVersion4() {
+		private void upgradeToVersion4() {
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 			PluginLog.Information("Upgrading configuration to version 4");
 			foreach (LegacyCustomComboPreset legacyPreset in Enum.GetValues(typeof(LegacyCustomComboPreset))) {
@@ -136,7 +136,7 @@ namespace XIVComboVeryExpandedPlugin {
 				}
 			}
 			this._ComboPresetsBacker = 0;
-			this._HiddenActionsBacker = null;
+			this._HiddenActionsBacker = null!;
 			this.Version = 4;
 #pragma warning restore CS0612, CS0618 // Type or member is obsolete
 		}

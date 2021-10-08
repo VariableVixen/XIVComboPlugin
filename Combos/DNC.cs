@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class DNC {
 		public const byte JobID = 38;
 
@@ -78,7 +77,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			DNCGauge gauge = GetJobGauge<DNCGauge>();
-			if (gauge.IsDancing()) {
+			if (gauge.IsDancing) {
 				uint[] actionIDs = Configuration.DancerDanceCompatActionIDs;
 
 				if (actionID == actionIDs[0] || (actionIDs[0] == 0 && actionID == DNC.Cascade))
@@ -126,9 +125,9 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == DNC.StandardStep) {
 				DNCGauge gauge = GetJobGauge<DNCGauge>();
-				if (gauge.IsDancing() && HasEffect(DNC.Buffs.StandardStep)) {
-					if (gauge.NumCompleteSteps < 2)
-						return (uint)gauge.NextStep();
+				if (gauge.IsDancing && HasEffect(DNC.Buffs.StandardStep)) {
+					if (gauge.CompletedSteps < 2)
+						return gauge.NextStep;
 
 					return DNC.StandardFinish2;
 				}
@@ -136,9 +135,9 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 
 			if (actionID == DNC.TechnicalStep) {
 				DNCGauge gauge = GetJobGauge<DNCGauge>();
-				if (gauge.IsDancing() && HasEffect(DNC.Buffs.TechnicalStep)) {
-					if (gauge.NumCompleteSteps < 4)
-						return (uint)gauge.NextStep();
+				if (gauge.IsDancing && HasEffect(DNC.Buffs.TechnicalStep)) {
+					if (gauge.CompletedSteps < 4)
+						return gauge.NextStep;
 
 					return DNC.TechnicalFinish4;
 				}

@@ -1,7 +1,7 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Enums;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class SMN {
 		public const byte JobID = 27;
 
@@ -59,7 +59,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 			if (actionID == SMN.Deathflare) {
 				SMNGauge gauge = GetJobGauge<SMNGauge>();
 
-				if (gauge.IsPhoenixReady())
+				if (gauge.IsPhoenixReady)
 					return SMN.EnkindlePhoenix;
 
 				if (gauge.TimerRemaining > 0 && gauge.ReturnSummon != SummonPet.NONE)
@@ -73,7 +73,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 				SMNGauge gauge = GetJobGauge<SMNGauge>();
 
 				if (IsEnabled(CustomComboPreset.SummonerDemiComboUltra) && gauge.TimerRemaining > 0) {
-					if (gauge.IsPhoenixReady())
+					if (gauge.IsPhoenixReady)
 						return SMN.EnkindlePhoenix;
 
 					if (gauge.ReturnSummon != SummonPet.NONE)
@@ -82,10 +82,10 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 					return SMN.Deathflare;
 				}
 
-				if (gauge.IsBahamutReady())
+				if (gauge.IsBahamutReady)
 					return SMN.SummonBahamut;
 
-				if (gauge.IsPhoenixReady())
+				if (gauge.IsPhoenixReady)
 					return OriginalHook(SMN.FirebirdTranceLow);
 
 				return actionID;
@@ -102,7 +102,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 			if (actionID is SMN.Ruin1 or SMN.Ruin3) {
 				SMNGauge gauge = GetJobGauge<SMNGauge>();
 				if (gauge.TimerRemaining > 0) {
-					if (gauge.IsPhoenixReady()) {
+					if (gauge.IsPhoenixReady) {
 						if (HasEffect(SMN.Buffs.HellishConduit))
 							return SMN.BrandOfPurgatory;
 
@@ -123,7 +123,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == SMN.Fester) {
 				SMNGauge gauge = GetJobGauge<SMNGauge>();
-				if (!gauge.HasAetherflowStacks())
+				if (!gauge.HasAetherflowStacks)
 					return SMN.EnergyDrain;
 			}
 
@@ -137,7 +137,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == SMN.Painflare) {
 				SMNGauge gauge = GetJobGauge<SMNGauge>();
-				if (!gauge.HasAetherflowStacks())
+				if (!gauge.HasAetherflowStacks)
 					return SMN.EnergySyphon;
 
 				if (level >= SMN.Levels.Painflare)

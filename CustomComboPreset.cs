@@ -1,6 +1,6 @@
 using System;
 
-using Dalamud.Game.Text;
+using Dalamud.Utility;
 
 using XIVComboVeryExpandedPlugin.Combos;
 
@@ -374,12 +374,13 @@ namespace XIVComboVeryExpandedPlugin {
 		WhiteMageAfflatusFeature = 77,
 
 		[CustomComboInfo("Swiftcast Raise", "Raise turns into Swiftcast when it's off cooldown.", WHM.JobID, WHM.Raise)]
-		WhiteMageSwiftcastRaiserFeature = 102,
+		WhiteMageSwiftcastRaiserFeature = 103,
 
 		#endregion
 		// ====================================================================================
 	}
 
+	[AttributeUsage(AttributeTargets.Field)]
 	internal class CustomComboInfoAttribute: Attribute {
 		internal CustomComboInfoAttribute(string fancyName, string description, byte jobID, params uint[] actionIDs) {
 			this.FancyName = fancyName;
@@ -391,10 +392,10 @@ namespace XIVComboVeryExpandedPlugin {
 		public string FancyName { get; }
 		public string Description { get; }
 		public byte JobID { get; }
-		public string JobName => JobIDToName(this.JobID);
+		public string JobName => jobIdToName(this.JobID);
 		public uint[] ActionIDs { get; }
 
-		private static string JobIDToName(byte key) {
+		private static string jobIdToName(byte key) {
 			return key switch {
 				1 => "Gladiator",
 				2 => "Pugilist",

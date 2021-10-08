@@ -1,8 +1,7 @@
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class RDM {
 		public const byte JobID = 35;
 
@@ -87,14 +86,14 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 
 				if (IsEnabled(CustomComboPreset.RedMageMeleeComboPlus) && lastComboMove == RDM.EnchantedRedoublement) {
 					RDMGauge gauge = GetJobGauge<RDMGauge>();
-					if (gauge.BlackGauge >= gauge.WhiteGauge && level >= RDM.Levels.Verholy) {
-						if (HasEffect(RDM.Buffs.VerstoneReady) && !HasEffect(RDM.Buffs.VerfireReady) && (gauge.BlackGauge - gauge.WhiteGauge <= 9))
+					if (gauge.BlackMana >= gauge.WhiteMana && level >= RDM.Levels.Verholy) {
+						if (HasEffect(RDM.Buffs.VerstoneReady) && !HasEffect(RDM.Buffs.VerfireReady) && (gauge.BlackMana - gauge.WhiteMana <= 9))
 							return RDM.Verflare;
 
 						return RDM.Verholy;
 					}
 					else if (level >= RDM.Levels.Verflare) {
-						if (!HasEffect(RDM.Buffs.VerstoneReady) && HasEffect(RDM.Buffs.VerfireReady) && level >= RDM.Levels.Verholy && (gauge.WhiteGauge - gauge.BlackGauge <= 9))
+						if (!HasEffect(RDM.Buffs.VerstoneReady) && HasEffect(RDM.Buffs.VerfireReady) && level >= RDM.Levels.Verholy && (gauge.WhiteMana - gauge.BlackMana <= 9))
 							return RDM.Verholy;
 
 						return RDM.Verflare;

@@ -1,7 +1,7 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Enums;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class AST {
 		public const byte JobID = 33;
 
@@ -53,7 +53,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == AST.Play) {
 				ASTGauge gauge = GetJobGauge<ASTGauge>();
-				if (gauge.DrawnCard() == CardType.NONE)
+				if (gauge.DrawnCard == CardType.NONE)
 					return AST.Draw;
 			}
 
@@ -67,7 +67,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == AST.MinorArcana) {
 				ASTGauge gauge = GetJobGauge<ASTGauge>();
-				if (gauge.DrawnCard() == CardType.NONE && level >= AST.Levels.SleeveDraw)
+				if (gauge.DrawnCard == CardType.NONE && level >= AST.Levels.SleeveDraw)
 					return AST.SleeveDraw;
 			}
 

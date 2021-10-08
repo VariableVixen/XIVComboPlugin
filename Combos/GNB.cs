@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class GNB {
 		public const byte JobID = 37;
 
@@ -90,7 +89,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 				}
 
 				GNBGauge gauge = GetJobGauge<GNBGauge>();
-				return gauge.AmmoComboStepNumber switch {
+				return gauge.AmmoComboStep switch {
 					1 => GNB.SavageClaw,
 					2 => GNB.WickedTalon,
 					_ => GNB.GnashingFang,
@@ -109,7 +108,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 				if (comboTime > 0 && lastComboMove == GNB.DemonSlice && level >= GNB.Levels.DemonSlaughter) {
 					if (IsEnabled(CustomComboPreset.GunbreakerFatedCircleFeature)) {
 						GNBGauge gauge = GetJobGauge<GNBGauge>();
-						if (gauge.NumAmmo == 2 && level >= GNB.Levels.FatedCircle) {
+						if (gauge.Ammo == 2 && level >= GNB.Levels.FatedCircle) {
 							return GNB.FatedCircle;
 						}
 					}
@@ -130,7 +129,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == GNB.BurstStrike) {
 				GNBGauge gauge = GetJobGauge<GNBGauge>();
-				if (gauge.NumAmmo == 0 && level >= GNB.Levels.Bloodfest)
+				if (gauge.Ammo == 0 && level >= GNB.Levels.Bloodfest)
 					return GNB.Bloodfest;
 			}
 

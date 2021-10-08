@@ -1,7 +1,6 @@
-using Dalamud.Game.ClientState.Structs.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 
 namespace XIVComboVeryExpandedPlugin.Combos {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Leftover from original fork")]
 	internal static class SCH {
 		public const byte JobID = 28;
 
@@ -56,7 +55,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 		protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 			if (actionID == SCH.EnergyDrain) {
 				SCHGauge gauge = GetJobGauge<SCHGauge>();
-				if (gauge.NumAetherflowStacks == 0)
+				if (gauge.Aetherflow == 0)
 					return SCH.Aetherflow;
 			}
 

@@ -1,8 +1,7 @@
 using System;
 
 using Dalamud.Game;
-using Dalamud.Game.Internal;
-using Dalamud.Plugin;
+using Dalamud.Logging;
 
 namespace XIVComboVeryExpandedPlugin {
 	internal class PluginAddressResolver: BaseAddressResolver {
