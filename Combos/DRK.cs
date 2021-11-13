@@ -72,7 +72,7 @@ namespace XIVComboVeryExpandedPlugin.Combos {
 			if (actionID == DRK.StalwartSoul) {
 				if (IsEnabled(CustomComboPreset.DRKOvercapFeature)) {
 					DRKGauge gauge = GetJobGauge<DRKGauge>();
-					if (gauge.Blood >= 90 && SelfHasEffect(DRK.Buffs.BloodWeapon))
+					if ((gauge.Blood > 70 && SelfHasEffect(DRK.Buffs.BloodWeapon)) || gauge.blood > 80)
 						return DRK.Quietus;
 				}
 
