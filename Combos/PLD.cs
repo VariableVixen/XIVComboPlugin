@@ -76,6 +76,14 @@ internal class PaladinGoringBlade: CustomCombo {
 			if (level >= PLD.Levels.HolySpirit) {
 				Status? requiescat = SelfFindEffect(PLD.Buffs.Requiescat);
 
+				if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+					if (SelfHasEffect(PLD.Buffs.BladeOfFaithReady))
+						return PLD.BladeOfFaith;
+					if (lastComboMove is PLD.BladeOfFaith)
+						return PLD.BladeOfTruth;
+					if (lastComboMove is PLD.BladeOfTruth)
+						return PLD.BladeOfValor;
+				}
 				if (requiescat is not null) {
 
 					if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
@@ -133,6 +141,14 @@ internal class PaladinRoyalAuthorityCombo: CustomCombo {
 			if (level >= PLD.Levels.HolySpirit) {
 				Status? requiescat = SelfFindEffect(PLD.Buffs.Requiescat);
 
+				if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+					if (SelfHasEffect(PLD.Buffs.BladeOfFaithReady))
+						return PLD.BladeOfFaith;
+					if (lastComboMove is PLD.BladeOfFaith)
+						return PLD.BladeOfTruth;
+					if (lastComboMove is PLD.BladeOfTruth)
+						return PLD.BladeOfValor;
+				}
 				if (requiescat is not null) {
 
 					if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
@@ -199,6 +215,14 @@ internal class PaladinProminenceCombo: CustomCombo {
 			if (level >= PLD.Levels.HolyCircle) {
 				Status? requiescat = SelfFindEffect(PLD.Buffs.Requiescat);
 
+				if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+					if (SelfHasEffect(PLD.Buffs.BladeOfFaithReady))
+						return PLD.BladeOfFaith;
+					if (lastComboMove is PLD.BladeOfFaith)
+						return PLD.BladeOfTruth;
+					if (lastComboMove is PLD.BladeOfTruth)
+						return PLD.BladeOfValor;
+				}
 				if (requiescat is not null) {
 
 					if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
@@ -238,6 +262,12 @@ internal class PaladinRequiescatCombo: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
+		if (SelfHasEffect(PLD.Buffs.BladeOfFaithReady))
+			return PLD.BladeOfFaith;
+		if (lastComboMove is PLD.BladeOfFaith)
+			return PLD.BladeOfTruth;
+		if (lastComboMove is PLD.BladeOfTruth)
+			return PLD.BladeOfValor;
 		if (level >= PLD.Levels.Confiteor && SelfHasEffect(PLD.Buffs.Requiescat))
 			return PLD.Confiteor;
 
