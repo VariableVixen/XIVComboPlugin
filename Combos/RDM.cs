@@ -5,6 +5,8 @@ using System;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.JobGauge.Types;
 
+using global::XIVComboVX.GameData;
+
 internal static class RDM {
 	public const byte JobID = 35;
 
@@ -467,11 +469,12 @@ internal class RedMageAcceleration: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
 		if (level >= RDM.Levels.Acceleration) {
+			CooldownData acceleration = GetCooldown(RDM.Acceleration);
 
-			if (IsEnabled(CustomComboPreset.RedMageAccelerationSwiftcastOption) && IsOffCooldown(RDM.Acceleration) && IsOffCooldown(RDM.Swiftcast))
+			if (IsEnabled(CustomComboPreset.RedMageAccelerationSwiftcastOption) && acceleration.RemainingCharges == 0 && IsOffCooldown(RDM.Swiftcast))
 				return RDM.Swiftcast;
 
-			if (IsOffCooldown(RDM.Acceleration))
+			if (acceleration.RemainingCharges > 0)
 				return RDM.Acceleration;
 
 			if (IsOffCooldown(RDM.Swiftcast))
