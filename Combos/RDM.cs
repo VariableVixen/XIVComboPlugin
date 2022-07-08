@@ -471,7 +471,7 @@ internal class RedMageAcceleration: CustomCombo {
 		if (level >= RDM.Levels.Acceleration) {
 			CooldownData acceleration = GetCooldown(RDM.Acceleration);
 
-			if (IsEnabled(CustomComboPreset.RedMageAccelerationSwiftcastOption) && acceleration.RemainingCharges == 0 && IsOffCooldown(RDM.Swiftcast))
+			if (IsEnabled(CustomComboPreset.RedMageAccelerationSwiftcastOption) && acceleration.RemainingCharges > 0 && IsOffCooldown(RDM.Swiftcast))
 				return RDM.Swiftcast;
 
 			if (acceleration.RemainingCharges > 0)
