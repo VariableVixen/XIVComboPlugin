@@ -225,7 +225,7 @@ internal abstract class CustomCombo {
 		=> Service.BuddyList.PetBuddyPresent;
 
 	protected static double PlayerHealthPercentage
-		=> LocalPlayer.CurrentHp / LocalPlayer.MaxHp * 100;
+		=> (Convert.ToDouble(LocalPlayer.CurrentHp) / Convert.ToDouble(LocalPlayer.MaxHp)) * 100.0;
 
 	protected internal static bool ShouldSwiftcast
 		=> IsOffCooldown(Common.Swiftcast)
