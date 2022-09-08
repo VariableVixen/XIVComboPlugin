@@ -107,28 +107,44 @@ internal class GunbreakerGnashingFang: CustomCombo {
 
 		GNBGauge gauge = GetJobGauge<GNBGauge>();
 
-		if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && level >= GNB.Levels.Bloodfest && IsOnCooldown(GNB.GnashingFang))
-			return GNB.Bloodfest;
+		//oGCD Skills
+		if (CanWeave(actionID)) {
+			
+			if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && level >= GNB.Levels.Bloodfest && IsOnCooldown(GNB.GnashingFang))
+				return GNB.Bloodfest;
 
-		//Outside of No Mercy/30s Gnashing Fang
-		if (level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
+			//Outside of No Mercy/30s Gnashing Fang
+			if (level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
 
-			if ((IsOnCooldown(GNB.GnashingFang) && gauge.AmmoComboStep != 1 && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) || //Post Gnashing Fang
-				level < GNB.Levels.GnashingFang) {  //Pre Gnashing Fang
+				if ((IsOnCooldown(GNB.GnashingFang) && gauge.AmmoComboStep != 1 && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) || //Post Gnashing Fang
+					level < GNB.Levels.GnashingFang) {  //Pre Gnashing Fang
+					return OriginalHook(GNB.DangerZone);
+				}
+			}
+
+			//Ensures early weave if available
+			if (SelfHasEffect(GNB.Buffs.NoMercy) && IsOnCooldown(GNB.DoubleDown) && IsOffCooldown(GNB.DangerZone))
 				return OriginalHook(GNB.DangerZone);
+
+			// continuation feature by damolitionn
+			if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont)) {
+				if (level >= GNB.Levels.Continuation) {
+
+					if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
+						return OriginalHook(GNB.Continuation);
+				}
 			}
 		}
 
-		//Ensures early weave if available
-		if (SelfHasEffect(GNB.Buffs.NoMercy) && IsOnCooldown(GNB.DoubleDown) && IsOffCooldown(GNB.DangerZone))
-			return OriginalHook(GNB.DangerZone);
+		//GCD Skills: DD, Sonic Break
+		if (level >= GNB.Levels.DoubleDown) {
+			if (SelfHasEffect(GNB.Buffs.NoMercy)) {
 
-		// continuation feature by damolitionn
-		if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont)) {
-			if (level >= GNB.Levels.Continuation) {
+				if (IsOffCooldown(GNB.DoubleDown) && gauge.Ammo >= 2 && !SelfHasEffect(GNB.Buffs.ReadyToRip) && gauge.AmmoComboStep >= 1)
+					return GNB.DoubleDown;
 
-				if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
-					return OriginalHook(GNB.Continuation);
+				if (IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.DoubleDown))
+					return GNB.SonicBreak;
 			}
 		}
 
@@ -154,8 +170,6 @@ internal class GunbreakerGnashingFang: CustomCombo {
 					return OriginalHook(GNB.DangerZone);
 			}
 		}
-
-
 
 		if (IsEnabled(CustomComboPreset.GunbreakerGnashingStrikeFeature)) {
 			// Using the gauge to read combo steps
