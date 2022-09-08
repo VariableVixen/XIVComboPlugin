@@ -10,6 +10,7 @@ internal static class GNB {
 		NoMercy = 16138,
 		BrutalShell = 16139,
 		DemonSlice = 16141,
+		DangerZone = 16144,
 		SolidBarrel = 16145,
 		GnashingFang = 16146,
 		SavageClaw = 16147,
@@ -45,6 +46,7 @@ internal static class GNB {
 		public const byte
 			NoMercy = 2,
 			BrutalShell = 4,
+			DangerZone = 18,
 			SolidBarrel = 26,
 			BurstStrike = 30,
 			DemonSlaughter = 40,
@@ -103,7 +105,24 @@ internal class GunbreakerGnashingFang: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
-		
+		GNBGauge gauge = GetJobGauge<GNBGauge>();
+
+		if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && level >= GNB.Levels.Bloodfest && IsOnCooldown(GNB.GnashingFang))
+			return GNB.Bloodfest;
+
+		//Outside of No Mercy/30s Gnashing Fang
+		if (level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
+
+			if ((IsOnCooldown(GNB.GnashingFang) && gauge.AmmoComboStep != 1 && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) || //Post Gnashing Fang
+				level < GNB.Levels.GnashingFang) {  //Pre Gnashing Fang
+				return OriginalHook(GNB.DangerZone);
+			}
+		}
+
+		//Ensures early weave if available
+		if (SelfHasEffect(GNB.Buffs.NoMercy) && IsOnCooldown(GNB.DoubleDown) && IsOffCooldown(GNB.DangerZone))
+			return OriginalHook(GNB.DangerZone);
+
 		// continuation feature by damolitionn
 		if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont)) {
 			if (level >= GNB.Levels.Continuation) {
@@ -113,9 +132,32 @@ internal class GunbreakerGnashingFang: CustomCombo {
 			}
 		}
 
-		if (IsEnabled(CustomComboPreset.GunbreakerGnashingStrikeFeature)) {
-			GNBGauge gauge = GetJobGauge<GNBGauge>();
+		//During No Mercy
+		if (SelfHasEffect(GNB.Buffs.NoMercy)) {
+			//Post Double Down (No need for a level check as it's gated behind Double Down's usage)
+			if (IsOnCooldown(GNB.DoubleDown)) {
 
+				if (IsOffCooldown(GNB.DangerZone))
+					return OriginalHook(GNB.DangerZone);
+
+				if (IsOffCooldown(GNB.BowShock))
+					return GNB.BowShock;
+			}
+
+			//Pre Double Down
+			if (IsOnCooldown(GNB.SonicBreak) && level < GNB.Levels.DoubleDown) {
+
+				if (level >= GNB.Levels.BowShock && IsOffCooldown(GNB.BowShock))
+					return GNB.BowShock;
+
+				if (level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone))
+					return OriginalHook(GNB.DangerZone);
+			}
+		}
+
+
+
+		if (IsEnabled(CustomComboPreset.GunbreakerGnashingStrikeFeature)) {
 			// Using the gauge to read combo steps
 			if (gauge.AmmoComboStep > 0)
 				return OriginalHook(GNB.GnashingFang);
