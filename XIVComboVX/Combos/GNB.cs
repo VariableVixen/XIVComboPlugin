@@ -103,30 +103,25 @@ internal class GunbreakerGnashingFang: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
+		
+		//
 		if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont)) {
 			if (level >= GNB.Levels.Continuation) {
 
-				if (SelfHasEffect(GNB.Buffs.ReadyToGouge))
-					return GNB.EyeGouge;
-
-				if (SelfHasEffect(GNB.Buffs.ReadyToTear))
-					return GNB.AbdomenTear;
-
-				if (SelfHasEffect(GNB.Buffs.ReadyToRip))
-					return GNB.JugularRip;
-
+				if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
+					return OriginalHook(GNB.Continuation);
 			}
 		}
 
 		if (IsEnabled(CustomComboPreset.GunbreakerGnashingStrikeFeature)) {
+			GNBGauge gauge = GetJobGauge<GNBGauge>();
 
-			// no level checks because GF/SC/WT are all unlocked at the same level
-			if (lastComboMove is GNB.GnashingFang or GNB.JugularRip)
-				return GNB.SavageClaw;
-			if (lastComboMove is GNB.SavageClaw or GNB.AbdomenTear)
-				return GNB.WickedTalon;
+			// Using the gauge to read combo steps
+			if (gauge.AmmoComboStep > 0)
+				return OriginalHook(GNB.GnashingFang);
 
-			if (SelfHasEffect(GNB.Buffs.NoMercy)) {
+			//Checks for Gnashing Fang's combo to be finished first
+			if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.AmmoComboStep == 0) {
 				if (level < GNB.Levels.GnashingFang || GetCooldown(GNB.GnashingFang).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownGnashingFang) {
 					if (level < GNB.Levels.DoubleDown || GetCooldown(GNB.DoubleDown).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownDoubleDown) {
 
