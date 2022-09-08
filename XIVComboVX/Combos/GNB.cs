@@ -104,7 +104,7 @@ internal class GunbreakerGnashingFang: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
 		
-		//
+		// continuation feature by damolitionn
 		if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont)) {
 			if (level >= GNB.Levels.Continuation) {
 
