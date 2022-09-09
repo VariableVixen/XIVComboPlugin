@@ -12,6 +12,8 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Statuses;
 using Dalamud.Utility;
 
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+
 using XIVComboVX.Attributes;
 using XIVComboVX.GameData;
 
@@ -240,6 +242,9 @@ internal abstract class CustomCombo {
 
 	protected internal static T GetJobGauge<T>() where T : JobGaugeBase
 		=> Service.DataCache.GetJobGauge<T>();
+
+	protected internal static unsafe bool IsMoving
+		=> AgentMap.Instance() is not null && AgentMap.Instance()->IsPlayerMoving > 0;
 
 	#endregion
 

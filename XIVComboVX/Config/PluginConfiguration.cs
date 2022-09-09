@@ -98,7 +98,7 @@ public class PluginConfiguration: IPluginConfiguration {
 		0,
 		30
 	)]
-	public float GunbreakerGnashingStrikeCooldownGnashingFang { get; set; } = 20;
+	public float GunbreakerGnashingStrikeCooldownGnashingFang { get; set; } = 17;
 
 	[ComboDetailSetting(
 		CustomComboPreset.GunbreakerGnashingStrikeFeature,
@@ -108,6 +108,15 @@ public class PluginConfiguration: IPluginConfiguration {
 		60
 	)]
 	public float GunbreakerGnashingStrikeCooldownDoubleDown { get; set; } = 20;
+
+	[ComboDetailSetting(
+	CustomComboPreset.GunbreakerSolidRoughDivide,
+	"Rough Divide charges to hold",
+	"Choose how many charge of Rough Divide to hold",
+	0,
+	2
+)]
+	public uint GunbreakerRoughDivideCharge { get; set; } = 1;
 
 	#endregion
 
