@@ -369,7 +369,7 @@ public enum CustomComboPreset {
 	GunbreakerNoMercyDoubleDownFeature = 3712,
 
 	[Conflicts(GunbreakerNoMercyFeature)]
-	[CustomComboInfo("No Mercy - Always Double Down", "Replace No Mercy with Double Down while No Mercy is active.", GNB.JobID)]
+	[CustomComboInfo("Always Double Down", "Replace No Mercy with Double Down while No Mercy is active.", GNB.JobID)]
 	GunbreakerNoMercyAlwaysDoubleDownFeature = 3713,
 
 	[CustomComboInfo("Bow Shock / Sonic Break Swap", "Replace Bow Shock and Sonic Break with one or the other, depending on which is on cooldown.", GNB.JobID)]
@@ -382,7 +382,7 @@ public enum CustomComboPreset {
 	GunbreakerGnashingStrikeFeature = 3714,
 
 	[ParentPreset(GunbreakerSolidBarrelCombo)]
-	[CustomComboInfo("Lighting Shot Ranged Uptime Feature", "Replace Solid Barrel with Lightning Shot when out of melee range.", GNB.JobID)]
+	[CustomComboInfo("Lighting Shot Ranged Uptime Feature", "Replace Solid Barrel with Lightning Shot when out of melee range and in combat.", GNB.JobID)]
 	GunbreakerRangedUptime = 3715,
 
 	[ParentPreset(GunbreakerSolidBarrelCombo)]
@@ -414,7 +414,7 @@ public enum CustomComboPreset {
 	GunbreakerSolidDoubleDown = 3722,
 
 	[ParentPreset(GunbreakerSolidBarrelCombo)]
-	[CustomComboInfo("Rough Divide Feature", "Replace Solid Barrel with Rough Divide when you are not moving, within the target's hitbox, and have the No Mercy buff.", GNB.JobID)]
+	[CustomComboInfo("Rough Divide Feature", "Replace Solid Barrel with Rough Divide when you are within the target's hitbox, not moving, and have the No Mercy buff.", GNB.JobID)]
 	GunbreakerSolidRoughDivide = 3723,
 
 	[ParentPreset(GunbreakerGnashingFangCont)]
