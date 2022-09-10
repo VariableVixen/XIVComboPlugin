@@ -75,149 +75,206 @@ internal class GunbreakerSolidBarrel: CustomCombo {
 	public override uint[] ActionIDs { get; } = new[] { GNB.SolidBarrel };
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
-
 		GNBGauge gauge = GetJobGauge<GNBGauge>();
 		int maxAmmo = level >= GNB.Levels.CartridgeCharge2 ? 3 : 2;
-		var quarterWeave = GetCooldown(actionID).CooldownRemaining < 1 && GetCooldown(actionID).CooldownRemaining > 0.6;
+		bool quarterWeave = GetCooldown(actionID).CooldownRemaining < 1 && GetCooldown(actionID).CooldownRemaining > 0.6;
 
-		//Lightning Shot Ranged Feature
-		if (IsEnabled(CustomComboPreset.GunbreakerRangedUptime) && !InMeleeRange && level >= GNB.Levels.LightningShot && HasTarget && InCombat)
-			return GNB.LightningShot;
+		// Lightning Shot Ranged Uptime Feature - Replace Solid Barrel with Lightning Shot when out of melee range and in combat.
+		if (IsEnabled(CustomComboPreset.GunbreakerRangedUptime) && level >= GNB.Levels.LightningShot) {
+			if (!InMeleeRange && HasTarget && InCombat)
+				return GNB.LightningShot;
+		}
 
+		// No Mercy Feature - Replace Solid Barrel with No Mercy when Gnashing Fang is ready.
 		if (quarterWeave && IsEnabled(CustomComboPreset.GunbreakerSolidNoMercy)) {
 			if (level >= GNB.Levels.NoMercy && IsOffCooldown(GNB.NoMercy)) {
 
 				if (level >= GNB.Levels.BurstStrike) {
-
-					if ((gauge.Ammo is 0 && lastComboMove is GNB.KeenEdge && IsOffCooldown(GNB.Bloodfest) && IsOffCooldown(GNB.GnashingFang)) || //Opener Conditions
-					   (gauge.Ammo == maxAmmo && GetCooldown(GNB.GnashingFang).CooldownRemaining < 4)) {  //Regular NMGF
+					if (
+						(lastComboMove is GNB.KeenEdge && gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && IsOffCooldown(GNB.GnashingFang)) // Opener conditions
+						|| (gauge.Ammo == maxAmmo && GetCooldown(GNB.GnashingFang).CooldownRemaining < 4) // Regular NMGF
+					) {
 						return GNB.NoMercy;
 					}
 				}
-
-				//no cartridges unlocked
+				// no cartridges unlocked
 				else {
 					return GNB.NoMercy;
 				}
+
 			}
 		}
 
-		//oGCDs
+		// oGCDs
 		if (CanWeave(actionID)) {
 
-			//Bloodfest Feature
-			if (IsEnabled(CustomComboPreset.GunbreakerSolidBloodfest) && IsOffCooldown(GNB.Bloodfest) && level >= GNB.Levels.Bloodfest) {
-
-				if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.Ammo == 0 && IsOnCooldown(GNB.GnashingFang)) {
+			// Bloodfest Feature - Replace Solid Barrel with Bloodfest when there is no ammo and you are under No Mercy.
+			if (IsEnabled(CustomComboPreset.GunbreakerSolidBloodfest) && level >= GNB.Levels.Bloodfest) {
+				if (gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && IsOnCooldown(GNB.GnashingFang) && SelfHasEffect(GNB.Buffs.NoMercy)) {
 					return GNB.Bloodfest;
 				}
 			}
 
-			//Outside of No Mercy/30s Gnashing Fang
-			if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
-
-				if ((IsOnCooldown(GNB.GnashingFang) && gauge.AmmoComboStep != 1 && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) || //Post Gnashing Fang
-					level < GNB.Levels.GnashingFang) {  //Pre Gnashing Fang
-					return OriginalHook(GNB.DangerZone);
+			// Danger Zone/Blasting Zone Feature - Replace Solid Barrel with Danger Zone/Blasting Zone after Gnashing Fang is used.
+			// Outside of No Mercy/30s Gnashing Fang
+			if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone) {
+				if (IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
+					if (
+						level < GNB.Levels.GnashingFang // Pre Gnashing Fang
+						|| (gauge.AmmoComboStep != 1 && IsOnCooldown(GNB.GnashingFang) && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) // Post Gnashing Fang
+					) {
+						return OriginalHook(GNB.DangerZone);
+					}
 				}
 			}
 
-
-			// Continuation Feature
-			if (IsEnabled(CustomComboPreset.GunbreakerSolidGnashingFang)) {
-				if (level >= GNB.Levels.Continuation) {
-
-					if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
-						return OriginalHook(GNB.Continuation);
-				}
+			// Gnashing Fang/Continuation Feature - Replace Solid Barrel with Gnashing Fang and Continuation when Gnashing Fang is available and will hold for No Mercy when it is available.
+			if (IsEnabled(CustomComboPreset.GunbreakerSolidGnashingFang) && level >= GNB.Levels.Continuation) {
+				if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
+					return OriginalHook(GNB.Continuation);
 			}
 
-			//During No Mercy
+			// During No Mercy
 			if (SelfHasEffect(GNB.Buffs.NoMercy)) {
-				//Post DD
+
+				// Post DD
 				if (IsOnCooldown(GNB.DoubleDown)) {
 					
-					if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && IsOffCooldown(GNB.DangerZone))
-						return OriginalHook(GNB.DangerZone);
+					// Danger Zone/Blasting Zone Feature - Replace Solid Barrel with Danger Zone/Blasting Zone after Gnashing Fang is used.
+					if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone)) {
+						uint dangerZone = OriginalHook(GNB.DangerZone);
+						if (IsOffCooldown(dangerZone))
+							return dangerZone;
+					}
 
+					// Bow Shock Feature - Replace Solid Barrel with Bow Shock when you are under No Mercy.
 					if (IsEnabled(CustomComboPreset.GunbreakerSolidBowShock) && IsOffCooldown(GNB.BowShock))
 						return GNB.BowShock;
+
 				}
 
-				//Pre DD
-				if (IsOnCooldown(GNB.SonicBreak) && level < GNB.Levels.DoubleDown) {
-					
+				// Pre DD
+				if (level < GNB.Levels.DoubleDown && IsOnCooldown(GNB.SonicBreak)) {
+
+					// Bow Shock Feature - Replace Solid Barrel with Bow Shock when you are under No Mercy.
 					if (IsEnabled(CustomComboPreset.GunbreakerSolidBowShock) && level >= GNB.Levels.BowShock && IsOffCooldown(GNB.BowShock))
 						return GNB.BowShock;
 
-					if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone))
-						return OriginalHook(GNB.DangerZone);
+					// Danger Zone/Blasting Zone Feature - Replace Solid Barrel with Danger Zone/Blasting Zone after Gnashing Fang is used.
+					if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone) {
+						uint dangerZone = OriginalHook(GNB.DangerZone);
+						if (IsOffCooldown(dangerZone))
+							return dangerZone;
+					}
+
 				}
+
 			}
 
-			//Rough Divide Feature
-			if (level >= GNB.Levels.RoughDivide && IsEnabled(CustomComboPreset.GunbreakerSolidRoughDivide) && !SelfHasEffect(GNB.Buffs.ReadyToBlast) && !IsMoving && TargetDistance <= 1) {
-
-				if (SelfHasEffect(GNB.Buffs.NoMercy) && IsOnCooldown(OriginalHook(GNB.DangerZone)) && IsOnCooldown(GNB.BowShock) && GetCooldown(GNB.RoughDivide).RemainingCharges > Service.Configuration.GunbreakerRoughDivideCharge)
-					return GNB.RoughDivide;
+			// Rough Divide Feature - Replace Solid Barrel with Rough Divide when you are within the target's hitbox, not moving, and have the No Mercy buff.
+			if (IsEnabled(CustomComboPreset.GunbreakerSolidRoughDivide) && level >= GNB.Levels.RoughDivide) {
+				if (!IsMoving && TargetDistance <= 1 && !SelfHasEffect(GNB.Buffs.ReadyToBlast) && SelfHasEffect(GNB.Buffs.NoMercy)) {
+					if (IsOnCooldown(OriginalHook(GNB.DangerZone)) && IsOnCooldown(GNB.BowShock) && GetCooldown(GNB.RoughDivide).RemainingCharges > Service.Configuration.GunbreakerRoughDivideCharge)
+						return GNB.RoughDivide;
+				}
 			}
 		}
 
-		//GCD Skills: DD, Sonic Break
+		// GCD Skills: DD, Sonic Break
 		if (GetCooldown(GNB.NoMercy).CooldownRemaining > 57 || SelfHasEffect(GNB.Buffs.NoMercy)) {
-			if (level >= GNB.Levels.DoubleDown) {
-				
-				if (IsEnabled(CustomComboPreset.GunbreakerSolidDoubleDown) && IsOffCooldown(GNB.DoubleDown) && gauge.Ammo >= 2 && !SelfHasEffect(GNB.Buffs.ReadyToRip) && gauge.AmmoComboStep >= 1)
-					return GNB.DoubleDown;
 
+			if (level >= GNB.Levels.DoubleDown) {
+
+				// Double Down Feature - Replace Solid Barrel with Double Down when you are under No Mercy and have the required ammo.
+				if (IsEnabled(CustomComboPreset.GunbreakerSolidDoubleDown) && gauge.Ammo >= 2 && gauge.AmmoComboStep >= 1) {
+					if (IsOffCooldown(GNB.DoubleDown) && !SelfHasEffect(GNB.Buffs.ReadyToRip))
+						return GNB.DoubleDown;
+				}
+
+				// Sonic Break Feature - Replace Solid Barrel with Sonic Break when you are under No Mercy.
 				if (IsEnabled(CustomComboPreset.GunbreakerSolidSonicBreak) && IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.DoubleDown))
 					return GNB.SonicBreak;
+
 			}
-
 			else {
+				
 				if (level >= GNB.Levels.SonicBreak) {
-					if (IsEnabled(CustomComboPreset.GunbreakerSolidSonicBreak) && IsOffCooldown(GNB.SonicBreak) && !SelfHasEffect(GNB.Buffs.ReadyToRip) && IsOnCooldown(GNB.GnashingFang))
-						return GNB.SonicBreak;
+					// Sonic Break Feature - Replace Solid Barrel with Sonic Break when you are under No Mercy.
+					if (IsEnabled(CustomComboPreset.GunbreakerSolidSonicBreak)) {
+						if (IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.GnashingFang) && !SelfHasEffect(GNB.Buffs.ReadyToRip))
+							return GNB.SonicBreak;
+					}
 				}
-
-				//sub level 54 functionality
-				else {
-
-					if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone))
+				// pre-SB functionality
+				// Danger Zone/Blasting Zone Feature - Replace Solid Barrel with Danger Zone/Blasting Zone after Gnashing Fang is used.
+				else if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone) {
+					uint dangerZone = OriginalHook(GNB.DangerZone);
+					if (IsOffCooldown(dangerZone))
 						return OriginalHook(GNB.DangerZone);
 				}
+
 			}
 		}
 
-		//Gnashing Fang
+		// Gnashing Fang/Continuation Feature - Replace Solid Barrel with Gnashing Fang and Continuation when Gnashing Fang is available and will hold for No Mercy when it is available.
 		if (IsEnabled(CustomComboPreset.GunbreakerSolidGnashingFang) && level >= GNB.Levels.GnashingFang) {
 
-			//Starting Gnashing Fang
-			if (IsOffCooldown(GNB.GnashingFang) && gauge.AmmoComboStep == 0 &&
-				((gauge.Ammo == maxAmmo && (GetCooldown(GNB.NoMercy).CooldownRemaining > 50 || SelfHasEffect(GNB.Buffs.NoMercy))) || //Regular 60 second GF/NM timing
-				(gauge.Ammo == 1 && SelfHasEffect(GNB.Buffs.NoMercy) && GetCooldown(GNB.DoubleDown).CooldownRemaining > 50) || //NMDDGF windows/Fixes desync and drift
-				(gauge.Ammo > 0 && GetCooldown(GNB.NoMercy).CooldownRemaining > 17 && GetCooldown(GNB.NoMercy).CooldownRemaining < 35) || //Regular 30 second window                                                                        
-				(gauge.Ammo == 1 && GetCooldown(GNB.NoMercy).CooldownRemaining > 50 && ((IsOffCooldown(GNB.Bloodfest) && level >= GNB.Levels.Bloodfest) || level < GNB.Levels.Bloodfest)))) {  //Opener Conditions
+			// Starting Gnashing Fang
+			if (gauge.AmmoComboStep == 0 && IsOffCooldown(GNB.GnashingFang) &&
+				(
+					( // begin regular 60 second GF/NM timing
+						gauge.Ammo == maxAmmo
+						&& (
+							GetCooldown(GNB.NoMercy).CooldownRemaining > 50
+							|| SelfHasEffect(GNB.Buffs.NoMercy)
+						)
+					) // end regular 60 second GF/NM timing
+					|| ( // begin NMDDGF windows/fixes desync and drift
+						gauge.Ammo == 1
+						&& GetCooldown(GNB.DoubleDown).CooldownRemaining > 50
+						&& SelfHasEffect(GNB.Buffs.NoMercy)
+					) // end NMDDGF windows/fixes desync and drift
+					|| ( // begin regular 30 second window
+						gauge.Ammo > 0
+						&& GetCooldown(GNB.NoMercy).CooldownRemaining > 17
+						&& GetCooldown(GNB.NoMercy).CooldownRemaining < 35
+					) // end regular 30 second window
+					|| ( // begin opener conditions
+						gauge.Ammo == 1
+						&& GetCooldown(GNB.NoMercy).CooldownRemaining > 50
+						&& (
+							level < GNB.Levels.Bloodfest
+							|| IsOffCooldown(GNB.Bloodfest)
+						)
+					) // end opener conditions
+				)
+			) {
 				return GNB.GnashingFang;
 			}
 			
 			if (gauge.AmmoComboStep is 1 or 2)
 				return OriginalHook(GNB.GnashingFang);
+
 		}
 
+		// Burst Strike Feature - Replace Solid Barrel with Burst Strike when charges are full.
 		if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeFeature)) {
-			if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.AmmoComboStep == 0 && level >= GNB.Levels.BurstStrike) {
+
+			if (level >= GNB.Levels.BurstStrike && gauge.AmmoComboStep == 0 && SelfHasEffect(GNB.Buffs.NoMercy)) {
 				
 				if (SelfHasEffect(GNB.Buffs.ReadyToBlast))
 					return GNB.Hypervelocity;
 
 				if (gauge.Ammo != 0 && GetCooldown(GNB.GnashingFang).CooldownRemaining > 4)
 					return GNB.BurstStrike;
+
 			}
 
-			//final check if Burst Strike is used right before No Mercy ends
-			if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont) && SelfHasEffect(GNB.Buffs.ReadyToBlast))
+			// Burst Strike Continuation - Replace Burst Strike with Continuation moves when appropriate.
+			// final check if Burst Strike is used right before No Mercy ends
+			if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont) && level >= GNB.Levels.EnhancedContinuation && SelfHasEffect(GNB.Buffs.ReadyToBlast))
 				return GNB.Hypervelocity;
+
 		}
 
 		if (comboTime > 0) {
@@ -227,13 +284,16 @@ internal class GunbreakerSolidBarrel: CustomCombo {
 
 			if (level >= GNB.Levels.SolidBarrel && lastComboMove is GNB.BrutalShell) {
 
+				// Burst Strike Feature - Replace Solid Barrel with Burst Strike when charges are full.
 				if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeFeature)) {
 
-					if (level >= GNB.Levels.EnhancedContinuation && IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont) && SelfHasEffect(GNB.Buffs.ReadyToBlast))
+					// Burst Strike Continuation - Replace Burst Strike with Continuation moves when appropriate.
+					if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont) && level >= GNB.Levels.EnhancedContinuation && SelfHasEffect(GNB.Buffs.ReadyToBlast))
 						return GNB.Hypervelocity;
 
 					if (level >= GNB.Levels.BurstStrike && gauge.Ammo == maxAmmo)
 						return GNB.BurstStrike;
+
 				}
 
 				return GNB.SolidBarrel;
@@ -249,130 +309,161 @@ internal class GunbreakerGnashingFang: CustomCombo {
 	public override uint[] ActionIDs { get; } = new[] { GNB.GnashingFang };
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
-
 		GNBGauge gauge = GetJobGauge<GNBGauge>();
-		var quarterWeave = GetCooldown(actionID).CooldownRemaining < 1 && GetCooldown(actionID).CooldownRemaining > 0.6;
+		bool quarterWeave = GetCooldown(actionID).CooldownRemaining < 1 && GetCooldown(actionID).CooldownRemaining > 0.6;
 		int maxAmmo = level >= GNB.Levels.CartridgeCharge2 ? 3 : 2;
 
-		//oGCD Skills
+		// oGCD Skills
 		if (CanWeave(actionID)) {
 
-			if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && level >= GNB.Levels.Bloodfest && IsOnCooldown(GNB.GnashingFang))
+			if (level >= GNB.Levels.Bloodfest && gauge.Ammo == 0 && IsOffCooldown(GNB.Bloodfest) && IsOnCooldown(GNB.GnashingFang) && SelfHasEffect(GNB.Buffs.NoMercy))
 				return GNB.Bloodfest;
 
-			//Use No Mercy when Gnashing Fang is ready or nearly ready to be used
-			if (quarterWeave && IsEnabled(CustomComboPreset.GunbreakerGnashingFangNoMercy)) {
-				
-				if (level >= GNB.Levels.NoMercy && IsOffCooldown(GNB.NoMercy) && gauge.Ammo == maxAmmo && IsOffCooldown(GNB.GnashingFang)) {
+			// No Mercy Feature - Replace Gnashing Fang with No Mercy when both No Mercy and Gnashing Fang are ready to be used.
+			// Use No Mercy when Gnashing Fang is ready or nearly ready to be used
+			if (quarterWeave && IsEnabled(CustomComboPreset.GunbreakerGnashingFangNoMercy) && level >= GNB.Levels.NoMercy) {
+				if (gauge.Ammo == maxAmmo && IsOffCooldown(GNB.NoMercy) && IsOffCooldown(GNB.GnashingFang)) {
 					return GNB.NoMercy;
 				}
 			}
 
-			//Outside of No Mercy/30s Gnashing Fang
-			if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone) && level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
-
-				if ((IsOnCooldown(GNB.GnashingFang) && gauge.AmmoComboStep != 1 && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) || //Post Gnashing Fang
-					level < GNB.Levels.GnashingFang) {  //Pre Gnashing Fang
-					return OriginalHook(GNB.DangerZone);
+			// Danger Zone/Blasting Zone Feature - Replace Gnashing Fang with Danger Zone/Blasting Zone when available.
+			// Outside of No Mercy/30s Gnashing Fang
+			if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone) && level >= GNB.Levels.DangerZone) {
+				if (IsOffCooldown(GNB.DangerZone) && !SelfHasEffect(GNB.Buffs.NoMercy)) {
+					if (
+						level < GNB.Levels.GnashingFang // Pre Gnashing Fang
+						|| (gauge.AmmoComboStep != 1 && IsOnCooldown(GNB.GnashingFang) && GetCooldown(GNB.NoMercy).CooldownRemaining > 17) // Post Gnashing Fang
+					) {  
+						return OriginalHook(GNB.DangerZone);
+					}
 				}
 			}
 
-			// continuation feature by damolitionn
-			if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont)) {
-				
-				if (level >= GNB.Levels.Continuation) {
-					if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
-						return OriginalHook(GNB.Continuation);
-				}
+			// Bow Shock Feature - Replace Gnashing Fang with Bow Shock when available and when you are under No Mercy.
+			if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangCont) && level >= GNB.Levels.Continuation) {
+				if (SelfHasEffect(GNB.Buffs.ReadyToGouge) || SelfHasEffect(GNB.Buffs.ReadyToTear) || SelfHasEffect(GNB.Buffs.ReadyToRip))
+					return OriginalHook(GNB.Continuation);
 			}
 		}
 
-		//During No Mercy
+		// During No Mercy
 		if (SelfHasEffect(GNB.Buffs.NoMercy)) {
-			//Post Double Down (No need for a level check as it's gated behind Double Down's usage)
+
+			// Post Double Down (no need for a level check as it's gated behind Double Down's usage)
 			if (IsOnCooldown(GNB.DoubleDown)) {
 
-				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone) && IsOffCooldown(GNB.DangerZone))
-					return OriginalHook(GNB.DangerZone);
+				// Danger Zone/Blasting Zone Feature - Replace Gnashing Fang with Danger Zone/Blasting Zone when available.
+				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone)) {
+					uint dangerZone = OriginalHook(GNB.DangerZone);
+					if (IsOffCooldown(dangerZone))
+						return dangerZone;
+				}
 
+				// Bow Shock Feature - Replace Gnashing Fang with Bow Shock when available and when you are under No Mercy.
 				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangBowShock) && IsOffCooldown(GNB.BowShock))
 					return GNB.BowShock;
+
 			}
 
-			//Pre Double Down
-			if (IsOnCooldown(GNB.SonicBreak) && level < GNB.Levels.DoubleDown) {
+			// Pre Double Down
+			if (level < GNB.Levels.DoubleDown && IsOnCooldown(GNB.SonicBreak)) {
 
+				// Bow Shock Feature - Replace Gnashing Fang with Bow Shock when available and when you are under No Mercy.
 				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangBowShock) && level >= GNB.Levels.BowShock && IsOffCooldown(GNB.BowShock))
 					return GNB.BowShock;
 
-				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone) && level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone))
-					return OriginalHook(GNB.DangerZone);
+				// Danger Zone/Blasting Zone Feature - Replace Gnashing Fang with Danger Zone/Blasting Zone when available.
+				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone) && level >= GNB.Levels.DangerZone) {
+					uint dangerZone = OriginalHook(GNB.DangerZone);
+					if (IsOffCooldown(dangerZone))
+						return dangerZone;
+				}
+
 			}
 		}
 
-		//GCD Skills: DD, Sonic Break
+		// GCD Skills: DD, Sonic Break
 		if (GetCooldown(GNB.NoMercy).CooldownRemaining > 57 || SelfHasEffect(GNB.Buffs.NoMercy)) {
+
 			if (level >= GNB.Levels.DoubleDown) {
-				if (IsEnabled(CustomComboPreset.GunbreakerSolidDoubleDown) && IsOffCooldown(GNB.DoubleDown) && gauge.Ammo >= 2 && !SelfHasEffect(GNB.Buffs.ReadyToRip) && gauge.AmmoComboStep >= 1)
-					return GNB.DoubleDown;
-				if (IsEnabled(CustomComboPreset.GunbreakerSolidSonicBreak) && IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.DoubleDown))
+
+				// Double Down Feature - Replace Gnashing Fang with Double Down when available and when you are under No Mercy and have the required ammo.
+				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDoubleDown) && gauge.Ammo >= 2 && gauge.AmmoComboStep >= 1) {
+					if (IsOffCooldown(GNB.DoubleDown) && !SelfHasEffect(GNB.Buffs.ReadyToRip))
+						return GNB.DoubleDown;
+				}
+
+				// Sonic Break Feature - Replace Gnashing Fang with Sonic Break when available and when you are under No Mercy.
+				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangSonicBreak) && IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.DoubleDown))
 					return GNB.SonicBreak;
+
 			}
 
 			else {
 				if (level >= GNB.Levels.SonicBreak) {
-					if (IsEnabled(CustomComboPreset.GunbreakerSolidSonicBreak) && IsOffCooldown(GNB.SonicBreak) && !SelfHasEffect(GNB.Buffs.ReadyToRip) && IsOnCooldown(GNB.GnashingFang))
-						return GNB.SonicBreak;
+					// Sonic Break Feature - Replace Gnashing Fang with Sonic Break when available and when you are under No Mercy.
+					if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangSonicBreak)) {
+						if (IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.GnashingFang) && !SelfHasEffect(GNB.Buffs.ReadyToRip))
+							return GNB.SonicBreak;
 				}
-
-				//sub level 54 functionality
-				else {
-
-					if (IsEnabled(CustomComboPreset.GunbreakerSolidDangerZone) && level >= GNB.Levels.DangerZone && IsOffCooldown(GNB.DangerZone))
-						return OriginalHook(GNB.DangerZone);
+				// pre-SB functionality
+				else if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDangerZone) && level >= GNB.Levels.DangerZone) {
+					uint dangerZone = OriginalHook(GNB.DangerZone);
+					if (IsOffCooldown(dangerZone))
+						return dangerZone;
 				}
 			}
 		}
 
 
-		//GCD Skills: DD, Sonic Break
+		// GCD Skills: DD, Sonic Break
 		if (SelfHasEffect(GNB.Buffs.NoMercy)) {
+
 			if (level >= GNB.Levels.DoubleDown) {
 
-				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDoubleDown) && IsOffCooldown(GNB.DoubleDown) && gauge.Ammo >= 2 && !SelfHasEffect(GNB.Buffs.ReadyToRip) && gauge.AmmoComboStep >= 1)
-					return GNB.DoubleDown;
+				// Double Down Feature - Replace Gnashing Fang with Double Down when available and when you are under No Mercy and have the required ammo.
+				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangDoubleDown) && gauge.Ammo >= 2 && gauge.AmmoComboStep >= 1) {
+					if (IsOffCooldown(GNB.DoubleDown) && !SelfHasEffect(GNB.Buffs.ReadyToRip))
+						return GNB.DoubleDown;
+				}
 
+				// Sonic Break Feature - Replace Gnashing Fang with Sonic Break when available and when you are under No Mercy.
 				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangSonicBreak) && IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.DoubleDown))
 					return GNB.SonicBreak;
-			}
 
-			else if (level >= GNB.Levels.SonicBreak) {
-				if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangSonicBreak) && IsOffCooldown(GNB.SonicBreak) && !SelfHasEffect(GNB.Buffs.ReadyToRip) && IsOnCooldown(GNB.GnashingFang))
+			}
+			// Sonic Break Feature - Replace Gnashing Fang with Sonic Break when available and when you are under No Mercy.
+			else if (IsEnabled(CustomComboPreset.GunbreakerGnashingFangSonicBreak) && level >= GNB.Levels.SonicBreak) {
+				if (IsOffCooldown(GNB.SonicBreak) && IsOnCooldown(GNB.GnashingFang) && !SelfHasEffect(GNB.Buffs.ReadyToRip))
 					return GNB.SonicBreak;
 			}
+
 		}
 
+		// Gnashing Strike Feature - Replace Gnashing Fang with Burst Strike when No Mercy is active and Gnashing Fang and Double Down are on cooldown, or you are too low level to use them.
 		if (IsEnabled(CustomComboPreset.GunbreakerGnashingStrikeFeature)) {
-				// Using the gauge to read combo steps
-				if (gauge.AmmoComboStep > 0)
-					return OriginalHook(GNB.GnashingFang);
 
-				//Checks for Gnashing Fang's combo to be finished first
-				if (SelfHasEffect(GNB.Buffs.NoMercy) && gauge.AmmoComboStep == 0) {
-					if (level < GNB.Levels.GnashingFang || GetCooldown(GNB.GnashingFang).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownGnashingFang) {
-						if (level < GNB.Levels.DoubleDown || GetCooldown(GNB.DoubleDown).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownDoubleDown) {
+			// Using the gauge to read combo steps
+			if (gauge.AmmoComboStep > 0)
+				return OriginalHook(GNB.GnashingFang);
 
-							if (level >= GNB.Levels.EnhancedContinuation && IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont)) {
-								if (SelfHasEffect(GNB.Buffs.ReadyToBlast)) {
-									return GNB.Hypervelocity;
-								}
+			// Checks for Gnashing Fang's combo to be finished first
+			if (gauge.AmmoComboStep == 0 && SelfHasEffect(GNB.Buffs.NoMercy)) {
+				if (level < GNB.Levels.GnashingFang || GetCooldown(GNB.GnashingFang).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownGnashingFang) {
+					if (level < GNB.Levels.DoubleDown || GetCooldown(GNB.DoubleDown).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownDoubleDown) {
+
+						if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont) && level >= GNB.Levels.EnhancedContinuation) {
+							if (SelfHasEffect(GNB.Buffs.ReadyToBlast)) {
+								return GNB.Hypervelocity;
 							}
-
-							return GNB.BurstStrike;
 						}
+
+						return GNB.BurstStrike;
 					}
 				}
 			}
+		}
 
 		return OriginalHook(GNB.GnashingFang);
 	}
