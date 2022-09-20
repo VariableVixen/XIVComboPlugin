@@ -267,6 +267,11 @@ public class ConfigWindow: Window {
 		int childCount = hasChildren ? children!.Count : 0;
 		bool hasDetails = this.detailSettings.TryGetValue(preset, out List<ComboDetailSetting>? details)
 			&& details is not null;
+#if DEBUG
+		string debugInfo = preset.GetDebugLabel();
+#else
+		string debugInfo = ((int)preset).ToString();
+#endif
 
 		string conflictWarning = string.Empty;
 		if (conflicts.Length > 0) {
@@ -292,13 +297,13 @@ public class ConfigWindow: Window {
 		}
 
 		ImGui.SameLine();
-		ImGui.TextColored(shadedColour, $"[debug#{(int)preset}]");
+		ImGui.TextColored(shadedColour, $"[debug: {debugInfo}]");
 		if (ImGui.IsItemHovered()) {
 			ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
 			ImGui.SetTooltip("Click to copy the debug ID for the developer");
 		}
 		if (ImGui.IsItemClicked())
-			ImGui.SetClipboardText(((int)preset).ToString());
+			ImGui.SetClipboardText(debugInfo);
 
 		if (toggled) {
 			if (enabled) {

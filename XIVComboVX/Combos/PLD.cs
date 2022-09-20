@@ -78,7 +78,7 @@ internal class PaladinGoringBlade: CustomCombo {
 		if (IsEnabled(CustomComboPreset.PaladinRequiescatFeature)) {
 			if (level >= PLD.Levels.HolySpirit) {
 
-				if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+				if (IsEnabled(CustomComboPreset.PaladinConfiteorChainFeature)) {
 					if (level >= PLD.Levels.BladeOfFaith) {
 						if (lastComboMove is PLD.BladeOfTruth)
 							return PLD.BladeOfValor;
@@ -147,7 +147,7 @@ internal class PaladinRoyalAuthorityCombo: CustomCombo {
 		if (IsEnabled(CustomComboPreset.PaladinRequiescatFeature)) {
 			if (level >= PLD.Levels.HolySpirit) {
 
-				if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+				if (IsEnabled(CustomComboPreset.PaladinConfiteorChainFeature)) {
 					if (level >= PLD.Levels.BladeOfFaith) {
 						if (lastComboMove is PLD.BladeOfTruth)
 							return PLD.BladeOfValor;
@@ -228,7 +228,7 @@ internal class PaladinProminenceCombo: CustomCombo {
 		if (IsEnabled(CustomComboPreset.PaladinRequiescatFeature)) {
 			if (level >= PLD.Levels.HolyCircle) {
 
-				if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+				if (IsEnabled(CustomComboPreset.PaladinConfiteorChainFeature)) {
 					if (level >= PLD.Levels.BladeOfFaith) {
 						if (lastComboMove is PLD.BladeOfTruth)
 							return PLD.BladeOfValor;
@@ -268,6 +268,17 @@ internal class PaladinHolySpiritHolyCircle: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
+		if (IsEnabled(CustomComboPreset.PaladinConfiteorChainFeature)) {
+			if (level >= PLD.Levels.BladeOfFaith) {
+				if (lastComboMove is PLD.BladeOfTruth)
+					return PLD.BladeOfValor;
+				else if (lastComboMove is PLD.BladeOfFaith)
+					return PLD.BladeOfTruth;
+				else if (SelfHasEffect(PLD.Buffs.BladeOfFaithReady))
+					return PLD.BladeOfFaith;
+			}
+		}
+
 		if (level >= PLD.Levels.Confiteor && (SelfEffectStacks(PLD.Buffs.Requiescat) == 1 || LocalPlayer?.CurrentMp < 2000))
 			return PLD.Confiteor;
 
@@ -281,7 +292,7 @@ internal class PaladinRequiescatCombo: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
-		if (IsEnabled(CustomComboPreset.PaladinConfiteorFeature)) {
+		if (IsEnabled(CustomComboPreset.PaladinConfiteorChainFeature)) {
 			if (level >= PLD.Levels.BladeOfFaith) {
 				if (lastComboMove is PLD.BladeOfTruth)
 					return PLD.BladeOfValor;

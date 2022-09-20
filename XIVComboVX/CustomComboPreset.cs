@@ -388,7 +388,7 @@ public enum CustomComboPreset {
 	[ParentPreset(GunbreakerSolidBarrelCombo)]
 	[CustomComboInfo("No Mercy Feature", "Replace Solid Barrel with No Mercy when Gnashing Fang is ready.", GNB.JobID)]
 	GunbreakerSolidNoMercy = 3716,
-	
+
 	[ParentPreset(GunbreakerSolidBarrelCombo)]
 	[CustomComboInfo("Bloodfest Feature", "Replace Solid Barrel with Bloodfest when there is no ammo and you are under No Mercy.", GNB.JobID)]
 	GunbreakerSolidBloodfest = 3717,
@@ -436,7 +436,10 @@ public enum CustomComboPreset {
 	[ParentPreset(GunbreakerGnashingFangCont)]
 	[CustomComboInfo("Sonic Break Feature", "Replace Gnashing Fang with Sonic Break when available and when you are under No Mercy.", GNB.JobID)]
 	GunbreakerGnashingFangSonicBreak = 3728,
-	
+
+	[CustomComboInfo("Gnashing Bloodfest Feature", "Weave Bloodfest onto Gnashing Fang when out of ammo and under No Mercy.", GNB.JobID)]
+	GunbreakerGnashingBloodfest = 3729,
+
 	#endregion
 	// ====================================================================================
 	#region MACHINIST (31xx)
@@ -684,6 +687,10 @@ public enum CustomComboPreset {
 
 	[CustomComboInfo("Confiteor Feature", "Replace Holy Spirit/Circle with Confiteor when Requiescat is up and MP is under 2000 or only one stack remains.\nAlso changes the RA/GB/Prominence-into-HS/HC-combos into Confiteor.", PLD.JobID)]
 	PaladinConfiteorFeature = 1908,
+
+	[ParentPreset(PaladinConfiteorFeature)]
+	[CustomComboInfo("Post-Confiteor Chain", "Include the Blade of Faith/Truth/Valor chain after Confiteor.", PLD.JobID)]
+	PaladinConfiteorChainFeature = 1914,
 
 	[CustomComboInfo("Intervene Level Sync", "Replace Intervene with Shield Lob when under level.", PLD.JobID)]
 	PaladinInterveneSyncFeature = 1906,
@@ -1255,4 +1262,5 @@ public enum CustomComboPreset {
 public static class CustomComboPresetExtensions {
 	public static CustomComboPreset[] GetConflicts(this CustomComboPreset preset) => preset.GetAttribute<ConflictsAttribute>()?.Conflicts ?? Array.Empty<CustomComboPreset>();
 	public static CustomComboPreset? GetParent(this CustomComboPreset preset) => preset.GetAttribute<ParentPresetAttribute>()?.Parent;
+	public static string GetDebugLabel(this CustomComboPreset preset) => $"{Enum.GetName(preset)!}#{(int)preset}";
 }
