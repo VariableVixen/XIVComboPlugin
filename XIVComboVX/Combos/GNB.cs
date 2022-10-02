@@ -31,6 +31,7 @@ internal static class GNB {
 		DoubleDown = 25760;
 
 	public const int
+		ONEGCD_EMULATION = 2,
 		TWOGCD_EMULATION = 4, //Emulates the timer of two GCDs
 		DOUBLEDOWN_DESYNCWINDOW = 50, //Checks for Double Down's drift and tries to correct it
 		NOMERCYBUFF_EMULATION = 45, //Emulates No Mercy's buff to account for the game's delay in applying the actual buff
@@ -500,7 +501,7 @@ internal class GunbreakerBurstStrikeFatedCircle: CustomCombo {
 		if (level >= GNB.Levels.DoubleDown
 			&& IsEnabled(CustomComboPreset.GunbreakerDoubleDownFeature)
 			&& gauge.Ammo >= 2
-			&& IsOffCooldown(GNB.DoubleDown)
+			&& GetCooldown(GNB.DoubleDown).CooldownRemaining <= GNB.ONEGCD_EMULATION
 		) {
 			return GNB.DoubleDown;
 		}
@@ -587,4 +588,3 @@ internal class GunbreakerNoMercy: CustomCombo {
 		return actionID;
 	}
 }
-
