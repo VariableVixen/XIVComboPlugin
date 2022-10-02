@@ -8,6 +8,11 @@ using Dalamud.Game.ClientState.JobGauge.Types;
 internal static class RDM {
 	public const byte JobID = 35;
 
+	public const int
+		ManaCostRiposte = 20,
+		ManaCostZwerchhau = 15,
+		ManaCostRedoublement = 15;
+
 	public const uint
 		Verraise = 7523,
 		Verthunder = 7505,
@@ -36,7 +41,6 @@ internal static class RDM {
 		Jolt2 = 7524,
 		Verholy = 7526,
 		Verflare = 7525,
-		Swiftcast = 7561,
 		Engagement = 16527,
 		Scorch = 16530,
 		Resolution = 25858;
@@ -262,24 +266,20 @@ internal class RedMageSmartcastAoECombo: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		const int DELTA = 7;
 
-		if (IsEnabled(CustomComboPreset.RedMageSmartcastAoEWeave)) {
+		if ((IsEnabled(CustomComboPreset.RedMageSmartcastAoEWeave) && CanWeave(actionID)) || (IsEnabled(CustomComboPreset.RedMageSmartcastAoEMovement) && IsMoving && !IsFastcasting)) {
 			if (level >= RDM.Levels.ContreSixte) {
-				if (CanWeave(actionID)) {
-					if (IsEnabled(CustomComboPreset.RedMageContreFlecheFeature)) {
-						uint chosen = PickByCooldown(RDM.ContreSixte, RDM.Fleche, RDM.ContreSixte);
-						if (IsOffCooldown(chosen))
-							return chosen;
-					}
-					else if (IsOffCooldown(RDM.ContreSixte)) {
-						return RDM.ContreSixte;
-					}
+				if (IsEnabled(CustomComboPreset.RedMageContreFlecheFeature)) {
+					uint chosen = PickByCooldown(RDM.ContreSixte, RDM.Fleche, RDM.ContreSixte);
+					if (IsOffCooldown(chosen))
+						return chosen;
+				}
+				else if (IsOffCooldown(RDM.ContreSixte)) {
+					return RDM.ContreSixte;
 				}
 			}
 			else if (level >= RDM.Levels.Fleche && IsEnabled(CustomComboPreset.RedMageContreFlecheFeature)) {
-				if (CanWeave(actionID)) {
-					if (IsOffCooldown(RDM.Fleche))
-						return RDM.Fleche;
-				}
+				if (IsOffCooldown(RDM.Fleche))
+					return RDM.Fleche;
 			}
 		}
 
@@ -314,20 +314,31 @@ internal class RedmageSmartcastSingleCombo: CustomCombo {
 			FINISHER_DELTA = 11,
 			IMBALANCE_DIFF_MAX = 30;
 
-		if (IsEnabled(CustomComboPreset.RedMageSmartcastSingleWeave)) {
+		bool noCastCauseMoving = IsMoving && !IsFastcasting;
+		bool weaving = CanWeave(actionID);
+
+		if ((IsEnabled(CustomComboPreset.RedMageSmartcastSingleWeave) && weaving) || (IsEnabled(CustomComboPreset.RedMageSmartcastSingleMovement) && noCastCauseMoving)) {
+			bool canEngage = HasTarget && InMeleeRange && CanUse(RDM.Engagement);
+			bool engageWeave = IsEnabled(CustomComboPreset.RedMageSmartcastSingleWeaveMelee) && weaving;
+			bool engageMove = IsEnabled(CustomComboPreset.RedMageSmartcastSingleMovementMelee) && noCastCauseMoving;
+			bool engagePreWeave = engageWeave && IsEnabled(CustomComboPreset.RedMageSmartcastSingleWeaveMeleeFirst);
+			bool engagePreMove = engageMove && IsEnabled(CustomComboPreset.RedMageSmartcastSingleMovementMeleeFirst);
+
+			if (canEngage && (engagePreWeave || engagePreMove))
+				return RDM.Engagement;
+
 			if (level >= RDM.Levels.Fleche) {
-				if (CanWeave(actionID)) {
-					if (IsEnabled(CustomComboPreset.RedMageContreFlecheFeature)) {
-						if (level >= RDM.Levels.ContreSixte) {
-							uint chosen = PickByCooldown(RDM.Fleche, RDM.Fleche, RDM.ContreSixte);
-							if (IsOffCooldown(chosen))
-								return chosen;
-						}
-					}
-					if (IsOffCooldown(RDM.Fleche))
-						return RDM.Fleche;
+				if (IsEnabled(CustomComboPreset.RedMageContreFlecheFeature) && level >= RDM.Levels.ContreSixte) {
+					uint chosen = PickByCooldown(RDM.Fleche, RDM.Fleche, RDM.ContreSixte);
+					if (IsOffCooldown(chosen))
+						return chosen;
 				}
+				if (IsOffCooldown(RDM.Fleche))
+					return RDM.Fleche;
 			}
+
+			if (canEngage && (engageWeave || engageMove))
+				return RDM.Engagement;
 		}
 
 		bool verfireUp = SelfHasEffect(RDM.Buffs.VerfireReady);
@@ -342,6 +353,9 @@ internal class RedmageSmartcastSingleCombo: CustomCombo {
 		bool canFinishBlack = level >= RDM.Levels.Verflare;
 		int blackThreshold = white + IMBALANCE_DIFF_MAX;
 		int whiteThreshold = black + IMBALANCE_DIFF_MAX;
+		int minManaForEnchantedMelee = RDM.ManaCostRiposte + (level >= RDM.Levels.Zwerchhau ? RDM.ManaCostZwerchhau : 0) + (level >= RDM.Levels.Redoublement ? RDM.ManaCostRedoublement : 0);
+		bool inMelee = lastComboActionId is RDM.EnchantedRiposte or RDM.Riposte or RDM.EnchantedZwerchhau or RDM.Zwerchhau;
+		bool canStartMelee = black >= minManaForEnchantedMelee && white >= minManaForEnchantedMelee && black != white;
 
 		// No matter what this is (opener or combat), follow the finisher combo chains.
 		// There is never a reason to NOT use the finishers when you have them.
@@ -371,6 +385,7 @@ internal class RedmageSmartcastSingleCombo: CustomCombo {
 		}
 
 		if (actionID is RDM.Verstone or RDM.Verfire) {
+
 			bool fastCasting = IsFastcasting;
 			bool accelerated = SelfHasEffect(RDM.Buffs.Acceleration);
 
@@ -390,6 +405,19 @@ internal class RedmageSmartcastSingleCombo: CustomCombo {
 					return RDM.Verholy;
 
 				return RDM.Verflare;
+			}
+
+			if (IsEnabled(CustomComboPreset.RedMageSmartcastSingleMeleeCombo) && InMeleeRange && !fastCasting) {
+
+				if (inMelee) {
+					if (lastComboActionId is RDM.EnchantedZwerchhau or RDM.Zwerchhau && level >= RDM.Levels.Redoublement && black >= RDM.ManaCostRedoublement && white >= RDM.ManaCostRedoublement)
+						return OriginalHook(RDM.EnchantedRedoublement);
+					if (lastComboActionId is RDM.EnchantedRiposte or RDM.Riposte && level >= RDM.Levels.Zwerchhau && black >= RDM.ManaCostZwerchhau && white >= RDM.ManaCostZwerchhau)
+						return OriginalHook(RDM.EnchantedZwerchhau);
+				}
+
+				if (IsEnabled(CustomComboPreset.RedMageSmartcastSingleMeleeComboStarter) && canStartMelee)
+					return RDM.EnchantedRiposte;
 			}
 
 			if (fastCasting || accelerated) {
@@ -452,7 +480,25 @@ internal class RedmageSmartcastSingleCombo: CustomCombo {
 			if (verstoneUp && white + PROC_DELTA <= whiteThreshold)
 				return RDM.Verstone;
 
-			// If neither's up or the one that is would imbalance us, just use Jolt
+			// If neither's up or the one that is would imbalance us, should we use Acceleration (or Swiftcast)?
+			if (IsEnabled(CustomComboPreset.RedMageSmartcastSingleAcceleration)) {
+				if (!IsEnabled(CustomComboPreset.RedMageSmartcastSingleAccelerationCombat) || InCombat) {
+					if (level >= Common.Levels.Swiftcast) {
+						bool canAccelerate = level >= RDM.Levels.Acceleration && CanUse(RDM.Acceleration);
+						bool canSwiftcast = IsEnabled(CustomComboPreset.RedMageSmartcastSingleAccelerationSwiftcast) && CanUse(Common.Swiftcast);
+
+						if (canSwiftcast && IsEnabled(CustomComboPreset.RedMageSmartcastSingleAccelerationSwiftcastFirst))
+							return Common.Swiftcast;
+						if (canAccelerate)
+							return RDM.Acceleration;
+						if (canSwiftcast)
+							return Common.Swiftcast;
+
+					}
+				}
+			}
+
+			// Finally, if all else fails, become Jolt (II)
 			return OriginalHook(RDM.Jolt2);
 		}
 
@@ -468,21 +514,21 @@ internal class RedMageAcceleration: CustomCombo {
 
 		if (level >= RDM.Levels.Acceleration) {
 			bool canAccelerate = CanUse(RDM.Acceleration);
-			bool canSwiftcast = CanUse(RDM.Swiftcast);
+			bool canSwiftcast = CanUse(Common.Swiftcast);
 
 			if (IsEnabled(CustomComboPreset.RedMageAccelerationSwiftcastOption) && canAccelerate && canSwiftcast)
-				return RDM.Swiftcast;
+				return Common.Swiftcast;
 
 			if (canAccelerate)
 				return RDM.Acceleration;
 
 			if (canSwiftcast)
-				return RDM.Swiftcast;
+				return Common.Swiftcast;
 
 			return RDM.Acceleration;
 		}
 
-		return RDM.Swiftcast;
+		return Common.Swiftcast;
 	}
 }
 

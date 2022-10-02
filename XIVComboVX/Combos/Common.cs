@@ -15,6 +15,11 @@ internal class Common {
 		Swiftcast3 = 1987,
 		LostChainspell = 2560;
 	}
+
+	internal class Levels {
+		public const uint
+			Swiftcast = 18;
+	}
 }
 
 internal abstract class SwiftRaiseCombo: CustomCombo {

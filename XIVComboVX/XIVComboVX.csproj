@@ -6,11 +6,10 @@
 		<Version>7.0</Version>
 		<Description>This plugin condenses various abilities onto single buttons.</Description>
 		<PackageProjectUrl>https://github.com/PrincessRTFM/XIVComboPlugin</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/PrincessRTFM/XIVComboPlugin.git</RepositoryUrl>
 		<Copyright>Copyleft attick 2020 baybeeee</Copyright>
 	</PropertyGroup>
-	
 	<PropertyGroup>
+		<RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
 		<OutputType>Library</OutputType>
 		<Platforms>x64</Platforms>
 		<PlatformTarget>x64</PlatformTarget>

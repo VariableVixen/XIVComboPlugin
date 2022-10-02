@@ -42,9 +42,7 @@ Now sorted by job and combo name!
 | Job | Name | Description |
 |-----|------|-------------|
 | AST | Benefic 2 to Benefic Level Sync | Changes Benefic 2 to Benefic when below level 26. |
-| AST | Crown Play to Minor Arcana Feature | Replace Crown Play with Minor Arcana when no card is drawn. |
 | AST | Draw Lockout | Replace Draw (not Play to Draw) with Malefic when a card is drawn. |
-| AST | Minor Arcana to Crown Play Feature | Replace Minor Arcana with Crown Play when a card drawn. |
 | AST | Play to Astrodyne | Replace Play with Astrodyne when seals are full. |
 | AST | Play to Draw | Replace Play with Draw when no card is drawn and a card is available. |
 | AST | Play to Draw to Astrodyne | Replace Play with Astrodyne when seals are full and Draw is on Cooldown. |
@@ -109,6 +107,7 @@ Now sorted by job and combo name!
 | DRG | Dive Dive Dive! | Replace Spineshatter Dive, Dragonfire Dive, and Stardiver with whichever is available. |
 | DRG | Full Thrust Combo | Replace Full Thrust with its combo chain. |
 | DRG | Full Thrust from Vorpal | Start the Full Thrust combo chain with Vorpal Thrust instead of True Thrust. |
+| DRG | Mirage Jump | Replace Jump and High Jump with Mirage Dive when Dive Ready. |
 | DRG | Power Surge Buff Saver | When the Power Surge buff is about to run out (or isn't up), execute the Chaos Thrust chain to use Disembowl. |
 | DRG | Stardiver to Dragonfire Dive | Replace Stardiver with Dragonfire Dive when the latter is off cooldown (and you have more than 7.5s of LotD left), or outside of Life of the Dragon. |
 | DRG | Stardiver to Nastrond | Replace Stardiver with Nastrond when Nastrond is off-cooldown, and Geirskogul outside of Life of the Dragon. |
@@ -122,18 +121,34 @@ Now sorted by job and combo name!
 | DRK | Souleater Combo | Replace Souleater with its combo chain. |
 | DRK | Stalwart Soul Combo | Replace Stalwart Soul with its combo chain. |
 | DRK | Stun/Interrupt Feature | Turn Low Blow and Interject into Interject when off CD and your target can be interrupted, Low Blow otherwise. |
+| GNB | Always Double Down | Replace No Mercy with Double Down while No Mercy is active. |
+| GNB | Bloodfest Feature | Replace Solid Barrel with Bloodfest when there is no ammo and you are under No Mercy. |
 | GNB | Bow Shock / Sonic Break Swap | Replace Bow Shock and Sonic Break with one or the other, depending on which is on cooldown. |
+| GNB | Bow Shock Feature | Replace Solid Barrel with Bow Shock when you are under No Mercy. |
+| GNB | Bow Shock Feature | Replace Gnashing Fang with Bow Shock when available and when you are under No Mercy. |
 | GNB | Burst Strike Continuation | Replace Burst Strike with Continuation moves when appropriate. |
 | GNB | Burst Strike Feature | Replace Solid Barrel with Burst Strike when charges are full. |
+| GNB | Danger Zone/Blasting Zone Feature | Replace Solid Barrel with Danger Zone/Blasting Zone after Gnashing Fang is used. |
+| GNB | Danger Zone/Blasting Zone Feature | Replace Gnashing Fang with Danger Zone/Blasting Zone when available. |
 | GNB | Demon Slaughter Combo | Replace Demon Slaughter with its combo chain. |
 | GNB | Double Down Feature | Replace Burst Strike and Fated Circle with Double Down when available. |
+| GNB | Double Down Feature | Replace Solid Barrel with Double Down when you are under No Mercy and have the required ammo. |
+| GNB | Double Down Feature | Replace Gnashing Fang with Double Down when available and when you are under No Mercy and have the required ammo. |
 | GNB | Empty Bloodfest Feature | Replace Burst Strike and Fated Circle with Bloodfest if the powder gauge is empty. |
 | GNB | Fated Circle Feature | In addition to the Demon Slaughter combo, add Fated Circle when charges are full. |
+| GNB | Gnashing Bloodfest Feature | Weave Bloodfest onto Gnashing Fang when out of ammo and under No Mercy. |
 | GNB | Gnashing Fang Continuation | Replace Gnashing Fang with Continuation moves when appropriate. |
-| GNB | No Mercy - Always Double Down | Replace No Mercy with Double Down while No Mercy is active. |
+| GNB | Gnashing Fang/Continuation Feature | Replace Solid Barrel with Gnashing Fang and Continuation when Gnashing Fang is available and will hold for No Mercy when it is available. |
+| GNB | Gnashing Strike Feature | Replace Gnashing Fang with Burst Strike when No Mercy is active and Gnashing Fang and Double Down are on cooldown, or you are too low level to use them. |
+| GNB | Lighting Shot Ranged Uptime Feature | Replace Solid Barrel with Lightning Shot when out of melee range and in combat. |
 | GNB | No Mercy - Bow Shock / Sonic Break | Replace No Mercy with Bow Shock, and then Sonic Break, while No Mercy is active. |
 | GNB | No Mercy - Double Down | Replace No Mercy with Double Down while No Mercy is active, 2 cartridges are available, and Double Down is off cooldown. |
+| GNB | No Mercy Feature | Replace Solid Barrel with No Mercy when Gnashing Fang is ready. |
+| GNB | No Mercy Feature | Replace Gnashing Fang with No Mercy when both No Mercy and Gnashing Fang are ready to be used. |
+| GNB | Rough Divide Feature | Replace Solid Barrel with Rough Divide when you are within the target's hitbox, not moving, and have the No Mercy buff. |
 | GNB | Solid Barrel Combo | Replace Solid Barrel with its combo chain. |
+| GNB | Sonic Break Feature | Replace Solid Barrel with Sonic Break when you are under No Mercy. |
+| GNB | Sonic Break Feature | Replace Gnashing Fang with Sonic Break when available and when you are under No Mercy. |
 | GNB | Stun/Interrupt Feature | Turn Low Blow and Interject into Interject when off CD and your target can be interrupted, Low Blow otherwise. |
 | MCH | (Heated) Shot Combo | Replace either form of Clean Shot with its combo chain. |
 | MCH | Gauss Round / Ricochet Feature | Replace Gauss Round and Ricochet with one or the other depending on which has less recharge time left. |
@@ -145,9 +160,6 @@ Now sorted by job and combo name!
 | MCH | Hyperfire Feature | Replace Hypercharge with Wildfire if available and you have a target. |
 | MCH | Overdrive Feature | Replace Rook Autoturret and Automaton Queen with their respective Overdrive while active. |
 | MCH | Spread Shot Heat | Replace Spread Shot with Auto Crossbow when overheated. |
-| MNK | AoE Combo: Destroyer | Replaces (Arm/Shadow) of the Destroyer with the AoE combo chain. |
-| MNK | AoE Combo: Masterful Blitz | Replaces Masterful Blitz with the AoE combo chain. |
-| MNK | AoE Combo: Rockbreaker | Replaces Rockbreaker with the AoE combo chain. |
 | MNK | Demolish to Snap Punch Feature | Replaces Demolish with Snap Punch if target is under Demolish. |
 | MNK | Dragon Kick to Bootshine Feature | Replaces Dragon Kick with Bootshine if Leaden Fist is up. |
 | MNK | Dragon Kick to Masterful Blitz Feature | Replaces Dragon Kick with Masterful Blitz if you have three Beast Chakra. |
@@ -155,6 +167,9 @@ Now sorted by job and combo name!
 | MNK | Howling Fist / Meditation Feature | Replaces Howling Fist with Meditation when the Fifth Chakra is not open. |
 | MNK | Monk AoE Combo | Replaces the selected actions with the AoE combo chain. |
 | MNK | Monk ST Combo | Replace Bootshine with all single-target rotation actions |
+| MNK | On Destroyer | Replaces (Arm/Shadow) of the Destroyer with the AoE combo chain. |
+| MNK | On Masterful Blitz | Replaces Masterful Blitz with the AoE combo chain. |
+| MNK | On Rockbreaker | Replaces Rockbreaker with the AoE combo chain. |
 | MNK | Perfect Balance Feature | Replace Perfect Balance with Masterful Blitz when you have 3 Beast Chakra, or when under Perfect Balance already. |
 | MNK | Riddle of Brotherly Fire | Replace Riddle of Fire with Brotherhood if the former is on CD and the latter isn't. |
 | MNK | Riddle of Fire and Wind | Replace Riddle of Fire with Riddle of Wind if the former is on CD and the latter isn't. |
@@ -195,6 +210,7 @@ Now sorted by job and combo name!
 | PLD | Intervening Blade Feature | Replace the GB combo with Intervene when NOT in the combo chain, and the current target is out of melee range. |
 | PLD | Level Sync | Replace Intervene with Shield Lob when under level. |
 | PLD | Level Sync | Replace Intervene with Shield Lob when under level. |
+| PLD | Post-Confiteor Chain | Include the Blade of Faith/Truth/Valor chain after Confiteor. |
 | PLD | Prominence Combo | Replace Prominence with its combo chain. |
 | PLD | Requiescat Confiteor | Replace Requiescat with Confiteor while under the effect of Requiescat. |
 | PLD | Requiescat Feature | Replace Royal Authority/Goring Blade combos with Holy Spirit, and Prominence combo with Holy Circle, while Requiescat is active. |
@@ -202,25 +218,37 @@ Now sorted by job and combo name!
 | PLD | Royal Authority DoT Saver | The RA/RoH combo chain becomes Goring Blade at the end, if your current target has less than seven seconds (adjustable) on the GB DoT. |
 | PLD | Royal Intervention Feature | Replace the RA/RoH combo with Intervene when NOT in the combo chain, and the current target is out of melee range. |
 | PLD | Stun/Interrupt Feature | Turn Low Blow and Interject into Interject when off CD and your target can be interrupted, Low Blow otherwise. |
+| RDM | Acceleration | Turns the single-target smartcast combo into Acceleration instead of Jolt. |
 | RDM | Acceleration into Swiftcast | Replace Acceleration with Swiftcast when on cooldown or synced. |
 | RDM | Acceleration with Swiftcast first | Replace Acceleration with Swiftcast when neither are on cooldown. |
+| RDM | Auto Start | Turns the single-target smartcast combo into your melee combo when you're ready to execute it and your mana levels AREN'T equal. |
+| RDM | Combat Only | Only become Acceleration (+ Swiftcast if applicable) when in combat. |
 | RDM | Contre Sixte / Fleche Feature | Turns Contre Sixte and Fleche into whichever is available. |
 | RDM | Contre Sixte Weave | Turns the AoE smartcast combo into Contre Sixte when you can weave without clipping. |
 | RDM | Embolden to Manaification | Replace Embolden with Manafication if the former is on cooldown and the latter is not. |
+| RDM | Engagement | If you're in melee range and Fleche (+ Contra Sixte if applicable) can't be used yet, fall back to Engagement. |
+| RDM | Engagement | If you're in melee range and Fleche (+ Contra Sixte if applicable) can't be used yet, fall back to Engagement. |
+| RDM | Engagement Priority | Try to use Engagement first when in melee range. |
+| RDM | Engagement Priority | Try to use Engagement first when in melee range. |
 | RDM | Fleche Weave | Turns the single-target smartcast combo into Fleche when you can weave without clipping. |
+| RDM | Gap Closer | Replaces Redoublement with Corps-a-corps when out of melee range. |
 | RDM | Gap Reverser: Backstep | Replaces Corps-a-corps with Displacement when your taget is in melee range. |
 | RDM | Gap Reverser: Lunge | Replaces Displacement with Corps-a-corps when your taget is NOT in melee range. |
+| RDM | Melee Combo | Replaces Redoublement with its combo chain, following enchantment rules. |
+| RDM | Melee Combo Followthrough | Turns the single-target smartcast combo into the rest of the melee combo once you start it, as long as you're in melee range. |
+| RDM | Melee Combo+ | Replaces Redoublement (and Moulinet) with Verflare/Verholy (and then Scorch and Resolution) after 3 mana stacks, whichever is more appropriate. |
 | RDM | Red Mage AoE Combo | Replaces Veraero/Verthunder 2 with Impact when under a cast speeder. |
-| RDM | Redoublement Combo Closer | Replaces Redoublement with Corps-a-corps when out of melee range. |
-| RDM | Redoublement Combo Plus | Replaces Redoublement (and Moulinet) with Verflare/Verholy (and then Scorch and Resolution) after 3 mana stacks, whichever is more appropriate. |
-| RDM | Redoublement combo | Replaces Redoublement with its combo chain, following enchantment rules. |
 | RDM | Smartcast AoE | Dynamically replaces Veraero/Verthunder 2 with the appropriate spell based on your job gauge. |
 | RDM | Smartcast Single Target | Dynamically replaces Verstone/Verfire with the appropriate spell based on your job gauge. |
+| RDM | Swiftcast Priority | Swiftcast is used before Acceleration if it's up. |
 | RDM | Swiftcast Verraise | Verraise turns into Swiftcast when available and reasonable. |
 | RDM | Verproc into Jolt | Replaces Verstone/Verfire with Jolt (2) when no proc is available. |
 | RDM | Verproc into Jolt Plus | Additionally replaces Verstone/Verfire with Veraero/Verthunder if fastcasting are up. |
 | RDM | Verproc into Jolt Plus Veraero Opener | Turns Verstone into Veraero when out of combat. |
 | RDM | Verproc into Jolt Plus Verthunder Opener | Turns Verfire into Verthunder when out of combat. |
+| RDM | Walking Contre Sixte | Turns the AoE smartcast combo into Contre Sixte when you're moving and can't instacast. |
+| RDM | Walking Fleche | Turns the single-target smartcast combo into Fleche when you're moving and can't instacast. |
+| RDM | With Swiftcast | Acceleration falls back to Swiftcast if available and out of charges. |
 | RPR | Arcane Harvest Feature | Replace Arcane Circle with Plentiful Harvest when you have enough stacks of Immortal Sacrifice. |
 | RPR | Blood Stalk Gluttony Feature | Replace Blood Stalk with Gluttony when available and Soul Gauge is at least 50. |
 | RPR | Combat Option | Prevent replacing Harpe with Harvest Moon when not in combat. |
@@ -336,6 +364,9 @@ Now sorted by job and combo name!
 | WAR | Nascent Flash Feature | Replace Nascent Flash with Raw Intuition when below level 76. |
 | WAR | Primal Beast Feature | Replace Inner Beast and Steel Cyclone with Primal Rend when available |
 | WAR | Primal Release Feature | Replace Inner Release with Primal Rend when available |
+| WAR | Smart Weave | Automatically turn into Upheaval when weaving won't drift your GCD. |
+| WAR | Smart Weave | Automatically turn into Upheaval when weaving won't drift your GCD. |
+| WAR | Smart Weave | Automatically turn into Orogeny when weaving won't drift your GCD. |
 | WAR | Souleater Overcap Feature | Replace Souleater with Bloodspiller when the next combo action would cause the Blood Gauge to overcap. |
 | WAR | Stalwart Soul Overcap Feature | Replace Stalwart Soul with Quietus when the next combo action would cause the Blood Gauge to overcap. |
 | WAR | Storm's Eye Combo | Replace Storm's Eye with its combo chain. |
