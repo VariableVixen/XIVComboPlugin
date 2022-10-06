@@ -21,11 +21,15 @@ internal static class MNK {
 		Rockbreaker = 70,
 		DragonKick = 74,
 		Meditation = 3546,
+		ForbiddenChakra = 3547,
+		FormShift = 4262,
 		RiddleOfEarth = 7394,
 		RiddleOfFire = 7395,
 		Brotherhood = 7396,
 		Bloodbath = 7542,
 		FourPointFury = 16473,
+		Anatman = 16475,
+		SteelPeak = 25761,
 		Enlightenment = 16474,
 		HowlingFist = 25763,
 		MasterfulBlitz = 25764,
@@ -74,6 +78,126 @@ internal static class MNK {
 			Enlightenment = 70,
 			RiddleOfWind = 72,
 			ShadowOfTheDestroyer = 82;
+	}
+}
+
+internal class MonkUltimaCD: CustomCombo {
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.MonkUltimaCD;
+
+	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
+
+		MNKGauge gauge = GetJobGauge<MNKGauge>();
+		BeastChakra beast1 = gauge.BeastChakra[0];
+		BeastChakra beast2 = gauge.BeastChakra[1];
+		Dalamud.Game.ClientState.Statuses.Status? disciplined = SelfFindEffect(MNK.Buffs.DisciplinedFist);
+		Dalamud.Game.ClientState.Statuses.Status? demolish = TargetFindOwnEffect(MNK.Debuffs.Demolish);
+		Dalamud.Game.ClientState.Statuses.Status? rof = SelfFindEffect(MNK.Buffs.RiddleOfFire);
+		Dalamud.Game.ClientState.Statuses.Status? pb = SelfFindEffect(MNK.Buffs.PerfectBalance);
+		float gcd = GetCooldown(MNK.Bootshine).CooldownTotal;
+		float rofcd = GetCooldown(MNK.RiddleOfFire).CooldownRemaining;
+		float firegcds = IsOnCooldown(MNK.RiddleOfFire) ? rofcd / gcd : 0;
+		float rotate = gcd * 3;
+		float dflunar = gcd * 7;
+		float demolunar = gcd * 8;
+		float demosolar = gcd * 2;
+		float pbburst = gcd * 3;
+		float upkeeppb = gcd * 5;
+		float dfpb = gcd * 4;
+		bool clip = GetCooldown(MNK.Bootshine).CooldownRemaining >= 0.51f;
+		bool weave = GetCooldown(MNK.Bootshine).CooldownRemaining <= GetCooldown(MNK.Bootshine).CooldownTotal;
+		bool buffer = GetCooldown(MNK.Bootshine).CooldownRemaining <= 0.73f;
+		if (actionID is MNK.MasterfulBlitz) {
+			if (!InCombat
+				&& level >= MNK.Levels.Meditation
+				&& OriginalHook(MNK.Meditation) == MNK.Meditation) {
+				return MNK.Meditation;
+			}
+
+			if (!InCombat
+				&& level >= MNK.Levels.FormShift
+				&& !SelfHasEffect(MNK.Buffs.FormlessFist)) {
+				return MNK.FormShift;
+			}
+
+			if (level >= MNK.Levels.MasterfulBlitz
+				&& OriginalHook(MNK.MasterfulBlitz) != MNK.MasterfulBlitz) {
+				return OriginalHook(MNK.MasterfulBlitz);
+			}
+
+			if (level >= MNK.Levels.Meditation
+				&& OriginalHook(MNK.Meditation) != MNK.Meditation
+				&& LocalPlayer?.TargetObject is not null
+				&& InCombat
+				&& (disciplined is not null || level < MNK.Levels.TwinSnakes)
+				&& clip
+				&& weave) {
+				return OriginalHook(MNK.SteelPeak);
+			}
+
+			if (level >= MNK.Levels.Meditation
+				&& !HasTarget
+				&& pb is null
+				&& OriginalHook(MNK.Meditation) == MNK.Meditation) {
+				return MNK.Meditation;
+			}
+
+			if (level >= MNK.Levels.FormShift
+				&& !HasTarget
+				&& pb is null
+				&& !SelfHasEffect(MNK.Buffs.FormlessFist)) {
+				return MNK.FormShift;
+			}
+
+			if (level >= MNK.Levels.TwinSnakes
+				&& SelfHasEffect(MNK.Buffs.RaptorForm)
+				&& pb is null
+				&& ((gauge.Nadi.HasFlag(Nadi.SOLAR) && firegcds <= 3 && (disciplined is null || disciplined.RemainingTime < dflunar))
+					|| (!gauge.Nadi.HasFlag(Nadi.SOLAR) && (disciplined is null || disciplined.RemainingTime < rotate)))) {
+				return MNK.TwinSnakes;
+			}
+
+			if (level >= MNK.Levels.Demolish
+				&& SelfHasEffect(MNK.Buffs.CoerlForm)
+				&& pb is null
+				&& ((gauge.Nadi.HasFlag(Nadi.SOLAR) && firegcds <= 3 && (demolish is null || demolish.RemainingTime < demolunar))
+					|| (!gauge.Nadi.HasFlag(Nadi.SOLAR) && (demolish is null || demolish.RemainingTime < demosolar)))) {
+				return MNK.Demolish;
+			}
+
+			if (!SelfHasEffect(MNK.Buffs.PerfectBalance)) {
+				if (SelfHasEffect(MNK.Buffs.FormlessFist) || SelfHasEffect(MNK.Buffs.OpoOpoForm)) {
+					return level < MNK.Levels.DragonKick || SelfHasEffect(MNK.Buffs.LeadenFist)
+						? MNK.Bootshine
+						: MNK.DragonKick;
+				}
+
+				if (!SelfHasEffect(MNK.Buffs.FormlessFist) && SelfHasEffect(MNK.Buffs.RaptorForm)) {
+					if (level < MNK.Levels.TrueStrike) {
+						return MNK.Bootshine;
+					}
+
+					return level < MNK.Levels.TwinSnakes || (SelfEffectDuration(MNK.Buffs.DisciplinedFist) >= rotate)
+						? MNK.TrueStrike
+						: MNK.TwinSnakes;
+				}
+
+				if (!SelfHasEffect(MNK.Buffs.FormlessFist) && SelfHasEffect(MNK.Buffs.CoerlForm)) {
+					if (level < MNK.Levels.SnapPunch) {
+						return MNK.Bootshine;
+					}
+
+					return level < MNK.Levels.Demolish || (TargetOwnEffectDuration(MNK.Debuffs.Demolish) >= rotate)
+						? MNK.SnapPunch
+						: MNK.Demolish;
+				}
+
+				return level < MNK.Levels.DragonKick
+						? MNK.Bootshine
+						: MNK.DragonKick;
+			}
+		}
+
+		return actionID;
 	}
 }
 

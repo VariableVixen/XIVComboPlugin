@@ -36,14 +36,18 @@
 		<SourceRevisionId>debug</SourceRevisionId>
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>embedded</DebugType>
-		<Optimize>false</Optimize>
+		<Optimize>True</Optimize>
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
 		<DebugType>portable</DebugType>
-		<Optimize>true</Optimize>
+		<Optimize>False</Optimize>
 		<DefineConstants>TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <DebugType>portable</DebugType>
 	</PropertyGroup>
 
 	<ItemGroup>

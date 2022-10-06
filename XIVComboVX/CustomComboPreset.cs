@@ -529,6 +529,9 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Riddle of Fire and Wind", "Replace Riddle of Fire with Riddle of Wind if the former is on CD and the latter isn't.", MNK.JobID)]
 	MonkFireWind = 2014,
 
+	[CustomComboInfo("Monk Ultima CD Combo", "Replace Masterful Blitz with the full one button combo.", MNK.JobID)]
+	MonkUltimaCD = 2018,
+
 	#endregion
 	// ====================================================================================
 	#region NINJA (30xx)
