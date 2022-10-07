@@ -6,6 +6,8 @@ using System.Linq;
 using Dalamud.Game.ClientState.JobGauge.Enums;
 using Dalamud.Game.ClientState.JobGauge.Types;
 
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+
 internal static class MNK {
 	public const byte ClassID = 2;
 	public const byte JobID = 20;
@@ -81,9 +83,16 @@ internal static class MNK {
 	}
 }
 
-internal class MonkUltimaCD: CustomCombo {
-	public override CustomComboPreset Preset { get; } = CustomComboPreset.MonkUltimaCD;
+public unsafe class MNKGCD {
+	public static unsafe int MNKSkillSpeed() {
+		UIState* uiState = UIState.Instance();
+			return uiState->PlayerState.Attributes[45];
+	}
+}
 
+internal class MonkUltimaCD: CustomCombo {
+
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.MonkUltimaCD;
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
 		MNKGauge gauge = GetJobGauge<MNKGauge>();
@@ -93,7 +102,17 @@ internal class MonkUltimaCD: CustomCombo {
 		Dalamud.Game.ClientState.Statuses.Status? demolish = TargetFindOwnEffect(MNK.Debuffs.Demolish);
 		Dalamud.Game.ClientState.Statuses.Status? rof = SelfFindEffect(MNK.Buffs.RiddleOfFire);
 		Dalamud.Game.ClientState.Statuses.Status? pb = SelfFindEffect(MNK.Buffs.PerfectBalance);
-		float gcd = GetCooldown(MNK.Bootshine).CooldownTotal;
+		float greasedLightningModifier;
+		if (level < 20)
+			greasedLightningModifier = 0.95f;
+		else if (level < 40)
+			greasedLightningModifier = 0.90f;
+		else if (level < 76)
+			greasedLightningModifier = 0.85f;
+		else
+			greasedLightningModifier = 0.80f;
+		int skillSpeed = MNKGCD.MNKSkillSpeed();
+		float gcd = (2500*greasedLightningModifier*(1000+(130*(400-skillSpeed)/1900))/10000/100);
 		float rofcd = GetCooldown(MNK.RiddleOfFire).CooldownRemaining;
 		float firegcds = IsOnCooldown(MNK.RiddleOfFire) ? rofcd / gcd : 0;
 		float rotate = gcd * 3;
@@ -182,13 +201,11 @@ internal class MonkUltimaCD: CustomCombo {
 				}
 
 				if (!SelfHasEffect(MNK.Buffs.FormlessFist) && SelfHasEffect(MNK.Buffs.CoerlForm)) {
-					if (level < MNK.Levels.SnapPunch) {
-						return MNK.Bootshine;
-					}
-
-					return level < MNK.Levels.Demolish || (TargetOwnEffectDuration(MNK.Debuffs.Demolish) >= rotate)
-						? MNK.SnapPunch
-						: MNK.Demolish;
+					return level < MNK.Levels.SnapPunch
+						? MNK.Bootshine
+						: level < MNK.Levels.Demolish || (TargetOwnEffectDuration(MNK.Debuffs.Demolish) >= rotate)
+							? MNK.SnapPunch
+							: MNK.Demolish;
 				}
 
 				return level < MNK.Levels.DragonKick
