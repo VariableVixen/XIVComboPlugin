@@ -5,6 +5,7 @@ using System.Linq;
 
 using Dalamud.Game.ClientState.JobGauge.Enums;
 using Dalamud.Game.ClientState.JobGauge.Types;
+using Dalamud.Game.ClientState.Statuses;
 
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
@@ -98,10 +99,22 @@ internal class MonkUltimaCD: CustomCombo {
 		MNKGauge gauge = GetJobGauge<MNKGauge>();
 		BeastChakra beast1 = gauge.BeastChakra[0];
 		BeastChakra beast2 = gauge.BeastChakra[1];
-		Dalamud.Game.ClientState.Statuses.Status? disciplined = SelfFindEffect(MNK.Buffs.DisciplinedFist);
-		Dalamud.Game.ClientState.Statuses.Status? demolish = TargetFindOwnEffect(MNK.Debuffs.Demolish);
-		Dalamud.Game.ClientState.Statuses.Status? rof = SelfFindEffect(MNK.Buffs.RiddleOfFire);
-		Dalamud.Game.ClientState.Statuses.Status? pb = SelfFindEffect(MNK.Buffs.PerfectBalance);
+		BeastChakra beast3 = gauge.BeastChakra[2];
+		Status? disciplined = SelfFindEffect(MNK.Buffs.DisciplinedFist);
+		Status? demolish = TargetFindOwnEffect(MNK.Debuffs.Demolish);
+		Status? rof = SelfFindEffect(MNK.Buffs.RiddleOfFire);
+		Status? pb = SelfFindEffect(MNK.Buffs.PerfectBalance);
+		int[,] levelSubAndDiv = new int[,] {
+			{ 56, 56 }, { 57, 57 }, { 60, 60 }, { 62, 62 }, { 65, 65 }, { 68, 68 }, { 70, 70 }, { 73, 73 }, { 76, 76 }, { 78, 78 },
+			{ 82, 82 }, { 85, 85 }, { 89, 89 }, { 93, 93 }, { 96, 96 }, { 100, 100 }, { 104, 104 }, { 109, 109 }, { 113, 113 }, { 116, 116 },
+			{ 122, 122 }, { 127, 127 }, { 133, 133 }, { 138, 138 }, { 144, 144 }, { 150, 150 }, { 155, 155 }, { 162, 162 }, { 168, 168 }, { 173, 173 },
+			{ 181, 181 }, { 188, 188 }, { 194, 194 }, { 202, 202 }, { 209, 209 }, { 215, 215 }, { 223, 223 }, { 229, 229 }, { 236, 236 }, { 244, 244 },
+			{ 253, 253 }, { 263, 263 }, { 272, 272 }, { 283, 283 }, { 292, 292 }, { 302, 302 }, { 311, 311 }, { 322, 322 }, { 331, 331 }, { 341, 341 },
+			{ 342, 366 }, { 344, 392 }, { 345, 418 }, { 346, 444 }, { 347, 470 }, { 349, 496 }, { 350, 522 }, { 351, 548 }, { 352, 574 }, { 354, 600 },
+			{ 355, 630 }, { 356, 660 }, { 357, 690 }, { 358, 720 }, { 359, 750 }, { 360, 780 }, { 361, 810 }, { 362, 840 }, { 363, 870 }, { 364, 900 },
+			{ 365, 940 }, { 366, 980 }, { 367, 1020 }, { 368, 1060 }, { 370, 1100 }, { 372, 1140 }, { 374, 1180 }, { 376, 1220 }, { 378, 1260 }, { 380, 1300 },
+			{ 382, 1360 }, { 384, 1420 }, { 386, 1480 }, { 388, 1540 }, { 390, 1600 }, { 392, 1660 }, { 394, 1720 }, { 396, 1780 }, { 398, 1840 }, { 400, 1900 }
+		};
 		float greasedLightningModifier;
 		if (level < 20)
 			greasedLightningModifier = 0.95f;
@@ -112,18 +125,30 @@ internal class MonkUltimaCD: CustomCombo {
 		else
 			greasedLightningModifier = 0.80f;
 		int skillSpeed = MNKGCD.MNKSkillSpeed();
-		float gcd = (2500*greasedLightningModifier*(1000+(130*(400-skillSpeed)/1900))/10000/100);
+		int baseBootshineCD = 2500;
+		float gcd = (baseBootshineCD * greasedLightningModifier * (1000 + (130 * (levelSubAndDiv[level - 1, 0] - skillSpeed) / levelSubAndDiv[level - 1, 1])) / 10000 / 100);
 		float rofcd = GetCooldown(MNK.RiddleOfFire).CooldownRemaining;
 		float firegcds = IsOnCooldown(MNK.RiddleOfFire) ? rofcd / gcd : 0;
 		float rotate = gcd * 3;
-		float dflunar = gcd * 7;
-		float demolunar = gcd * 8;
-		float demosolar = gcd * 2;
-		float pbburst = gcd * 3;
-		float upkeeppb = gcd * 5;
-		float dfpb = gcd * 4;
+		float disciplinedFistLunar = gcd * 7;
+		float demolishLunar = gcd * 8;
+		float demolishSolar = gcd * 2;
+		float perfectBalanceWindow = gcd * 3;
+		float perfectBalanceUpkeep;
+		if (beast3 != BeastChakra.NONE)
+			perfectBalanceUpkeep = GetCooldown(MNK.Bootshine).CooldownRemaining;
+		else if (beast2 != BeastChakra.NONE)
+			perfectBalanceUpkeep = GetCooldown(MNK.Bootshine).CooldownRemaining + gcd;
+		else if (beast1 != BeastChakra.NONE)
+			perfectBalanceUpkeep = GetCooldown(MNK.Bootshine).CooldownRemaining + (gcd * 2);
+		else
+			perfectBalanceUpkeep = gcd * 3;
+		float disciplinedFistBlitzRefresh = perfectBalanceUpkeep + (gcd * 2);
+		float demolishBlitzRefresh = perfectBalanceUpkeep + (gcd * 3);
+		float disciplinedFistLunarPrep = gcd * 7;
+		float demolishLunarPrep = gcd * 8;
 		bool clip = GetCooldown(MNK.Bootshine).CooldownRemaining >= 0.51f;
-		bool weave = GetCooldown(MNK.Bootshine).CooldownRemaining <= GetCooldown(MNK.Bootshine).CooldownTotal;
+		bool weave = IsOnCooldown(MNK.Bootshine);
 		bool buffer = GetCooldown(MNK.Bootshine).CooldownRemaining <= 0.73f;
 		if (actionID is MNK.MasterfulBlitz) {
 			if (!InCombat
@@ -138,19 +163,89 @@ internal class MonkUltimaCD: CustomCombo {
 				return MNK.FormShift;
 			}
 
+			if (
+				InCombat
+				&& level >= MNK.Levels.RiddleOfFire
+				&& (disciplined is not null || SelfHasEffect(MNK.Buffs.PerfectBalance))
+				&& IsOffCooldown(MNK.RiddleOfFire)
+				&& weave
+				&& clip
+				&& buffer) {
+				return MNK.RiddleOfFire;
+			}
+
+			if (
+				InCombat
+				&& level >= MNK.Levels.Brotherhood
+				&& IsOnCooldown(MNK.RiddleOfFire)
+				&& (SelfHasEffect(MNK.Buffs.RaptorForm) || SelfHasEffect(MNK.Buffs.PerfectBalance) || (rof is not null && SelfHasEffect(MNK.Buffs.FormlessFist)))
+				&& IsOffCooldown(MNK.Brotherhood)
+				&& weave
+				&& clip) {
+				return MNK.Brotherhood;
+			}
+
+			if (
+				level >= MNK.Levels.Meditation
+				&& OriginalHook(MNK.Meditation) != MNK.Meditation
+				&& LocalPlayer?.TargetObject is not null
+				&& InCombat
+				&& (disciplined is not null || level < MNK.Levels.TwinSnakes)
+				&& (IsOnCooldown(MNK.RiddleOfFire) || level < MNK.Levels.RiddleOfFire)
+				&& clip
+				&& weave) {
+				return OriginalHook(MNK.SteelPeak);
+			}
+
 			if (level >= MNK.Levels.MasterfulBlitz
 				&& OriginalHook(MNK.MasterfulBlitz) != MNK.MasterfulBlitz) {
 				return OriginalHook(MNK.MasterfulBlitz);
 			}
 
-			if (level >= MNK.Levels.Meditation
-				&& OriginalHook(MNK.Meditation) != MNK.Meditation
-				&& LocalPlayer?.TargetObject is not null
-				&& InCombat
-				&& (disciplined is not null || level < MNK.Levels.TwinSnakes)
+			if (
+				InCombat
+				&& level >= MNK.Levels.RiddleOfWind
+				&& IsOnCooldown(MNK.Brotherhood)
+				&& IsOnCooldown(MNK.RiddleOfFire)
+				&& (SelfHasEffect(MNK.Buffs.PerfectBalance) || !IsOffCooldown(MNK.PerfectBalance))
+				&& IsOffCooldown(MNK.RiddleOfWind)
 				&& clip
 				&& weave) {
-				return OriginalHook(MNK.SteelPeak);
+				return MNK.RiddleOfWind;
+			}
+
+			if (
+				level >= MNK.Levels.PerfectBalance
+				&& !SelfHasEffect(MNK.Buffs.PerfectBalance)
+				&& SelfHasEffect(MNK.Buffs.RaptorForm)
+				&& GetCooldown(MNK.PerfectBalance).RemainingCharges >= 1
+				&& level < MNK.Levels.MasterfulBlitz
+				&& disciplined is not null
+				&& demolish is not null
+				&& disciplined.RemainingTime > perfectBalanceWindow
+				&& demolish.RemainingTime > perfectBalanceWindow
+				&& weave
+				&& clip) {
+				return MNK.PerfectBalance;
+			}
+
+			if (
+				level >= MNK.Levels.PerfectBalance
+				&& !SelfHasEffect(MNK.Buffs.PerfectBalance)
+				&& (IsOnCooldown(MNK.Brotherhood) || level < MNK.Levels.Brotherhood)
+				&& level >= MNK.Levels.MasterfulBlitz
+				&& SelfHasEffect(MNK.Buffs.RaptorForm)
+				&& GetCooldown(MNK.PerfectBalance).RemainingCharges >= 1
+				&& (firegcds <= 2 || (rof is not null && (rof.RemainingTime >= perfectBalanceWindow)) || level < MNK.Levels.RiddleOfFire)
+				&& (
+					!gauge.Nadi.HasFlag(Nadi.SOLAR)
+					|| (disciplined is not null
+						&& disciplined.RemainingTime >= perfectBalanceWindow
+						&& demolish is not null
+						&& demolish.RemainingTime >= perfectBalanceWindow))
+				&& weave
+				&& clip) {
+				return MNK.PerfectBalance;
 			}
 
 			if (level >= MNK.Levels.Meditation
@@ -170,7 +265,7 @@ internal class MonkUltimaCD: CustomCombo {
 			if (level >= MNK.Levels.TwinSnakes
 				&& SelfHasEffect(MNK.Buffs.RaptorForm)
 				&& pb is null
-				&& ((gauge.Nadi.HasFlag(Nadi.SOLAR) && firegcds <= 3 && (disciplined is null || disciplined.RemainingTime < dflunar))
+				&& ((gauge.Nadi.HasFlag(Nadi.SOLAR) && firegcds <= 3 && (disciplined is null || disciplined.RemainingTime < disciplinedFistLunar))
 					|| (!gauge.Nadi.HasFlag(Nadi.SOLAR) && (disciplined is null || disciplined.RemainingTime < rotate)))) {
 				return MNK.TwinSnakes;
 			}
@@ -178,9 +273,100 @@ internal class MonkUltimaCD: CustomCombo {
 			if (level >= MNK.Levels.Demolish
 				&& SelfHasEffect(MNK.Buffs.CoerlForm)
 				&& pb is null
-				&& ((gauge.Nadi.HasFlag(Nadi.SOLAR) && firegcds <= 3 && (demolish is null || demolish.RemainingTime < demolunar))
-					|| (!gauge.Nadi.HasFlag(Nadi.SOLAR) && (demolish is null || demolish.RemainingTime < demosolar)))) {
+				&& ((gauge.Nadi.HasFlag(Nadi.SOLAR) && firegcds <= 3 && (demolish is null || demolish.RemainingTime < demolishLunar))
+					|| (!gauge.Nadi.HasFlag(Nadi.SOLAR) && (demolish is null || demolish.RemainingTime < demolishSolar)))) {
 				return MNK.Demolish;
+			}
+
+			if (SelfHasEffect(MNK.Buffs.PerfectBalance)) {
+				if (
+				!gauge.BeastChakra.Contains(BeastChakra.RAPTOR)
+				&& !gauge.BeastChakra.Contains(BeastChakra.COEURL)
+				&& (!gauge.Nadi.HasFlag(Nadi.LUNAR) || (gauge.Nadi.HasFlag(Nadi.LUNAR) && gauge.Nadi.HasFlag(Nadi.SOLAR)) || level < MNK.Levels.MasterfulBlitz)
+				&& disciplined is not null
+				&& disciplined.RemainingTime > perfectBalanceUpkeep
+				&& demolish is not null
+				&& demolish.RemainingTime > perfectBalanceUpkeep) {
+					if (!SelfHasEffect(MNK.Buffs.LeadenFist) && level >= MNK.Levels.DragonKick) {
+						return MNK.DragonKick;
+					}
+
+					if (SelfHasEffect(MNK.Buffs.LeadenFist)) {
+						return MNK.Bootshine;
+					}
+				}
+
+				if (
+				level >= MNK.Levels.MasterfulBlitz
+				&& !gauge.Nadi.HasFlag(Nadi.SOLAR)
+				&& ((beast1 == BeastChakra.NONE && beast2 == BeastChakra.NONE) || (beast1 != beast2))
+				&& (
+					disciplined is null
+					|| demolish is null
+					|| gauge.Nadi.HasFlag(Nadi.LUNAR)
+					|| (!gauge.Nadi.HasFlag(Nadi.LUNAR) && (disciplined.RemainingTime <= disciplinedFistLunarPrep || demolish.RemainingTime <= demolishLunarPrep)))) {
+					if (
+						!gauge.Nadi.HasFlag(Nadi.LUNAR)
+						&& (GetCooldown(MNK.PerfectBalance).RemainingCharges >= 1 || GetCooldown(MNK.PerfectBalance).ChargeCooldownRemaining <= (gcd * 5))) {
+						if (beast1 == BeastChakra.OPOOPO && beast2 == BeastChakra.COEURL) {
+							return MNK.TwinSnakes;
+						}
+
+						if (beast1 == BeastChakra.OPOOPO && beast2 == BeastChakra.NONE) {
+							return MNK.Demolish;
+						}
+
+						if (beast1 == BeastChakra.NONE) {
+							if (!SelfHasEffect(MNK.Buffs.LeadenFist)) {
+								return MNK.DragonKick;
+							}
+
+							if (SelfHasEffect(MNK.Buffs.LeadenFist)) {
+								return MNK.Bootshine;
+							}
+						}
+					}
+
+					if (
+						beast1 != BeastChakra.RAPTOR
+						&& beast2 != BeastChakra.RAPTOR
+						&& (disciplined is null || disciplined.RemainingTime <= disciplinedFistBlitzRefresh)) {
+						return MNK.TwinSnakes;
+					}
+
+					if (
+						beast1 != BeastChakra.COEURL
+						&& beast2 != BeastChakra.COEURL
+						&& (demolish is null || demolish.RemainingTime <= demolishBlitzRefresh)) {
+						return MNK.Demolish;
+					}
+
+					if (beast1 != BeastChakra.OPOOPO && beast2 != BeastChakra.OPOOPO) {
+						if (!SelfHasEffect(MNK.Buffs.LeadenFist)) {
+							return MNK.DragonKick;
+						}
+
+						if (SelfHasEffect(MNK.Buffs.LeadenFist)) {
+							return MNK.Bootshine;
+						}
+					}
+
+					if (
+						beast1 != BeastChakra.RAPTOR
+						&& beast2 != BeastChakra.RAPTOR
+						&& disciplined is not null
+						&& disciplined.RemainingTime > disciplinedFistBlitzRefresh) {
+						return MNK.TrueStrike;
+					}
+
+					if (
+						beast1 != BeastChakra.COEURL
+						&& beast2 != BeastChakra.COEURL
+						&& demolish is not null
+						&& demolish.RemainingTime > demolishBlitzRefresh) {
+						return MNK.SnapPunch;
+					}
+				}
 			}
 
 			if (!SelfHasEffect(MNK.Buffs.PerfectBalance)) {
