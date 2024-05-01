@@ -264,8 +264,15 @@ internal class SageDosis: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(CustomComboPreset.SageLucidDosis, level, Service.Configuration.SageLucidDosisManaThreshold, actionID))
+		if(IsEnabled(CustomComboPreset.SageDosisKardiaFeature)) {
+			if (SelfHasEffect(SGE.Buffs.Kardion)) {
+				return SGE.Kardia;
+			}
+		}
+
+		if (Common.CheckLucidWeave(CustomComboPreset.SageLucidDosis, level, Service.Configuration.SageLucidDosisManaThreshold, actionID)) {
 			return Common.LucidDreaming;
+		}
 
 		SGEGauge gauge = GetJobGauge<SGEGauge>();
 
