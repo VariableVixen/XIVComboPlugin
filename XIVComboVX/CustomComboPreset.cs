@@ -9,6 +9,7 @@ namespace PrincessRTFM.XIVComboVX;
 
 public enum CustomComboPreset {
 	#region Universal
+
 	[CustomComboInfo("Any", "This should not be displayed. This always returns true when used with IsEnabled.", 0)]
 	AdvAny = 0,
 
@@ -74,6 +75,7 @@ public enum CustomComboPreset {
 
 	[CustomComboInfo("Any", "This should not be displayed. This always returns true when used with IsEnabled.", DOL.JobID)]
 	DolAny = AdvAny + DOL.JobID,
+
 	#endregion
 	// ====================================================================================
 	#region ASTROLOGIAN (33xx)
@@ -299,8 +301,7 @@ public enum CustomComboPreset {
 
 	[Conflicts(DancerDanceStepCombo)]
 	[Deprecated(DancerDanceStepCombo, DancerSmartDanceFeature)]
-	[CustomComboInfo("Dance Step Feature", "Change custom actions into dance steps while dancing." +
-		"\nYou can get Action IDs with Garland Tools by searching for the action and clicking the cog.", DNC.JobID)]
+	[CustomComboInfo("Dance Step Feature", "Change custom actions into dance steps while dancing." + "\nYou can get Action IDs with Garland Tools by searching for the action and clicking the cog.", DNC.JobID)]
 	DancerDanceComboCompatibility = 3806,
 
 	#endregion
@@ -745,10 +746,14 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Huraijin / Crush Feature", "Replaces Huraijin with Armor Crush after Gust Slash.", NIN.JobID)]
 	NinjaHuraijinCrushFeature = 3013,
 
-	[Deprecated("This option will OVERRIDE the listed alternatives, preventing fine-grained control. If you want the existing functionality, enable all six recommended alternatives.",
-		NinjaArmorCrushAssasinateFeature, NinjaAeolianEdgeAssasinateFeature,
-		NinjaArmorCrushBunshinFeature, NinjaAeolianEdgeBunshinFeature,
-		NinjaArmorCrushBhavacakraFeature, NinjaAeolianEdgeBhavacakraFeature
+	[Deprecated(
+		"This option will OVERRIDE the listed alternatives, preventing fine-grained control. If you want the existing functionality, enable all six recommended alternatives.",
+		NinjaArmorCrushAssasinateFeature,
+		NinjaAeolianEdgeAssasinateFeature,
+		NinjaArmorCrushBunshinFeature,
+		NinjaAeolianEdgeBunshinFeature,
+		NinjaArmorCrushBhavacakraFeature,
+		NinjaAeolianEdgeBhavacakraFeature
 	)]
 	[CustomComboInfo("Single Target Smart Weave", "Replaces both Aeolian Edge and Armor Crush combos with the following when weaving and available:\n- Assassinate or DWAD\n- Bhavacakra\n- Bunshin", NIN.JobID)]
 	NinjaSingleTargetSmartWeaveFeature = 3026,
@@ -1339,6 +1344,9 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Lucid Phlegma", "Weave Phlegma into Lucid Dreaming when it's available and your MP is below a configurable threshold.", SGE.JobID)]
 	SageLucidPhlegma = 4015,
 
+	[CustomComboInfo("Dosis into Kardia", "Replace Dosis with Kardia when missing Kardion.", SGE.JobID)]
+	SageDosisKardiaFeature = 4027,
+
 	#endregion
 	// ====================================================================================
 	#region SUMMONER (27xx)
@@ -1596,6 +1604,7 @@ public enum CustomComboPreset {
 
 	#endregion
 }
+
 public static class CustomComboPresetExtensions {
 	public static CustomComboPreset[] GetConflicts(this CustomComboPreset preset) => preset.GetAttribute<ConflictsAttribute>()?.Conflicts ?? Array.Empty<CustomComboPreset>();
 	public static CustomComboPreset[] GetAlternatives(this CustomComboPreset preset) => preset.GetAttribute<DeprecatedAttribute>()?.Recommended ?? Array.Empty<CustomComboPreset>();
