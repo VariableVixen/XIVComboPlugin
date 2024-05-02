@@ -265,7 +265,7 @@ internal class SageDosis: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
 		if(IsEnabled(CustomComboPreset.SageDosisKardiaFeature)) {
-			if (SelfHasEffect(SGE.Buffs.Kardion)) {
+			if (!SelfHasEffect(SGE.Buffs.Kardion)) {
 				return SGE.Kardia;
 			}
 		}
