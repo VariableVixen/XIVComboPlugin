@@ -1490,6 +1490,9 @@ public enum CustomComboPreset {
 
 	[CustomComboInfo("Cure 2 Level Sync", "Changes Cure 2 to Cure when below level 30 in synced content.", WHM.JobID)]
 	WhiteMageCureFeature = 2403,
+	
+	[CustomComboInfo("DOT Refresh", "Replace Stone/Glare with level appropriate DOT when debuff is about to fall off.", WHM.JobID)]
+	WhiteMageDotRefresh = 2407,
 
 	#endregion
 	// ====================================================================================

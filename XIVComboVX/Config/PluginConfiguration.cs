@@ -412,6 +412,15 @@ public class PluginConfiguration: IPluginConfiguration {
 
 	[LucidWeavingSetting(CustomComboPreset.WhiteMageLucidWeave)]
 	public uint WhiteMageLucidWeaveManaThreshold { get; set; } = 7000;
+	
+	[ComboDetailSetting(
+		CustomComboPreset.WhiteMageDotRefresh,
+		"Debuff time threshold",
+		"When your current target's debuff only has this many seconds left, switch back to DOT",
+		0,
+		30
+	)]
+	public float WhiteMageDotRefreshDuration { get; set; } = 3F;
 
 	#endregion
 
