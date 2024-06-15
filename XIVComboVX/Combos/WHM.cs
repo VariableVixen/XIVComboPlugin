@@ -81,10 +81,8 @@ internal class WhiteMageStone: CustomCombo {
 		if (Common.CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
 			return Common.LucidDreaming;
 		
-		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh))
-		{
-			ushort effectIdToTrack = OriginalHook(WHM.Aero) switch
-			{
+		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh)){
+			ushort effectIdToTrack = OriginalHook(WHM.Aero) switch {
 				WHM.Aero => WHM.Debuffs.Aero,
 				WHM.Aero2 => WHM.Debuffs.Aero2,
 				WHM.Dia => WHM.Debuffs.Dia,
