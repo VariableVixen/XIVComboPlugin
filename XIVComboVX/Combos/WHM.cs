@@ -1,11 +1,13 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
+using Dalamud.Game.Text;
 
 namespace PrincessRTFM.XIVComboVX.Combos;
 
 internal static class WHM {
 	public const byte JobID = 24;
 
-	public const uint Stone = 119,
+	public const uint 
+		Stone = 119,
 		Cure = 120,
 		Aero = 121,
 		Medica = 124,
@@ -38,15 +40,14 @@ internal static class WHM {
 	}
 
 	public static class Debuffs {
-		public const ushort Aero = 143, //Aero
-			Aero2 = 144, //Aero II
-			Dia = 1871; //Dia
+		public const ushort 
+			Aero = 143,
+			Aero2 = 144,
+			Dia = 1871;
 	}
 
 	public static class Levels {
-		public const byte Aero = 4,
-			Aero2 = 46,
-			Dia = 72,
+		public const byte 
 			Cure2 = 30,
 			AfflatusSolace = 52,
 			AfflatusMisery = 74,
@@ -82,20 +83,15 @@ internal class WhiteMageStone: CustomCombo {
 		
 		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh))
 		{
-			uint dotForLevel = level switch {
-				>= WHM.Levels.Dia => WHM.Dia,
-				>= WHM.Levels.Aero2 => WHM.Aero2,
-				>= WHM.Levels.Aero => WHM.Aero,
-			};
-			ushort effectId = dotForLevel switch
+			ushort effectIdToTrack = OriginalHook(WHM.Aero) switch
 			{
 				WHM.Aero => WHM.Debuffs.Aero,
 				WHM.Aero2 => WHM.Debuffs.Aero2,
 				WHM.Dia => WHM.Debuffs.Dia,
 			};
-
-			if (HasTarget && TargetOwnEffectDuration(effectId) < Service.Configuration.WhiteMageDotRefreshDuration)
-				return dotForLevel;
+			
+			if (HasTarget && TargetOwnEffectDuration(effectIdToTrack) < Service.Configuration.WhiteMageDotRefreshDuration)
+				return OriginalHook(WHM.Aero);
 		}
 
 		return actionID;

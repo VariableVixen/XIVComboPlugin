@@ -416,7 +416,7 @@ public class PluginConfiguration: IPluginConfiguration {
 	[ComboDetailSetting(
 		CustomComboPreset.WhiteMageDotRefresh,
 		"Debuff time threshold",
-		"When your current target's debuff only has this many seconds left, switch back to DOT",
+		"When your current target's Aero/Aero2/Dia debuff only has this many seconds left, switch back to DOT",
 		0,
 		30
 	)]
