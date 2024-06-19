@@ -6,7 +6,7 @@ namespace PrincessRTFM.XIVComboVX.Combos;
 internal static class WHM {
 	public const byte JobID = 24;
 
-	public const uint 
+	public const uint
 		Stone = 119,
 		Cure = 120,
 		Aero = 121,
@@ -47,7 +47,7 @@ internal static class WHM {
 	}
 
 	public static class Levels {
-		public const byte 
+		public const byte
 			Cure2 = 30,
 			AfflatusSolace = 52,
 			AfflatusMisery = 74,
