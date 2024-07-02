@@ -109,7 +109,7 @@ internal class UpdateAlerter: IDisposable {
 		Service.Client.Login -= this.onLogin;
 	}
 
-	private void onChatMessage(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled) {
+	private void onChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled) {
 		if (type is XivChatType.Urgent or XivChatType.Notice or XivChatType.SystemMessage)
 			this.CheckMessage();
 	}

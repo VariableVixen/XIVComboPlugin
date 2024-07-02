@@ -52,7 +52,7 @@ public sealed class Plugin: IDalamudPlugin {
 
 	public static bool AcquiredBaseCommand { get; private set; } = false;
 
-	public Plugin(DalamudPluginInterface pluginInterface) {
+	public Plugin(IDalamudPluginInterface pluginInterface) {
 
 		pluginInterface.Create<Service>();
 

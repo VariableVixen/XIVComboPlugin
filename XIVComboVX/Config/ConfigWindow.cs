@@ -279,7 +279,7 @@ public class ConfigWindow: Window {
 #if DEBUG
 			if (ImGui.BeginMenu("Debugging")) {
 
-				PlayerCharacter? player = Service.Client.LocalPlayer;
+				IPlayerCharacter? player = Service.Client.LocalPlayer;
 				if (player is null) {
 					ImGui.MenuItem("Not logged in", false);
 				}

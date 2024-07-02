@@ -46,8 +46,8 @@ internal class ComboDataCache: ManagedCache {
 	public bool CanInterruptTarget {
 		get {
 			if (!this.canInterruptTarget.HasValue) {
-				GameObject? target = CustomCombo.CurrentTarget;
-				this.canInterruptTarget = target is BattleChara actor
+				IGameObject? target = CustomCombo.CurrentTarget;
+				this.canInterruptTarget = target is IBattleChara actor
 					&& actor.IsCasting
 					&& actor.IsCastInterruptible;
 			}
@@ -70,15 +70,15 @@ internal class ComboDataCache: ManagedCache {
 		return (T)gauge;
 	}
 
-	public Status? GetStatus(uint statusID, GameObject? actor, uint? sourceID) {
-		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.ObjectId, sourceID);
+	public Status? GetStatus(uint statusID, IGameObject? actor, uint? sourceID) {
+		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.ObjectIndex, sourceID);
 		if (this.statusCache.TryGetValue(key, out Status? found))
 			return found;
 
 		if (actor is null)
 			return this.statusCache[key] = null;
 
-		if (actor is not BattleChara chara)
+		if (actor is not IBattleChara chara)
 			return this.statusCache[key] = null;
 
 		foreach (Status? status in chara.StatusList) {
@@ -100,7 +100,7 @@ internal class ComboDataCache: ManagedCache {
 		byte cooldownGroup = this.getCooldownGroup(actionID);
 
 		FFXIVClientStructs.FFXIV.Client.Game.RecastDetail* cooldownPtr = actionManager->GetRecastGroupDetail(cooldownGroup - 1);
-		cooldownPtr->ActionID = actionID;
+		cooldownPtr->ActionId = actionID;
 
 		CooldownData cd = this.cooldownCache[actionID] = *(CooldownData*)cooldownPtr;
 		Service.TickLogger.Debug($"Retrieved cooldown data for action #{actionID}: {cd.DebugLabel}");
@@ -108,7 +108,7 @@ internal class ComboDataCache: ManagedCache {
 	}
 
 	public unsafe (ushort Current, ushort Max) GetMaxCharges(uint actionID) {
-		PlayerCharacter player = Service.Client.LocalPlayer!;
+		IPlayerCharacter player = Service.Client.LocalPlayer!;
 		if (player == null)
 			return (0, 0);
 

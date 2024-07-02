@@ -159,7 +159,7 @@ internal abstract class CustomCombo {
 	}
 
 	protected static bool IsJob(params uint[] jobs) {
-		PlayerCharacter? p = LocalPlayer;
+		IPlayerCharacter? p = LocalPlayer;
 		if (p is null)
 			return false;
 		uint current = p.ClassJob.Id;
@@ -178,7 +178,7 @@ internal abstract class CustomCombo {
 
 	#region Player details/stats
 
-	protected internal static PlayerCharacter LocalPlayer
+	protected internal static IPlayerCharacter LocalPlayer
 		=> Service.Client.LocalPlayer!;
 
 	protected internal static bool HasCondition(ConditionFlag flag)
@@ -215,7 +215,7 @@ internal abstract class CustomCombo {
 
 	#region Target details/stats
 
-	protected internal static GameObject? CurrentTarget => Service.Targets.SoftTarget ?? Service.Targets.Target;
+	protected internal static IGameObject? CurrentTarget => Service.Targets.SoftTarget ?? Service.Targets.Target;
 
 	protected static bool HasTarget => CurrentTarget is not null;
 	protected internal static bool CanInterrupt => Service.DataCache.CanInterruptTarget;
@@ -225,7 +225,7 @@ internal abstract class CustomCombo {
 			if (LocalPlayer is null || CurrentTarget is null)
 				return 0;
 
-			GameObject target = CurrentTarget;
+			IGameObject target = CurrentTarget;
 
 			Vector2 tPos = new(target.Position.X, target.Position.Z);
 			Vector2 sPos = new(LocalPlayer.Position.X, LocalPlayer.Position.Z);
@@ -235,9 +235,9 @@ internal abstract class CustomCombo {
 	}
 	protected internal static bool InMeleeRange => TargetDistance <= 3;
 
-	protected static double TargetCurrentHp => CurrentTarget is BattleChara npc ? npc.CurrentHp : 0;
-	protected static double TargetMaxHp => CurrentTarget is BattleChara npc ? npc.MaxHp : 0;
-	protected static double TargetHealthPercentage => CurrentTarget is BattleChara npc ? npc.CurrentHp / npc.MaxHp * 100 : 0;
+	protected static double TargetCurrentHp => CurrentTarget is IBattleChara npc ? npc.CurrentHp : 0;
+	protected static double TargetMaxHp => CurrentTarget is IBattleChara npc ? npc.MaxHp : 0;
+	protected static double TargetHealthPercentage => CurrentTarget is IBattleChara npc ? npc.CurrentHp / npc.MaxHp * 100 : 0;
 
 	#endregion
 
@@ -286,7 +286,7 @@ internal abstract class CustomCombo {
 		=> TargetFindAnyEffect(effectId)?.StackCount ?? 0;
 
 	protected internal static Status? TargetFindOwnEffect(ushort effectId)
-		=> FindEffect(effectId, CurrentTarget, LocalPlayer?.ObjectId);
+		=> FindEffect(effectId, CurrentTarget, LocalPlayer?.ObjectIndex);
 	protected internal static bool TargetHasOwnEffect(ushort effectId)
 		=> TargetFindOwnEffect(effectId) is not null;
 	protected internal static float TargetOwnEffectDuration(ushort effectId)
@@ -294,7 +294,7 @@ internal abstract class CustomCombo {
 	protected internal static float TargetOwnEffectStacks(ushort effectId)
 		=> TargetFindOwnEffect(effectId)?.StackCount ?? 0;
 
-	protected internal static Status? FindEffect(ushort effectId, GameObject? actor, uint? sourceId)
+	protected internal static Status? FindEffect(ushort effectId, IGameObject? actor, uint? sourceId)
 		=> Service.DataCache.GetStatus(effectId, actor, sourceId);
 
 	#endregion

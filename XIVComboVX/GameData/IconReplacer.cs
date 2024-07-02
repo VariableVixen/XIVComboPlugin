@@ -33,7 +33,7 @@ internal class IconReplacer: IDisposable {
 		Service.Log.Information(string.Join(", ", this.customCombos.Select(combo => combo.GetType().Name)));
 #endif
 
-		this.getIconHook = Service.Interop.HookFromAddress<GetIconDelegate>(Service.Address.GetAdjustedActionId, this.getIconDetour);
+		this.getIconHook = Service.Interop.HookFromAddress<GetIconDelegate>(FFXIVClientStructs.FFXIV.Client.Game.ActionManager.Addresses.GetAdjustedActionId.Value, this.getIconDetour);
 		this.isIconReplaceableHook = Service.Interop.HookFromAddress<IsIconReplaceableDelegate>(Service.Address.IsActionIdReplaceable, this.isIconReplaceableDetour);
 
 		this.getIconHook.Enable();
@@ -63,7 +63,7 @@ internal class IconReplacer: IDisposable {
 	private unsafe uint getIconDetour(IntPtr actionManager, uint actionID) {
 		try {
 			this.actionManager = actionManager;
-			PlayerCharacter? player = Service.Client.LocalPlayer;
+			IPlayerCharacter? player = Service.Client.LocalPlayer;
 
 			if (player is null)
 				return this.OriginalHook(actionID);

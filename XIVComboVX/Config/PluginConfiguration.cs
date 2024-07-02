@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using Dalamud.Configuration;
 using Dalamud.Interface.ImGuiNotification;
-using Dalamud.Interface.Internal.Notifications;
 
 using Newtonsoft.Json;
 

@@ -31,7 +31,7 @@ internal class Service {
 	public static Ipc Ipc { get; set; } = null!;
 
 	[PluginService] public static IPluginLog Log { get; private set; } = null!;
-	[PluginService] public static DalamudPluginInterface Interface { get; private set; } = null!;
+	[PluginService] public static IDalamudPluginInterface Interface { get; private set; } = null!;
 	[PluginService] public static ISigScanner SigScanner { get; private set; } = null!;
 	[PluginService] public static IBuddyList BuddyList { get; private set; } = null!;
 	[PluginService] public static IChatGui ChatGui { get; private set; } = null!;
