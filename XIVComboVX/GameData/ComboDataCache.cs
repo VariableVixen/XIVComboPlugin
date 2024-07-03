@@ -71,7 +71,7 @@ internal class ComboDataCache: ManagedCache {
 	}
 
 	public Status? GetStatus(uint statusID, IGameObject? actor, uint? sourceID) {
-		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.ObjectIndex, sourceID);
+		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.EntityId, sourceID);
 		if (this.statusCache.TryGetValue(key, out Status? found))
 			return found;
 

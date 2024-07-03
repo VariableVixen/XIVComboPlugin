@@ -286,7 +286,7 @@ internal abstract class CustomCombo {
 		=> TargetFindAnyEffect(effectId)?.StackCount ?? 0;
 
 	protected internal static Status? TargetFindOwnEffect(ushort effectId)
-		=> FindEffect(effectId, CurrentTarget, LocalPlayer?.ObjectIndex);
+		=> FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
 	protected internal static bool TargetHasOwnEffect(ushort effectId)
 		=> TargetFindOwnEffect(effectId) is not null;
 	protected internal static float TargetOwnEffectDuration(ushort effectId)
