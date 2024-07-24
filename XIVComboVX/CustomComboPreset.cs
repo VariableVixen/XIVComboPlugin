@@ -1176,42 +1176,39 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Oka Combo", "Replace Oka with its combo chain.", SAM.JobID)]
 	SamuraiOkaCombo = 3404,
 
-	//[Conflicts(SamuraiIaijutsuTsubameGaeshiFeature)]
-	//[CustomComboInfo("Tsubame-gaeshi to Iaijutsu", "Replace Tsubame-gaeshi with Iaijutsu when Sen is empty.", SAM.JobID)]
-	//SamuraiTsubameGaeshiIaijutsuFeature = 3407,
+	[Conflicts(SamuraiIaijutsuTsubameGaeshiFeature)]
+	[CustomComboInfo("Tsubame-gaeshi to Iaijutsu", "Replace Tsubame-gaeshi with Iaijutsu when Sen is not empty.", SAM.JobID)]
+	SamuraiTsubameGaeshiIaijutsuFeature = 3407,
 
-	//[Conflicts(SamuraiIaijutsuShohaFeature)]
-	//[CustomComboInfo("Tsubame-gaeshi to Shoha", "Replace Tsubame-gaeshi with Shoha when meditation is 3.", SAM.JobID)]
-	//SamuraiTsubameGaeshiShohaFeature = 3409,
+	[Conflicts(SamuraiIaijutsuShohaFeature)]
+	[CustomComboInfo("Tsubame-gaeshi to Shoha", "Replace Tsubame-gaeshi with Shoha when meditation is 3.", SAM.JobID)]
+	SamuraiTsubameGaeshiShohaFeature = 3409,
 
-	//[Conflicts(SamuraiTsubameGaeshiIaijutsuFeature)]
-	//[CustomComboInfo("Iaijutsu to Tsubame-gaeshi", "Replace Iaijutsu with Tsubame-gaeshi when Sen is not empty.", SAM.JobID)]
-	//SamuraiIaijutsuTsubameGaeshiFeature = 3408,
+	[Conflicts(SamuraiTsubameGaeshiIaijutsuFeature)]
+	[CustomComboInfo("Iaijutsu to Tsubame-gaeshi", "Replace Iaijutsu with Tsubame-gaeshi when Sen is empty.", SAM.JobID)]
+	SamuraiIaijutsuTsubameGaeshiFeature = 3408,
 
-	//[Conflicts(SamuraiTsubameGaeshiShohaFeature)]
-	//[CustomComboInfo("Iaijutsu to Shoha", "Replace Iaijutsu with Shoha when meditation is 3.", SAM.JobID)]
-	//SamuraiIaijutsuShohaFeature = 3410,
+	[Conflicts(SamuraiTsubameGaeshiShohaFeature)]
+	[CustomComboInfo("Iaijutsu to Shoha", "Replace Iaijutsu with Shoha when meditation is 3.", SAM.JobID)]
+	SamuraiIaijutsuShohaFeature = 3410,
 
-	//[CustomComboInfo("Shinten to Senei", "Replace Hissatsu: Shinten with Senei when available.", SAM.JobID)]
-	//SamuraiShintenSeneiFeature = 3414,
+	[CustomComboInfo("Shinten to Senei", "Replace Hissatsu: Shinten with Senei when available.", SAM.JobID)]
+	SamuraiShintenSeneiFeature = 3414,
 
-	//[CustomComboInfo("Senei to Guren Level Sync", "Replace Hissatsu: Senei with Guren when level synced below 72.", SAM.JobID)]
-	//SamuraiSeneiGurenFeature = 3419,
+	[CustomComboInfo("Shinten to Shoha", "Replace Hissatsu: Shinten with Shoha when Meditation is full.", SAM.JobID)]
+	SamuraiShintenShohaFeature = 3413,
 
-	//[CustomComboInfo("Shinten to Shoha", "Replace Hissatsu: Shinten with Shoha when Meditation is full.", SAM.JobID)]
-	//SamuraiShintenShohaFeature = 3413,
+	[CustomComboInfo("Kyuten to Guren", "Replace Hissatsu: Kyuten with Guren when available.", SAM.JobID)]
+	SamuraiKyutenGurenFeature = 3415,
 
-	//[CustomComboInfo("Kyuten to Guren", "Replace Hissatsu: Kyuten with Guren when available.", SAM.JobID)]
-	//SamuraiKyutenGurenFeature = 3415,
+	[CustomComboInfo("Kyuten to Shoha", "Replace Hissatsu: Kyuten with Shoha when Meditation is full.", SAM.JobID)]
+	SamuraiKyutenShohaFeature = 3412,
 
-	//[CustomComboInfo("Kyuten to Shoha 2", "Replace Hissatsu: Kyuten with Shoha 2 when Meditation is full.", SAM.JobID)]
-	//SamuraiKyutenShoha2Feature = 3412,
+	[CustomComboInfo("Ikishoten Namikiri Feature", "Replace Ikishoten with Shoha, Kaeshi Namikiri, and then Ogi Namikiri when available.", SAM.JobID)]
+	SamuraiIkishotenNamikiriFeature = 3411,
 
-	//[CustomComboInfo("Ikishoten Namikiri Feature", "Replace Ikishoten with Shoha, Kaeshi Namikiri, and then Ogi Namikiri when available.", SAM.JobID)]
-	//SamuraiIkishotenNamikiriFeature = 3411,
-
-	//[CustomComboInfo("Hissatsu Senei/Guren Sync Feature", "Replace Hissatsu Senei with Hissatsu Guren when underlevel.", SAM.JobID)]
-	//SamuraiGurenSeneiLevelSyncFeature = 3418,
+	[CustomComboInfo("Hissatsu Senei/Guren Sync Feature", "Replace Hissatsu Senei with Hissatsu Guren when underlevel.", SAM.JobID)]
+	SamuraiGurenSeneiLevelSyncFeature = 3418,
 
 	#endregion
 	// ====================================================================================
