@@ -44,7 +44,7 @@ internal static class WHM {
 	}
 
 	public static class Debuffs {
-		public const ushort 
+		public const ushort
 			Aero = 143,
 			Aero2 = 144,
 			Dia = 1871;
@@ -52,6 +52,7 @@ internal static class WHM {
 
 	public static class Levels {
 		public const byte
+			PresenceOfMind = 30,
 			Cure2 = 30,
 			AfflatusSolace = 52,
 			AfflatusMisery = 74,
@@ -86,7 +87,7 @@ internal class WhiteMageStone: CustomCombo {
 
 		if (Common.CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
 			return Common.LucidDreaming;
-		
+
 		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh)){
 			ushort effectIdToTrack = OriginalHook(WHM.Aero) switch {
 				WHM.Aero => WHM.Debuffs.Aero,
@@ -94,10 +95,21 @@ internal class WhiteMageStone: CustomCombo {
 				WHM.Dia => WHM.Debuffs.Dia,
 				_ => 0,
 			};
-			
+
 			if (effectIdToTrack > 0 && HasTarget && TargetOwnEffectDuration(effectIdToTrack) < Service.Configuration.WhiteMageDotRefreshDuration)
 				return OriginalHook(WHM.Aero);
 		}
+
+		if (IsEnabled(CustomComboPreset.WhiteMageGlareIVCombo)) {
+			if (level >= WHM.Levels.Glare4 && SelfHasEffect(WHM.Buffs.SacredSight))
+				return WHM.Glare4;
+		}
+
+		if (IsEnabled(CustomComboPreset.WhiteMageGlareOfMind)) {
+			if (level >= WHM.Levels.PresenceOfMind && IsOffCooldown(WHM.PresenceOfMind))
+				return WHM.PresenceOfMind;
+		}
+
 
 		return actionID;
 	}

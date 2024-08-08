@@ -1553,6 +1553,12 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Divine Temperance", "Replace Temperance with Divine Caress when under Divine Grace.", WHM.JobID)]
 	WhiteMageTemperanceDivineCaress = 24009,
 
+	[CustomComboInfo("Glare IV Combo", "Replace Glare with Glare IV when under Sacred Sight.", WHM.JobID)]
+	WhiteMageGlareIVCombo = 24010,
+
+	[CustomComboInfo("Glare of Mind", "Replace Glare with Presence of Mind when off cooldown", WHM.JobID)]
+	WhiteMageGlareOfMind = 24011,
+
 	#endregion
 	// ====================================================================================
 	#region DoH (98xxx)
