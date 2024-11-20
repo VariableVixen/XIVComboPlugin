@@ -154,7 +154,7 @@ internal class NonFishingFeatures: CustomCombo {
 		}
 
 		if (IsEnabled(CustomComboPreset.GatherJobCorrectionFeature)) {
-			switch (LocalPlayer.ClassJob.Id) {
+			switch (LocalPlayer.ClassJob.RowId) {
 				case DOL.BtnID:
 					return actionID switch {
 						MIN.Prospect => IsEnabled(CustomComboPreset.GatherJobCorrectionIgnoreDetectionsFeature) ? actionID : BTN.Triangulate,

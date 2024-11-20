@@ -15,7 +15,7 @@
 	<Import Project="framework.props" />
 
 	<ItemGroup>
-		<PackageReference Include="DalamudPackager" Version="2.1.13" />
+		<PackageReference Include="DalamudPackager" Version="11.0.0" />
 		<Reference Include="Newtonsoft.Json">
 			<HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
 			<Private>False</Private>

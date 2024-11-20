@@ -71,7 +71,7 @@ internal class IconReplacer: IDisposable {
 			uint lastComboActionId = *(uint*)Service.Address.LastComboMove;
 			float comboTime = *(float*)Service.Address.ComboTimer;
 			byte level = player.Level;
-			uint classJobID = player.ClassJob.Id;
+			uint classJobID = player.ClassJob.RowId;
 
 			foreach (CustomCombo combo in this.customCombos) {
 				if (combo.TryInvoke(actionID, lastComboActionId, comboTime, level, classJobID, out uint newActionID))

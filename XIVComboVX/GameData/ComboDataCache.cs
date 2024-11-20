@@ -112,7 +112,7 @@ internal class ComboDataCache: ManagedCache {
 		if (player == null)
 			return (0, 0);
 
-		uint job = player.ClassJob.Id;
+		uint job = player.ClassJob.RowId;
 		byte level = player.Level;
 		if (job == 0 || level == 0)
 			return (0, 0);
@@ -130,8 +130,8 @@ internal class ComboDataCache: ManagedCache {
 		if (this.cooldownGroupCache.TryGetValue(actionID, out byte cooldownGroup))
 			return cooldownGroup;
 
-		Lumina.Excel.ExcelSheet<Lumina.Excel.GeneratedSheets.Action> sheet = Service.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>()!;
-		Lumina.Excel.GeneratedSheets.Action row = sheet.GetRow(actionID)!;
+		Lumina.Excel.ExcelSheet<Lumina.Excel.Sheets.Action> sheet = Service.GameData.GetExcelSheet<Lumina.Excel.Sheets.Action>()!;
+		Lumina.Excel.Sheets.Action row = sheet.GetRow(actionID)!;
 
 		return this.cooldownGroupCache[actionID] = row.CooldownGroup;
 	}

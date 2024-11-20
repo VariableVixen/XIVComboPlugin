@@ -162,7 +162,7 @@ internal abstract class CustomCombo {
 		IPlayerCharacter? p = LocalPlayer;
 		if (p is null)
 			return false;
-		uint current = p.ClassJob.Id;
+		uint current = p.ClassJob.RowId;
 		foreach (uint job in jobs) {
 			if (current == job)
 				return true;
