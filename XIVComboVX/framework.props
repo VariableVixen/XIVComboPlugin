@@ -89,6 +89,7 @@
 		<TargetFramework Condition=" '$(TargetFramework)' == '' ">net7</TargetFramework>
 		<AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(Version)</AssemblyVersion>
 		<AssemblyFileVersion Condition=" '$(AssemblyFileVersion)' == '' ">$(AssemblyVersion)</AssemblyFileVersion>
+		<PathMap>$(SolutionDir)=./</PathMap>
 	</PropertyGroup>
 
 	<Choose>
