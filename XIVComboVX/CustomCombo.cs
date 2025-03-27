@@ -209,7 +209,7 @@ internal abstract class CustomCombo {
 		=> Service.DataCache.GetJobGauge<T>();
 
 	protected internal static unsafe bool IsMoving
-		=> AgentMap.Instance() is not null && AgentMap.Instance()->IsPlayerMoving > 0;
+		=> AgentMap.Instance() is not null && AgentMap.Instance()->IsPlayerMoving;
 
 	#endregion
 
@@ -274,7 +274,7 @@ internal abstract class CustomCombo {
 	protected internal static float SelfEffectDuration(ushort effectId)
 		=> SelfFindEffect(effectId)?.RemainingTime ?? 0;
 	protected internal static float SelfEffectStacks(ushort effectId)
-		=> SelfFindEffect(effectId)?.StackCount ?? 0;
+		=> SelfFindEffect(effectId)?.Param ?? 0;
 
 	protected internal static Status? TargetFindAnyEffect(ushort effectId)
 		=> FindEffect(effectId, CurrentTarget, null);
@@ -283,7 +283,7 @@ internal abstract class CustomCombo {
 	protected internal static float TargetAnyEffectDuration(ushort effectId)
 		=> TargetFindAnyEffect(effectId)?.RemainingTime ?? 0;
 	protected internal static float TargetAnyEffectStacks(ushort effectId)
-		=> TargetFindAnyEffect(effectId)?.StackCount ?? 0;
+		=> TargetFindAnyEffect(effectId)?.Param ?? 0;
 
 	protected internal static Status? TargetFindOwnEffect(ushort effectId)
 		=> FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
@@ -292,7 +292,7 @@ internal abstract class CustomCombo {
 	protected internal static float TargetOwnEffectDuration(ushort effectId)
 		=> TargetFindOwnEffect(effectId)?.RemainingTime ?? 0;
 	protected internal static float TargetOwnEffectStacks(ushort effectId)
-		=> TargetFindOwnEffect(effectId)?.StackCount ?? 0;
+		=> TargetFindOwnEffect(effectId)?.Param ?? 0;
 
 	protected internal static Status? FindEffect(ushort effectId, IGameObject? actor, uint? sourceId)
 		=> Service.DataCache.GetStatus(effectId, actor, sourceId);

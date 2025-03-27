@@ -186,7 +186,7 @@ internal class SamuraiOkaCombo: CustomCombo {
 			return SAM.Shoha;
 
 		if (IsEnabled(CustomComboPreset.SamuraiTsubameGaeshiIaijutsuFeature)) {
-			if (level >= SAM.Levels.TsubameGaeshi && gauge.Sen == Sen.NONE)
+			if (level >= SAM.Levels.TsubameGaeshi && gauge.Sen == Sen.None)
 				return OriginalHook(SAM.TsubameGaeshi);
 
 			return OriginalHook(SAM.Iaijutsu);
@@ -207,7 +207,7 @@ internal class SamuraiIaijutsuFeature: CustomCombo {
 			return SAM.Shoha;
 
 		if (IsEnabled(CustomComboPreset.SamuraiIaijutsuTsubameGaeshiFeature)) {
-			if (level >= SAM.Levels.TsubameGaeshi && gauge.Sen == Sen.NONE)
+			if (level >= SAM.Levels.TsubameGaeshi && gauge.Sen == Sen.None)
 				return OriginalHook(SAM.TsubameGaeshi);
 
 			return OriginalHook(SAM.Iaijutsu);
@@ -291,7 +291,7 @@ internal class SamuraiIkishotenNamikiriFeature: CustomCombo {
 			if (level >= SAM.Levels.Shoha && gauge.MeditationStacks >= 3)
 				return SAM.Shoha;
 
-			if (gauge.Kaeshi == Kaeshi.NAMIKIRI)
+			if (gauge.Kaeshi == Kaeshi.Namikiri)
 				return SAM.KaeshiNamikiri;
 
 			if (SelfHasEffect(SAM.Buffs.OgiNamikiriReady))
