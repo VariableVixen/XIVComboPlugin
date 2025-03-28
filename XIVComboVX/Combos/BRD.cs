@@ -85,7 +85,7 @@ internal class BardHeavyBurstShot: CustomCombo {
 			if (IsEnabled(CustomComboPreset.BardWeavePitchPerfect) && level >= BRD.Levels.PitchPerfect) {
 				BRDGauge gauge = GetJobGauge<BRDGauge>();
 
-				if (gauge.Song is Song.WANDERER && gauge.Repertoire > 0) {
+				if (gauge.Song is Song.Wanderer && gauge.Repertoire > 0) {
 					Status? minuet = SelfFindEffect(BRD.Buffs.WanderersMinuet);
 
 					if (gauge.SongTimer / 1000f <= Service.Configuration.BardWanderersMinuetBuffThreshold)
