@@ -27,7 +27,7 @@ internal class PluginAddressResolver {
 			this.ComboTimer = new IntPtr(&ActionManager.Instance()->Combo.Timer);
 
 			Service.Log.Information("Scanning for IsActionIdReplaceable signature");
-			this.IsActionIdReplaceable = Service.SigScanner.ScanText("40 53 48 83 EC 20 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 1B");
+			this.IsActionIdReplaceable = Service.SigScanner.ScanText("40 53 48 83 EC 20 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 1F");
 		}
 		catch (Exception ex) {
 			this.LoadFailReason = ex;
