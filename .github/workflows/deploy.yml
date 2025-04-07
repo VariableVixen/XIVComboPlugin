@@ -1,4 +1,4 @@
-name: Build
+name: Deploy
 
 # Put your personal access token in a repository secret named PAT for cross-repository access
 permissions:
@@ -16,7 +16,7 @@ on:
 
 env:
   INTERNAL_NAME: XIVComboVX
-  CONFIGURATION: Release
+  CONFIGURATION: release
   PERSONAL_PLUGIN_REPO: PrincessRTFM/MyDalamudPlugins
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
@@ -49,6 +49,7 @@ jobs:
         run: |
           echo "Current version is ${{ steps.data.outputs.buildVersion }} for tag ${{ steps.data.outputs.tagName }} (exists = ${{ steps.check-version-tag.outputs.tagExists }})"
         shell: bash
+
   build:
     needs: precheck
     if: needs.precheck.outputs.tagExists == 'false'
@@ -72,7 +73,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: PluginRepoZip
-        path: ${{ env.INTERNAL_NAME }}/bin/${{ env.CONFIGURATION }}/${{ env.INTERNAL_NAME }}
+        path: ${{ env.INTERNAL_NAME }}/bin/${{ env.CONFIGURATION }}/portable/${{ env.INTERNAL_NAME }}
         if-no-files-found: error
         retention-days: 14
     - name: Tag

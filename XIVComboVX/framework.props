@@ -6,7 +6,6 @@
 		<Product>NAME</Product>
 		<Version>MAJOR.MINOR.PATCH</Version>
 		<Description>SUMMARY</Description>
-		<Description>SUMMARY</Description>
 		<OutputType>{Library|Exe}</OutputType>
 
 	- RECOMMENDED
@@ -23,13 +22,16 @@
 		<Deterministic>(DEPENDENT ON OUTPUT TYPE)</Deterministic>
 		<CopyLocalLockFileAssemblies>(DEPENDENT ON OUTPUT TYPE)</CopyLocalLockFileAssemblies>
 		<ProduceReferenceAssembly>(DEPENDENT ON OUTPUT TYPE)</ProduceReferenceAssembly>
+		<PublishDir>bin\publish\$(RuntimeIdentifier)-$(Configuration.ToLower())\</PublishDir>
 
 	- STATIC OVERRIDABLE:
 		<Platforms>x64</Platforms>
 		<PlatformTarget>x64</PlatformTarget>
-		<TargetFramework>net7</TargetFramework>
+		<TargetFramework>net9</TargetFramework>
+		<PublishSingleFile>true</PublishSingleFile>
 
 	- SPECIAL:
+		<OutputPath>bin\$(Configuration.ToLower())\$(RuntimeIdentifier.ToLower() || "portable")</OutputPath>
 		<Authors>VariableVixen[, $(Authors)]</Authors>
 		<ContinuousIntegrationBuild>(AUTOMATICALLY ENABLED ON KNOWN CI SYSTEMS)</ContinuousIntegrationBuild>
 		<DebugSymbols>(DEPENDENT ON BUILD CONFIGURATION)</DebugSymbols>
@@ -42,7 +44,7 @@
 
 	<PropertyGroup Condition=" '$(Product)' != '' ">
 		<AssemblyName Condition=" '$(AssemblyName)' == '' ">$(Product.Replace("-", "."))</AssemblyName>
-		<PackageId Condition=" '$(PackageId)' == '' ">$(Product.Replace("-", "."))</PackageId>
+		<PackageId Condition=" '$(PackageId)' == '' ">$(Product.Replace("-", ".").Replace(" ", ""))</PackageId>
 		<Title Condition=" '$(Title)' == '' ">$(Product)</Title>
 		<PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/PrincessRTFM/$(Product)</PackageProjectUrl>
 	</PropertyGroup>
@@ -55,7 +57,7 @@
 		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 		<LangVersion>12</LangVersion>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
 		<PublishRelease>true</PublishRelease>
@@ -66,6 +68,35 @@
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<ImplicitUsings>false</ImplicitUsings>
 		<NoWarn>CA1805,CA1852,CA1707,$(NoWarn)</NoWarn>
+		<PathMap>$(SolutionDir)=./</PathMap>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition=" '$(RuntimeIdentifier)' == '' ">
+			<PropertyGroup>
+				<OutputPath>bin\$(Configuration.ToLower())\portable</OutputPath>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<OutputPath>bin\$(Configuration.ToLower())\$(RuntimeIdentifier.ToLower())</OutputPath>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+
+	<PropertyGroup>
+		<PublishSingleFile Condition=" '$(PublishSingleFile)' == '' ">true</PublishSingleFile>
+		<Copyright Condition=" '$(Copyright)' == '' ">Copyleft $(Authors)</Copyright>
+		<RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">$(PackageProjectUrl).git</RepositoryUrl>
+		<Platforms Condition=" '$(Platforms)' == '' ">x64</Platforms>
+		<PlatformTarget Condition=" '$(PlatformTarget)' == '' ">x64</PlatformTarget>
+		<TargetFramework Condition=" '$(TargetFramework)' == '' ">net9</TargetFramework>
+		<AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(Version)</AssemblyVersion>
+		<AssemblyFileVersion Condition=" '$(AssemblyFileVersion)' == '' ">$(AssemblyVersion)</AssemblyFileVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(PublishDir)' == '' ">
+		<PublishDir>bin\publish\$(RuntimeIdentifier)-$(Configuration.ToLower())\</PublishDir>
 	</PropertyGroup>
 
 	<Choose>
@@ -80,17 +111,6 @@
 			</PropertyGroup>
 		</When>
 	</Choose>
-
-	<PropertyGroup>
-		<Copyright Condition=" '$(Copyright)' == '' ">Copyleft $(Authors)</Copyright>
-		<RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">$(PackageProjectUrl).git</RepositoryUrl>
-		<Platforms Condition=" '$(Platforms)' == '' ">x64</Platforms>
-		<PlatformTarget Condition=" '$(PlatformTarget)' == '' ">x64</PlatformTarget>
-		<TargetFramework Condition=" '$(TargetFramework)' == '' ">net7</TargetFramework>
-		<AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(Version)</AssemblyVersion>
-		<AssemblyFileVersion Condition=" '$(AssemblyFileVersion)' == '' ">$(AssemblyVersion)</AssemblyFileVersion>
-		<PathMap>$(SolutionDir)=./</PathMap>
-	</PropertyGroup>
 
 	<Choose>
 		<When Condition=" '$(OutputType.ToLower())' == 'library' ">
@@ -109,8 +129,7 @@
 		</Otherwise>
 	</Choose>
 
-	<PropertyGroup>
-		<!-- this is non-exhaustive, but includes the CI systems I'm aware of and will be updated as I discover more -->
+	<PropertyGroup><!-- this is non-exhaustive, but includes the CI systems I'm aware of and will be updated as I discover more -->
 		<ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
 		<ContinuousIntegrationBuild Condition=" '$(TF_BUILD)' == 'true' ">true</ContinuousIntegrationBuild>
 	</PropertyGroup>
