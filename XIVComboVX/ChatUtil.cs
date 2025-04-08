@@ -65,7 +65,7 @@ internal class ChatUtil: IDisposable {
 				Service.Plugin.OnPluginCommand("", "");
 				break;
 			case OpenIssueTrackerId:
-				Process.Start(new ProcessStartInfo("https://github.com/PrincessRTFM/XIVComboPlugin/issues") { UseShellExecute = true });
+				Process.Start(new ProcessStartInfo("https://github.com/VariableVixen/XIVComboPlugin/issues") { UseShellExecute = true });
 				break;
 			default:
 				Service.ChatGui.Print(new XivChatEntry() {
