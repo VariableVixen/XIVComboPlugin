@@ -15,7 +15,7 @@
 		<AssemblyName>$(Product)</AssemblyName>
 		<PackageId>$(Product)</PackageId>
 		<Title>$(Product)</Title>
-		<PackageProjectUrl>https://github.com/PrincessRTFM/$(Product)</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/VariableVixen/$(Product)</PackageProjectUrl>
 		<RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<AssemblyFileVersion>$(AssemblyVersion)</AssemblyFileVersion>
@@ -46,11 +46,11 @@
 		<AssemblyName Condition=" '$(AssemblyName)' == '' ">$(Product.Replace("-", "."))</AssemblyName>
 		<PackageId Condition=" '$(PackageId)' == '' ">$(Product.Replace("-", ".").Replace(" ", ""))</PackageId>
 		<Title Condition=" '$(Title)' == '' ">$(Product)</Title>
-		<PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/PrincessRTFM/$(Product)</PackageProjectUrl>
+		<PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/VariableVixen/$(Product)</PackageProjectUrl>
 	</PropertyGroup>
 
 	<PropertyGroup><!-- these properties are LOCKED and applied UNCONDITIONALLY -->
-		<RootNamespace>PrincessRTFM.$(PackageId)</RootNamespace>
+		<RootNamespace>VariableVixen.$(PackageId)</RootNamespace>
 		<Nullable>enable</Nullable>
 		<NullableContextOptions>enable</NullableContextOptions>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>

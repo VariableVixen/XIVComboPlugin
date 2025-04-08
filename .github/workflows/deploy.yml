@@ -17,7 +17,7 @@ on:
 env:
   INTERNAL_NAME: XIVComboVX
   CONFIGURATION: release
-  PERSONAL_PLUGIN_REPO: PrincessRTFM/MyDalamudPlugins
+  PERSONAL_PLUGIN_REPO: VariableVixen/MyDalamudPlugins
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
 
