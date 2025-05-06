@@ -122,6 +122,18 @@ csharp_style_unused_value_expression_statement_preference = discard_variable:sil
 # IDE0305: Collection initialization can be simplified (using .ToArray())
 dotnet_diagnostic.IDE0305.severity = none
 
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = none
+
+# IDE0021: Use expression body for constructor
+dotnet_diagnostic.IDE0021.severity = none
+
+# CA2020: Starting with .NET 7, the operator '+' will throw when overflowing in a checked context.
+dotnet_diagnostic.CA2020.severity = none
+
+# IDE0032: Use auto property (w/ explicit field offset in struct)
+dotnet_diagnostic.IDE0032.severity = none
+
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace:suggestion
 
