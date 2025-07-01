@@ -22,7 +22,7 @@
 		<Deterministic>(DEPENDENT ON OUTPUT TYPE)</Deterministic>
 		<CopyLocalLockFileAssemblies>(DEPENDENT ON OUTPUT TYPE)</CopyLocalLockFileAssemblies>
 		<ProduceReferenceAssembly>(DEPENDENT ON OUTPUT TYPE)</ProduceReferenceAssembly>
-		<PublishDir>bin\publish\$(RuntimeIdentifier)-$(Configuration.ToLower())\</PublishDir>
+		<PublishDir>bin\publish\$(RuntimeIdentifier.ToLower())-$(Configuration.ToLower())\</PublishDir>
 
 	- STATIC OVERRIDABLE:
 		<Platforms>x64</Platforms>
@@ -31,7 +31,7 @@
 		<PublishSingleFile>true</PublishSingleFile>
 
 	- SPECIAL:
-		<OutputPath>bin\$(Configuration.ToLower())\$(RuntimeIdentifier.ToLower() || "portable")</OutputPath>
+		<OutputPath>bin\$(Configuration.ToLower())</OutputPath>
 		<Authors>VariableVixen[, $(Authors)]</Authors>
 		<ContinuousIntegrationBuild>(AUTOMATICALLY ENABLED ON KNOWN CI SYSTEMS)</ContinuousIntegrationBuild>
 		<DebugSymbols>(DEPENDENT ON BUILD CONFIGURATION)</DebugSymbols>
@@ -69,20 +69,8 @@
 		<ImplicitUsings>false</ImplicitUsings>
 		<NoWarn>CA1805,CA1852,CA1707,$(NoWarn)</NoWarn>
 		<PathMap>$(SolutionDir)=./</PathMap>
+		<OutputPath>bin\$(Configuration.ToLower())</OutputPath>
 	</PropertyGroup>
-
-	<Choose>
-		<When Condition=" '$(RuntimeIdentifier)' == '' ">
-			<PropertyGroup>
-				<OutputPath>bin\$(Configuration.ToLower())\portable</OutputPath>
-			</PropertyGroup>
-		</When>
-		<Otherwise>
-			<PropertyGroup>
-				<OutputPath>bin\$(Configuration.ToLower())\$(RuntimeIdentifier.ToLower())</OutputPath>
-			</PropertyGroup>
-		</Otherwise>
-	</Choose>
 
 	<PropertyGroup>
 		<PublishSingleFile Condition=" '$(PublishSingleFile)' == '' ">true</PublishSingleFile>
@@ -93,10 +81,7 @@
 		<TargetFramework Condition=" '$(TargetFramework)' == '' ">net9</TargetFramework>
 		<AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(Version)</AssemblyVersion>
 		<AssemblyFileVersion Condition=" '$(AssemblyFileVersion)' == '' ">$(AssemblyVersion)</AssemblyFileVersion>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(PublishDir)' == '' ">
-		<PublishDir>bin\publish\$(RuntimeIdentifier)-$(Configuration.ToLower())\</PublishDir>
+		<PublishDir Condition=" '$(PublishDir)' == '' ">bin\publish\$(RuntimeIdentifier.ToLower())-$(Configuration.ToLower())\</PublishDir>
 	</PropertyGroup>
 
 	<Choose>
