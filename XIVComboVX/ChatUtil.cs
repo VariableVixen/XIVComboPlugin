@@ -6,7 +6,7 @@ using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 internal class ChatUtil: IDisposable {
 	private bool disposed;

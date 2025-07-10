@@ -2,7 +2,7 @@ using System;
 
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-namespace PrincessRTFM.XIVComboVX.GameData;
+namespace VariableVixen.XIVComboVX.GameData;
 
 internal unsafe class GameState: IDisposable {
 	private bool disposed;

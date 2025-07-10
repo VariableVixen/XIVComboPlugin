@@ -1,4 +1,6 @@
-namespace PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class PLD {
 	public const byte JobID = 19;

@@ -1,6 +1,8 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class DRG {
 	public const byte JobID = 22;
@@ -34,7 +36,7 @@ internal static class DRG {
 		// Dragon
 		Stardiver = 16480,
 		WyrmwindThrust = 25773;
-		
+
 
 	public static class Buffs {
 		public const ushort

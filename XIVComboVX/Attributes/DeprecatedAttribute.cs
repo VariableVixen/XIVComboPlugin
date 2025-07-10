@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 
-namespace PrincessRTFM.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Attributes;
 
 [AttributeUsage(AttributeTargets.Field)]
 internal class DeprecatedAttribute: Attribute {

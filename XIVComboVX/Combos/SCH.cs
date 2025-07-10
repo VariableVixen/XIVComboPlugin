@@ -2,7 +2,7 @@ using Dalamud.Game.ClientState.JobGauge.Types;
 
 using Microsoft.Win32.SafeHandles;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class SCH {
 	public const byte JobID = 28;

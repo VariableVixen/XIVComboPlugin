@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Statuses;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class RPR {
 	public const byte JobID = 39;
@@ -189,9 +189,8 @@ internal class ReaperSlice: CustomCombo {
 
 		if (IsEnabled(CustomComboPreset.ReaperSliceShadowFeature)) {
 			if (level >= RPR.Levels.ShadowOfDeath) {
-				if (HasTarget && TargetOwnEffectDuration(RPR.Debuffs.DeathsDesign) < Service.Configuration.ReaperSliceDeathDebuffTime) {
+				if (HasTarget && TargetOwnEffectDuration(RPR.Debuffs.DeathsDesign) < Service.Configuration.ReaperSliceDeathDebuffTime)
 					return RPR.ShadowOfDeath;
-				}
 			}
 		}
 
@@ -266,10 +265,8 @@ internal class ReaperScythe: CustomCombo {
 		}
 
 		if (IsEnabled(CustomComboPreset.ReaperScytheGuillotineFeature)) {
-			if (reaving || enshrouded || executing) {
-				// Grim Reaping
+			if (reaving || enshrouded || executing)                 // Grim Reaping
 				return OriginalHook(RPR.Guillotine);
-			}
 		}
 
 		if (IsEnabled(CustomComboPreset.ReaperScytheHarvestMoonFeature)) {
@@ -284,9 +281,8 @@ internal class ReaperScythe: CustomCombo {
 
 		if (IsEnabled(CustomComboPreset.ReaperScytheWhorlFeature)) {
 			if (level >= RPR.Levels.WhorlOfDeath) {
-				if (HasTarget && TargetOwnEffectDuration(RPR.Debuffs.DeathsDesign) < Service.Configuration.ReaperScytheDeathDebuffTime) {
+				if (HasTarget && TargetOwnEffectDuration(RPR.Debuffs.DeathsDesign) < Service.Configuration.ReaperScytheDeathDebuffTime)
 					return RPR.WhorlOfDeath;
-				}
 			}
 		}
 

@@ -4,10 +4,10 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 
-using PrincessRTFM.XIVComboVX.Config;
-using PrincessRTFM.XIVComboVX.GameData;
+using VariableVixen.XIVComboVX.Config;
+using VariableVixen.XIVComboVX.GameData;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 internal class Service {
 	public static Plugin Plugin { get; set; } = null!;

@@ -8,10 +8,11 @@ using Dalamud.Interface.ImGuiNotification;
 
 using Newtonsoft.Json;
 
-using PrincessRTFM.XIVComboVX.Attributes;
-using PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX.Attributes;
 
-namespace PrincessRTFM.XIVComboVX.Config;
+using VariableVixen.XIVComboVX.Combos;
+
+namespace VariableVixen.XIVComboVX.Config;
 
 [Serializable]
 [SuppressMessage("Maintainability", "CA1507:Use nameof to express symbol names", Justification = "Serialisation names must remain constant even if member names change")]
@@ -419,9 +420,8 @@ public class PluginConfiguration: IPluginConfiguration {
 		get => this.enabled;
 		set {
 			this.enabled = value;
-			if (!value) {
+			if (!value)
 				Service.Notifications.AddNotification(disableWillNotPersist);
-			}
 		}
 	}
 
@@ -491,8 +491,8 @@ public class PluginConfiguration: IPluginConfiguration {
 				.Select(p => {
 					int v = (int)p;
 					int job = v / 100;
-					int id = v - (job * 100);
-					int n = (job * 1000) + id;
+					int id = v - job * 100;
+					int n = job * 1000 + id;
 					Service.Log.Info($"Updating old preset {p} ({id} for job {job}) to {n}");
 					return (CustomComboPreset)n;
 				})

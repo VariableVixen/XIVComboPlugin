@@ -1,4 +1,4 @@
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class DOH {
 	public const byte JobID = 98;

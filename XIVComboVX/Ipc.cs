@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Ipc.Exceptions;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 internal class Ipc: IDisposable {
 	private const int LoopDelaySec = 300;

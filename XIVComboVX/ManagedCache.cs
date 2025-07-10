@@ -2,7 +2,7 @@ using System;
 
 using Dalamud.Plugin.Services;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 internal abstract class ManagedCache: IDisposable {
 	#region IDisposable

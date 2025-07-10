@@ -1,6 +1,6 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class WAR {
 	public const byte JobID = 21;

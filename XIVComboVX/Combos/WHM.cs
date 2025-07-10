@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.Text;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class WHM {
 	public const byte JobID = 24;
@@ -38,9 +38,9 @@ internal static class WHM {
 		DivineCaress = 37011;
 
 	public static class Buffs {
-		 public const ushort
-			SacredSight = 3879,
-			DivineGrace = 3881;
+		public const ushort
+		   SacredSight = 3879,
+		   DivineGrace = 3881;
 	}
 
 	public static class Debuffs {
@@ -88,7 +88,7 @@ internal class WhiteMageStone: CustomCombo {
 		if (Common.CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
 			return Common.LucidDreaming;
 
-		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh)){
+		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh)) {
 			ushort effectIdToTrack = OriginalHook(WHM.Aero) switch {
 				WHM.Aero => WHM.Debuffs.Aero,
 				WHM.Aero2 => WHM.Debuffs.Aero2,

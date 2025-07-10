@@ -4,7 +4,9 @@ using System.Linq;
 using Dalamud.Game.ClientState.JobGauge.Enums;
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class MNK {
 	public const byte ClassID = 2;

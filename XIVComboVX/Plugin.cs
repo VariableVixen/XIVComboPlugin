@@ -11,10 +11,10 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Utility;
 
-using PrincessRTFM.XIVComboVX.Attributes;
-using PrincessRTFM.XIVComboVX.Config;
+using VariableVixen.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX.Config;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 public sealed class Plugin: IDalamudPlugin {
 	public const string Name = "XIVComboVX";

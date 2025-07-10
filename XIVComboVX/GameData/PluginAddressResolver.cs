@@ -3,7 +3,9 @@ using System.Text;
 
 using FFXIVClientStructs.FFXIV.Client.Game;
 
-namespace PrincessRTFM.XIVComboVX.GameData;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.GameData;
 
 internal class PluginAddressResolver {
 	private const string AddrFmtSpec = "X16";
@@ -11,20 +13,20 @@ internal class PluginAddressResolver {
 	public Exception? LoadFailReason { get; private set; }
 	public bool LoadSuccessful => this.LoadFailReason is null;
 
-	public IntPtr ComboTimer { get; private set; } = IntPtr.Zero;
+	public nint ComboTimer { get; private set; } = nint.Zero;
 	public string ComboTimerAddr => this.ComboTimer.ToInt64().ToString(AddrFmtSpec);
 
-	public IntPtr LastComboMove => this.ComboTimer + 0x4;
+	public nint LastComboMove => this.ComboTimer + 0x4;
 	public string LastComboMoveAddr => this.LastComboMove.ToInt64().ToString(AddrFmtSpec);
 
-	public IntPtr IsActionIdReplaceable { get; private set; } = IntPtr.Zero;
+	public nint IsActionIdReplaceable { get; private set; } = nint.Zero;
 	public string IsActionIdReplaceableAddr => this.IsActionIdReplaceable.ToInt64().ToString(AddrFmtSpec);
 
 
 	internal unsafe void Setup() {
 		try {
 			Service.Log.Information("Scanning for ComboTimer signature");
-			this.ComboTimer = new IntPtr(&ActionManager.Instance()->Combo.Timer);
+			this.ComboTimer = new nint(&ActionManager.Instance()->Combo.Timer);
 
 			Service.Log.Information("Scanning for IsActionIdReplaceable signature");
 			this.IsActionIdReplaceable = Service.SigScanner.ScanText("40 53 48 83 EC 20 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 1F");
@@ -36,9 +38,9 @@ internal class PluginAddressResolver {
 			msg.AppendLine("Please present this error message to the developer.");
 			msg.AppendLine();
 			msg.Append("Signature scan failed for ");
-			if (this.ComboTimer == IntPtr.Zero)
+			if (this.ComboTimer == nint.Zero)
 				msg.Append("ComboTimer");
-			else if (this.IsActionIdReplaceable == IntPtr.Zero)
+			else if (this.IsActionIdReplaceable == nint.Zero)
 				msg.Append("IsActionIdReplaceable");
 			msg.AppendLine(":");
 			msg.Append(ex.ToString());

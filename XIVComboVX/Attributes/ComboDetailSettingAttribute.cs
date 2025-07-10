@@ -1,6 +1,8 @@
 using System;
 
-namespace PrincessRTFM.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Attributes;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 internal class ComboDetailSettingAttribute: Attribute {

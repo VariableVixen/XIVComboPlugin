@@ -7,7 +7,7 @@ using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 
-namespace PrincessRTFM.XIVComboVX.Config;
+namespace VariableVixen.XIVComboVX.Config;
 
 internal class UpdateAlerter: IDisposable {
 	private const int
@@ -17,8 +17,10 @@ internal class UpdateAlerter: IDisposable {
 	private bool disposed;
 
 	private bool seenUpdateMessage = false;
+#pragma warning disable IDE0052 // Remove unread private members - used in release configuration but not debug
 	private readonly bool isFreshInstall = false;
 	private readonly Version current;
+#pragma warning restore IDE0052 // Remove unread private members
 
 	private CancellationTokenSource? realAborter;
 	private CancellationTokenSource? aborter {

@@ -1,6 +1,8 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class DRK {
 	public const byte JobID = 32;
@@ -69,7 +71,7 @@ internal class DarkSouleater: CustomCombo {
 		if (IsEnabled(CustomComboPreset.DarkSouleaterOvercapFeature)) {
 			DRKGauge gauge = GetJobGauge<DRKGauge>();
 
-			if (level >= DRK.Levels.Bloodspiller && (gauge.Blood > 80 || (gauge.Blood > 70 && SelfHasEffect(DRK.Buffs.BloodWeapon))))
+			if (level >= DRK.Levels.Bloodspiller && (gauge.Blood > 80 || gauge.Blood > 70 && SelfHasEffect(DRK.Buffs.BloodWeapon)))
 				return OriginalHook(DRK.Bloodspiller);
 		}
 
@@ -99,7 +101,7 @@ internal class DarkStalwartSoul: CustomCombo {
 		if (IsEnabled(CustomComboPreset.DarkStalwartSoulOvercapFeature)) {
 			DRKGauge gauge = GetJobGauge<DRKGauge>();
 
-			if (level >= DRK.Levels.Quietus && (gauge.Blood > 80 || (gauge.Blood > 70 && SelfHasEffect(DRK.Buffs.BloodWeapon))))
+			if (level >= DRK.Levels.Quietus && (gauge.Blood > 80 || gauge.Blood > 70 && SelfHasEffect(DRK.Buffs.BloodWeapon)))
 				return OriginalHook(DRK.Quietus);
 		}
 

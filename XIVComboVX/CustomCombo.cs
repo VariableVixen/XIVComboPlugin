@@ -12,11 +12,11 @@ using Dalamud.Utility;
 
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
-using PrincessRTFM.XIVComboVX.Attributes;
-using PrincessRTFM.XIVComboVX.Combos;
-using PrincessRTFM.XIVComboVX.GameData;
+using VariableVixen.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX.GameData;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 internal abstract class CustomCombo {
 	public const uint InvalidObjectID = 0xE000_0000;

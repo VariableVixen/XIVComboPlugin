@@ -1,7 +1,9 @@
 using Dalamud.Game.ClientState.JobGauge.Enums;
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX;
+
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class SAM {
 	public const byte JobID = 34;
@@ -87,9 +89,8 @@ internal class SamuraiYukikazeCombo: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		bool meikyo = SelfHasEffect(SAM.Buffs.MeikyoShisui);
 
-		if ((level >= SAM.Levels.MeikyoShisui && meikyo) || (lastComboMove is SAM.Hakaze or SAM.Gyofu && level >= SAM.Levels.Yukikaze)) {
+		if (level >= SAM.Levels.MeikyoShisui && meikyo || lastComboMove is SAM.Hakaze or SAM.Gyofu && level >= SAM.Levels.Yukikaze)
 			return SAM.Yukikaze;
-		}
 
 		return OriginalHook(SAM.Hakaze);
 	}
@@ -152,9 +153,8 @@ internal class SamuraiMangetsuCombo: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		bool meikyo = SelfHasEffect(SAM.Buffs.MeikyoShisui);
 
-		if ((level >= SAM.Levels.MeikyoShisui && meikyo) || (lastComboMove is SAM.Fuga or SAM.Fuko && level >= SAM.Levels.Mangetsu)) {
+		if (level >= SAM.Levels.MeikyoShisui && meikyo || lastComboMove is SAM.Fuga or SAM.Fuko && level >= SAM.Levels.Mangetsu)
 			return SAM.Mangetsu;
-		}
 
 		return OriginalHook(SAM.Fuga);
 	}
@@ -167,15 +167,14 @@ internal class SamuraiOkaCombo: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		bool meikyo = SelfHasEffect(SAM.Buffs.MeikyoShisui);
 
-		if ((level >= SAM.Levels.MeikyoShisui && meikyo) || (lastComboMove is SAM.Fuga or SAM.Fuko && level >= SAM.Levels.Oka)) {
+		if (level >= SAM.Levels.MeikyoShisui && meikyo || lastComboMove is SAM.Fuga or SAM.Fuko && level >= SAM.Levels.Oka)
 			return SAM.Oka;
-		}
 
 		return OriginalHook(SAM.Fuga);
 	}
 }
 
- internal class SamuraiTsubameGaeshiFeature: CustomCombo {
+internal class SamuraiTsubameGaeshiFeature: CustomCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.SamAny;
 	public override uint[] ActionIDs { get; } = [SAM.TsubameGaeshi];
 
@@ -228,9 +227,8 @@ internal class SamuraiShinten: CustomCombo {
 
 		if (IsEnabled(CustomComboPreset.SamuraiShintenSeneiFeature)) {
 
-			if (level >= SAM.Levels.HissatsuSenei && IsOffCooldown(SAM.HissatsuSenei)) {
+			if (level >= SAM.Levels.HissatsuSenei && IsOffCooldown(SAM.HissatsuSenei))
 				return SAM.HissatsuSenei;
-			}
 
 			if (IsEnabled(CustomComboPreset.SamuraiGurenSeneiLevelSyncFeature)) {
 				if (level is >= SAM.Levels.HissatsuGuren and < SAM.Levels.HissatsuSenei && IsOffCooldown(SAM.HissatsuGuren))

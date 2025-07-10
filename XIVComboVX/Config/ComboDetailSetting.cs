@@ -3,9 +3,9 @@ using System.Reflection;
 
 using ImGuiNET;
 
-using PrincessRTFM.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX.Attributes;
 
-namespace PrincessRTFM.XIVComboVX.Config;
+namespace VariableVixen.XIVComboVX.Config;
 
 internal class ComboDetailSetting {
 	public PropertyInfo Property { get; }

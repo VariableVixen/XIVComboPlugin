@@ -6,18 +6,18 @@ using System.Reflection;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
 
-namespace PrincessRTFM.XIVComboVX.GameData;
+namespace VariableVixen.XIVComboVX.GameData;
 
 internal class IconReplacer: IDisposable {
 
 	private delegate ulong IsIconReplaceableDelegate(uint actionID);
-	private delegate uint GetIconDelegate(IntPtr actionManager, uint actionID);
-	private delegate IntPtr GetActionCooldownSlotDelegate(IntPtr actionManager, int cooldownGroup);
+	private delegate uint GetIconDelegate(nint actionManager, uint actionID);
+	private delegate nint GetActionCooldownSlotDelegate(nint actionManager, int cooldownGroup);
 
 	private readonly Hook<IsIconReplaceableDelegate> isIconReplaceableHook;
 	private readonly Hook<GetIconDelegate> getIconHook;
 
-	private IntPtr actionManager = IntPtr.Zero;
+	private nint actionManager = nint.Zero;
 
 	private readonly List<CustomCombo> customCombos;
 
@@ -60,7 +60,7 @@ internal class IconReplacer: IDisposable {
 	/// For example, Souleater combo on DRK happens by dragging Souleater
 	/// onto your bar and mashing it.
 	/// </summary>
-	private unsafe uint getIconDetour(IntPtr actionManager, uint actionID) {
+	private unsafe uint getIconDetour(nint actionManager, uint actionID) {
 		try {
 			this.actionManager = actionManager;
 			IPlayerCharacter? player = Service.Client.LocalPlayer;

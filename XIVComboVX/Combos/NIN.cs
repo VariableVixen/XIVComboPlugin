@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class NIN {
 	public const byte JobID = 30;
@@ -111,17 +111,16 @@ internal class NinjaArmorCrushCombo: CustomCombo {
 
 		if (isDistant) {
 			if (canRaiju) {
-				if (IsEnabled(CustomComboPreset.NinjaArmorCrushSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaArmorCrushForkedRaijuFeature)) {
+				if (IsEnabled(CustomComboPreset.NinjaArmorCrushSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaArmorCrushForkedRaijuFeature))
 					return NIN.ForkedRaiju;
-				}
 			}
+
 			if (IsEnabled(CustomComboPreset.NinjaArmorCrushThrowingDaggerFeature))
 				return level >= NIN.Levels.PhantomKamaitachi && SelfHasEffect(NIN.Buffs.PhantomKamaitachiReady) ? NIN.PhantomKamaitachi : NIN.ThrowingDagger;
 		}
 		else if (canRaiju) {
-			if (IsEnabled(CustomComboPreset.NinjaArmorCrushSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaArmorCrushFleetingRaijuFeature)) {
+			if (IsEnabled(CustomComboPreset.NinjaArmorCrushSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaArmorCrushFleetingRaijuFeature))
 				return NIN.FleetingRaiju;
-			}
 		}
 
 		if (lastComboMove is NIN.SpinningEdge) {
@@ -184,23 +183,21 @@ internal class NinjaAeolianEdgeCombo: CustomCombo {
 
 		if (isDistant) {
 			if (canRaiju) {
-				if (IsEnabled(CustomComboPreset.NinjaAeolianEdgeSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaAeolianEdgeForkedRaijuFeature)) {
+				if (IsEnabled(CustomComboPreset.NinjaAeolianEdgeSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaAeolianEdgeForkedRaijuFeature))
 					return NIN.ForkedRaiju;
-				}
 			}
+
 			if (IsEnabled(CustomComboPreset.NinjaAeolianEdgeThrowingDaggerFeature))
 				return level >= NIN.Levels.PhantomKamaitachi && SelfHasEffect(NIN.Buffs.PhantomKamaitachiReady) ? NIN.PhantomKamaitachi : NIN.ThrowingDagger;
 		}
 		else if (canRaiju) {
-			if (IsEnabled(CustomComboPreset.NinjaAeolianEdgeSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaAeolianEdgeFleetingRaijuFeature)) {
+			if (IsEnabled(CustomComboPreset.NinjaAeolianEdgeSmartRaijuFeature) || IsEnabled(CustomComboPreset.NinjaAeolianEdgeFleetingRaijuFeature))
 				return NIN.FleetingRaiju;
-			}
 		}
 
 		if (lastComboMove is NIN.SpinningEdge) {
-			if (level >= NIN.Levels.GustSlash) {
+			if (level >= NIN.Levels.GustSlash)
 				return NIN.GustSlash;
-			}
 		}
 
 		if (lastComboMove is NIN.GustSlash) {

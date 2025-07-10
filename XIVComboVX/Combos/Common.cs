@@ -1,4 +1,4 @@
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class Common {
 	public const uint

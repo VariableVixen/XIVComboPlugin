@@ -7,7 +7,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Statuses;
 using Dalamud.Plugin.Services;
 
-namespace PrincessRTFM.XIVComboVX.GameData;
+namespace VariableVixen.XIVComboVX.GameData;
 
 internal class ComboDataCache: ManagedCache {
 	protected const uint InvalidObjectID = 0xE000_0000;
@@ -25,7 +25,7 @@ internal class ComboDataCache: ManagedCache {
 
 	#region Core/setup
 
-	private delegate IntPtr GetActionCooldownSlotDelegate(IntPtr actionManager, int cooldownGroup);
+	private delegate nint GetActionCooldownSlotDelegate(nint actionManager, int cooldownGroup);
 
 	public ComboDataCache() : base() { }
 

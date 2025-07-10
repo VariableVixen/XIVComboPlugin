@@ -2,10 +2,10 @@ using System;
 
 using Dalamud.Utility;
 
-using PrincessRTFM.XIVComboVX.Attributes;
-using PrincessRTFM.XIVComboVX.Combos;
+using VariableVixen.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX.Combos;
 
-namespace PrincessRTFM.XIVComboVX;
+namespace VariableVixen.XIVComboVX;
 
 public enum CustomComboPreset {
 	// Job ID 0 means "do not perform a class/job ID check".

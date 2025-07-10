@@ -14,9 +14,9 @@ using Dalamud.Utility;
 
 using ImGuiNET;
 
-using PrincessRTFM.XIVComboVX.Attributes;
+using VariableVixen.XIVComboVX.Attributes;
 
-namespace PrincessRTFM.XIVComboVX.Config;
+namespace VariableVixen.XIVComboVX.Config;
 
 public class ConfigWindow: Window {
 
@@ -193,9 +193,8 @@ public class ConfigWindow: Window {
 					ImGui.Text("It will always be reset to ON when you launch the game.");
 					ImGui.EndTooltip();
 				}
-				if (clickEnabled) {
+				if (clickEnabled)
 					Service.Configuration.Active = pluginActive;
-				}
 
 				bool clickCollapse = ImGui.MenuItem("Collapse disabled features", "", ref hideChildren);
 				if (ImGui.IsItemHovered()) {
@@ -269,9 +268,8 @@ public class ConfigWindow: Window {
 					ImGui.TextColored(warningColour, "THIS CANNOT BE UNDONE!");
 					ImGui.EndTooltip();
 				}
-				if (clickReset) {
+				if (clickReset)
 					Service.Plugin.OnPluginCommand("", "reset");
-				}
 
 				ImGui.EndMenu();
 			}
@@ -294,9 +292,8 @@ public class ConfigWindow: Window {
 					ImGui.Text("They will appear in your log file and also in the /xllog window.");
 					ImGui.EndTooltip();
 				}
-				if (clickDebug) {
+				if (clickDebug)
 					Service.TickLogger.EnableNextTick();
-				}
 
 				ImGui.EndMenu();
 			}
@@ -474,10 +471,10 @@ public class ConfigWindow: Window {
 
 		if (hasDetails && enabled) {
 			const int memWidth = sizeof(double);
-			IntPtr ptrVal = Marshal.AllocHGlobal(memWidth);
-			IntPtr ptrMin = Marshal.AllocHGlobal(memWidth);
-			IntPtr ptrMax = Marshal.AllocHGlobal(memWidth);
-			IntPtr ptrStep = Marshal.AllocHGlobal(memWidth);
+			nint ptrVal = Marshal.AllocHGlobal(memWidth);
+			nint ptrMin = Marshal.AllocHGlobal(memWidth);
+			nint ptrMax = Marshal.AllocHGlobal(memWidth);
+			nint ptrStep = Marshal.AllocHGlobal(memWidth);
 			bool shift = ImGui.IsKeyDown(ImGuiKey.ModShift);
 			bool ctrl = ImGui.IsKeyDown(ImGuiKey.ModCtrl);
 			byte multShift = (byte)(shift ? 100 : 1);

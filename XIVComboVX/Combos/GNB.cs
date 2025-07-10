@@ -1,6 +1,6 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class GNB {
 	public const byte JobID = 37;
@@ -123,9 +123,8 @@ internal class GunbreakerSolidBarrel: CustomCombo {
 
 			// Bloodfest Feature - Replace Solid Barrel with Bloodfest when there is no ammo and you are under No Mercy.
 			if (IsEnabled(CustomComboPreset.GunbreakerSolidBloodfest) && level >= GNB.Levels.Bloodfest && gauge.Ammo == 0) {
-				if (IsOffCooldown(GNB.Bloodfest) && IsOnCooldown(GNB.GnashingFang) && SelfHasEffect(GNB.Buffs.NoMercy)) {
+				if (IsOffCooldown(GNB.Bloodfest) && IsOnCooldown(GNB.GnashingFang) && SelfHasEffect(GNB.Buffs.NoMercy))
 					return GNB.Bloodfest;
-				}
 			}
 
 			// Danger Zone/Blasting Zone Feature - Replace Solid Barrel with Danger Zone/Blasting Zone after Gnashing Fang is used.
@@ -227,31 +226,31 @@ internal class GunbreakerSolidBarrel: CustomCombo {
 			// Starting Gnashing Fang
 			if (gauge.AmmoComboStep == 0 && IsOffCooldown(GNB.GnashingFang) &&
 				(
-					( // begin regular 60 second GF/NM timing
-						gauge.Ammo == GNB.MaxAmmo(level)
+						// begin regular 60 second GF/NM timing
+						(gauge.Ammo == GNB.MaxAmmo(level)
 						&& (
 							GetCooldown(GNB.NoMercy).CooldownRemaining > GNB.NOMERCYBUFF_EMULATION
 							|| SelfHasEffect(GNB.Buffs.NoMercy)
-						)
-					) // end regular 60 second GF/NM timing
-					|| ( // begin NMDDGF windows/fixes desync and drift
-						gauge.Ammo == 1
+						))
+					// end regular 60 second GF/NM timing
+					||  // begin NMDDGF windows/fixes desync and drift
+						(gauge.Ammo == 1
 						&& GetCooldown(GNB.DoubleDown).CooldownRemaining > GNB.DOUBLEDOWN_DESYNCWINDOW
-						&& SelfHasEffect(GNB.Buffs.NoMercy)
-					) // end NMDDGF windows/fixes desync and drift
-					|| ( // begin regular 30 second window
-						gauge.Ammo > 0
+						&& SelfHasEffect(GNB.Buffs.NoMercy))
+					// end NMDDGF windows/fixes desync and drift
+					||  // begin regular 30 second window
+						(gauge.Ammo > 0
 						&& GetCooldown(GNB.NoMercy).CooldownRemaining > GNB.NOMERCYBUFF_THRESHOLD
-						&& GetCooldown(GNB.NoMercy).CooldownRemaining < GNB.NOMERCYBUFF_MIDPOINT
-					) // end regular 30 second window
-					|| ( // begin opener conditions
-						gauge.Ammo == 1
+						&& GetCooldown(GNB.NoMercy).CooldownRemaining < GNB.NOMERCYBUFF_MIDPOINT)
+					// end regular 30 second window
+					||  // begin opener conditions
+						(gauge.Ammo == 1
 						&& GetCooldown(GNB.NoMercy).CooldownRemaining > GNB.NOMERCYBUFF_EMULATION
 						&& (
 							level < GNB.Levels.Bloodfest
 							|| IsOffCooldown(GNB.Bloodfest)
-						)
-					) // end opener conditions
+						))
+				// end opener conditions
 				)
 			) {
 				return GNB.GnashingFang;
@@ -329,9 +328,8 @@ internal class GunbreakerGnashingFang: CustomCombo {
 			// No Mercy Feature - Replace Gnashing Fang with No Mercy when both No Mercy and Gnashing Fang are ready to be used.
 			// Use No Mercy when Gnashing Fang is ready or nearly ready to be used
 			if (quarterWeave && IsEnabled(CustomComboPreset.GunbreakerGnashingFangNoMercy) && level >= GNB.Levels.NoMercy) {
-				if (gauge.Ammo == GNB.MaxAmmo(level) && IsOffCooldown(GNB.NoMercy) && IsOffCooldown(GNB.GnashingFang)) {
+				if (gauge.Ammo == GNB.MaxAmmo(level) && IsOffCooldown(GNB.NoMercy) && IsOffCooldown(GNB.GnashingFang))
 					return GNB.NoMercy;
-				}
 			}
 
 			// Danger Zone/Blasting Zone Feature - Replace Gnashing Fang with Danger Zone/Blasting Zone when available.
@@ -461,9 +459,8 @@ internal class GunbreakerGnashingFang: CustomCombo {
 						if (level < GNB.Levels.DoubleDown || GetCooldown(GNB.DoubleDown).CooldownRemaining > Service.Configuration.GunbreakerGnashingStrikeCooldownDoubleDown) {
 
 							if (IsEnabled(CustomComboPreset.GunbreakerBurstStrikeCont) && level >= GNB.Levels.EnhancedContinuation) {
-								if (SelfHasEffect(GNB.Buffs.ReadyToBlast)) {
+								if (SelfHasEffect(GNB.Buffs.ReadyToBlast))
 									return GNB.Hypervelocity;
-								}
 							}
 
 							return GNB.BurstStrike;

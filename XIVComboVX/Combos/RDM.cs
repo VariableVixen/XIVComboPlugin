@@ -2,7 +2,7 @@ using System;
 
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-namespace PrincessRTFM.XIVComboVX.Combos;
+namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class RDM {
 	public const byte JobID = 35;
@@ -141,13 +141,13 @@ internal static class RDM {
 
 			if (black >= white && canFinishWhite) {
 				// If we can already Verstone, but we can't Verfire, and Verflare WON'T imbalance us, use Verflare
-				if (verstoneUp && !verfireUp && (black + finisherDelta <= blackThreshold))
+				if (verstoneUp && !verfireUp && black + finisherDelta <= blackThreshold)
 					actionID = Verflare;
 				else
 					actionID = Verholy;
 			}
 			// If we can already Verfire, but we can't Verstone, and we can use Verholy, and it WON'T imbalance us, use Verholy
-			else if (verfireUp && !verstoneUp && canFinishWhite && (white + finisherDelta <= whiteThreshold)) {
+			else if (verfireUp && !verstoneUp && canFinishWhite && white + finisherDelta <= whiteThreshold) {
 				actionID = Verholy;
 			}
 			else {
@@ -217,7 +217,7 @@ internal static class RDM {
 		if (!CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFleche))
 			return false;
 
-		float prefulgenceTimeLeft = CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFlechePrefulgence) && level >= RDM.Levels.Prefulgence
+		float prefulgenceTimeLeft = CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFlechePrefulgence) && level >= Levels.Prefulgence
 			? CustomCombo.SelfEffectDuration(Buffs.PrefulgenceReady)
 			: 0f;
 		float thornsTimeLeft = CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFlecheThorns) && level >= Levels.ViceOfThorns
@@ -228,7 +228,7 @@ internal static class RDM {
 
 			// If we're almost out of time to use VoT but Prefulgence has enough time left to use VoT and also itself, use VoT first to save it from being lost
 			if (thornsTimeLeft is > 0 and < 3 && prefulgenceTimeLeft >= 3)
-				actionID = RDM.ViceOfThorns;
+				actionID = ViceOfThorns;
 			else
 				actionID = Prefulgence;
 
@@ -515,11 +515,9 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			if (alt > 0)
 				return alt;
 		}
-		if (isFinishingAny) {
-			// This accounts for both the finisher combo chain (Scorch and Resolution) AND the initial decision of whether to START the finishers (Verflare or Verholy)
-			// Since you lose your mana stacks when you cast ANY spell, you want to use the finishers as soon as they're up, so you don't lose them
+		if (isFinishingAny)             // This accounts for both the finisher combo chain (Scorch and Resolution) AND the initial decision of whether to START the finishers (Verflare or Verholy)
+										// Since you lose your mana stacks when you cast ANY spell, you want to use the finishers as soon as they're up, so you don't lose them
 			return actionID;
-		}
 		if (instacasting) {
 			// TODO: need to account for hardcasting spells with no cast time!
 
@@ -562,11 +560,9 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 				return OriginalHook(RDM.Veraero);
 			}
 		}
-		if (shouldCloseGap) {
-			// If this is the case, then meleeCombo CANNOT be, because one requires isClose and one requires !isClose, so the order of these two doesn't really matter.
-			// I decided to put it here because logically, you need to close before you can melee.
+		if (shouldCloseGap)             // If this is the case, then meleeCombo CANNOT be, because one requires isClose and one requires !isClose, so the order of these two doesn't really matter.
+										// I decided to put it here because logically, you need to close before you can melee.
 			return RDM.Corpsacorps;
-		}
 		if (meleeCombo) {
 			// If we're out of range while in the combo, become Corps-a-corps to get back in range. Otherwise, just run the combo.
 
@@ -586,15 +582,13 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			if (alt > 0)
 				return alt;
 		}
-		if (useGrandImpact) {
-			// Should maybe check time remaining on GI Ready and verprocs, but checking time on three different buffs to calculate priorities is gonna be a bit of a bitch...
-			// Eventually(tm)
-			// Hm, note to self - could probably just check the lesser of the nonzero verprocs is at least ~6s, to account for cooldown from GI being GCD and then the cast time on the spell...
-			// What if both are about to run out, though? Verproc gives dualcast, so.. probably that one?
-			// Might need to check with a sweaty RDM optimiser
+		if (useGrandImpact)             // Should maybe check time remaining on GI Ready and verprocs, but checking time on three different buffs to calculate priorities is gonna be a bit of a bitch...
+										// Eventually(tm)
+										// Hm, note to self - could probably just check the lesser of the nonzero verprocs is at least ~6s, to account for cooldown from GI being GCD and then the cast time on the spell...
+										// What if both are about to run out, though? Verproc gives dualcast, so.. probably that one?
+										// Might need to check with a sweaty RDM optimiser
 
 			return RDM.GrandImpact;
-		}
 
 		// Stand fast, slow cast!
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace PrincessRTFM.XIVComboVX.Attributes;
+namespace VariableVixen.XIVComboVX.Attributes;
 
 [AttributeUsage(AttributeTargets.Field)]
 internal class ExperimentalAttribute: Attribute { }

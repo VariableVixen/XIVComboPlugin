@@ -1,6 +1,6 @@
 using System;
 
-namespace PrincessRTFM.XIVComboVX.Attributes;
+namespace VariableVixen.XIVComboVX.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
 internal class LucidWeavingSettingAttribute(CustomComboPreset combo): ComboDetailSettingAttribute(combo, LucidWeaveName, LucidWeaveDesc, LucidWeaveManaMin, LucidWeaveManaMax) {
