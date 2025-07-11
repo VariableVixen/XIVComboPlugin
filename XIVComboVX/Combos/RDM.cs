@@ -351,7 +351,7 @@ internal class RedMageSmartcastAoECombo: CustomCombo {
 		}
 
 		if (fastCast || level < RDM.Levels.Verthunder2)
-			return OriginalHook(RDM.Impact);
+			return OriginalHook(RDM.Scatter);
 
 		if (level < RDM.Levels.Veraero2)
 			return RDM.Verthunder2;
@@ -422,6 +422,7 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		if (shouldEngage && engageEarly)
 			return RDM.Engagement;
 
+		// TODO check the times on Prefulgence Ready and Thorned Flourish to prioritise one over the other if it's about to run out
 		if (level >= RDM.Levels.Prefulgence && SelfHasEffect(RDM.Buffs.PrefulgenceReady))
 			return RDM.Prefulgence;
 
@@ -515,9 +516,12 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			if (alt > 0)
 				return alt;
 		}
-		if (isFinishingAny)             // This accounts for both the finisher combo chain (Scorch and Resolution) AND the initial decision of whether to START the finishers (Verflare or Verholy)
-										// Since you lose your mana stacks when you cast ANY spell, you want to use the finishers as soon as they're up, so you don't lose them
-			return actionID;
+
+		// This accounts for both the finisher combo chain (Scorch and Resolution) AND the initial decision of whether to START the finishers (Verflare or Verholy)
+		// Since you lose your mana stacks when you cast ANY spell, you want to use the finishers as soon as they're up, so you don't lose them
+		if (isFinishingAny)
+			return actionID; // isFinishingAny is only true if the helper function assigned the appropriate actionID value
+
 		if (instacasting) {
 			// TODO: need to account for hardcasting spells with no cast time!
 
@@ -560,17 +564,21 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 				return OriginalHook(RDM.Veraero);
 			}
 		}
-		if (shouldCloseGap)             // If this is the case, then meleeCombo CANNOT be, because one requires isClose and one requires !isClose, so the order of these two doesn't really matter.
-										// I decided to put it here because logically, you need to close before you can melee.
-			return RDM.Corpsacorps;
-		if (meleeCombo) {
-			// If we're out of range while in the combo, become Corps-a-corps to get back in range. Otherwise, just run the combo.
 
+		// If this is the case, then meleeCombo CANNOT be, because one requires isClose and one requires !isClose, so the order of these two doesn't really matter.
+		// I decided to put it here because logically, you need to close before you can melee.
+		if (shouldCloseGap)
+			return RDM.Corpsacorps;
+
+		if (meleeCombo) {
+
+			// If we're out of range while in the combo, become Corps-a-corps to get back in range. Otherwise, just run the combo.
 			if (targeting && !isClose && level >= RDM.Levels.Corpsacorps)
 				return RDM.Corpsacorps;
 
 			return actionID; // meleeCombo is only true if the helper function assigned the appropriate actionID value
 		}
+
 		if (smartMove) {
 			// Can't slowcast spells if you're moving, so we have to fall back to instants.
 			// I know it's a mess. Moving it into another method was basically the best I could do, since the whole thing is duplicated for weaving and moving but with different variables.
@@ -582,18 +590,18 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			if (alt > 0)
 				return alt;
 		}
-		if (useGrandImpact)             // Should maybe check time remaining on GI Ready and verprocs, but checking time on three different buffs to calculate priorities is gonna be a bit of a bitch...
-										// Eventually(tm)
-										// Hm, note to self - could probably just check the lesser of the nonzero verprocs is at least ~6s, to account for cooldown from GI being GCD and then the cast time on the spell...
-										// What if both are about to run out, though? Verproc gives dualcast, so.. probably that one?
-										// Might need to check with a sweaty RDM optimiser
 
+		// Should maybe check time remaining on GI Ready and verprocs, but checking time on three different buffs to calculate priorities is gonna be a bit of a bitch...
+		// Eventually(tm)
+		// Hm, note to self - could probably just check the lesser of the nonzero verprocs is at least ~6s, to account for cooldown from GI being GCD and then the cast time on the spell...
+		// What if both are about to run out, though? Verproc gives dualcast, so.. probably that one?
+		// Might need to check with a sweaty RDM optimiser
+		if (useGrandImpact)
 			return RDM.GrandImpact;
 
 		// Stand fast, slow cast!
 
 		if (verfireUp && verstoneUp) {
-
 			// TODO should probably check at the VERY least that the effect for the chosen action has at least ~3 seconds left, or you won't finish the cast before it interrupts you and you'll drift
 
 			// Decide by mana levels
@@ -622,7 +630,8 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 				return alt;
 		}
 
-		// Finally, if all else fails, become Jolt whatever, or Grand Impact I guess
+		// Finally, if all else fails, become Jolt whatever
+		// It won't be Grand Impact cause we handle that ourselves up above, but there's three damn jolts now and I canNOT be assed to handle them myself :V
 		return OriginalHook(RDM.Jolt);
 	}
 }
@@ -659,14 +668,14 @@ internal class RedMageManafication: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 		bool melee = (level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay))
-			|| lastComboActionId is RDM.Riposte or RDM.EnchantedRiposte or RDM.Zwerchhau or RDM.EnchantedZwerchhau;
+			|| lastComboActionId is RDM.EnchantedRiposte or RDM.EnchantedZwerchhau;
 
 		if (IsEnabled(CustomComboPreset.RedMageManaficationIntoMeleeGauge) && !melee) {
 			RDMGauge gauge = GetJobGauge<RDMGauge>();
 			byte black = gauge.BlackMana;
 			byte white = gauge.WhiteMana;
 			byte threshold = RDM.ManaForMeleeChain(level);
-			if ((black >= threshold && white >= threshold && black != white) || black == 100)
+			if (black >= threshold && white >= threshold && (black != white || black == 100))
 				melee = true;
 		}
 
