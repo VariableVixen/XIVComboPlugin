@@ -460,7 +460,6 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		bool fastCasting = IsFastcasting;
 		bool accelerated = level >= RDM.Levels.Acceleration && SelfHasEffect(RDM.Buffs.Acceleration);
 		bool instacasting = fastCasting || accelerated;
-		bool weaving = CanWeave(actionID);
 		bool moving = IsMoving;
 		bool targeting = HasTarget;
 		bool fighting = InCombat;
@@ -480,11 +479,14 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		bool meleeCombo = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeCombo)
 			&& !isFinishingAny && targeting
 			&& RDM.CheckMeleeST(ref actionID, lastComboActionId, level, IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeComboStarter));
-		bool shouldCloseGap = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeComboStarterCloser)
-			&& level >= RDM.Levels.Corpsacorps
-			&& meleeCombo && !isClose;
+		bool shouldCloseGap = meleeCombo && !isClose
+			&& (
+				actionID is RDM.EnchantedZwerchhau or RDM.EnchantedRedoublement
+				|| IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeComboStarterCloser)
+			);
 		meleeCombo &= isClose;
 
+		bool weaving = CanWeave(actionID);
 		bool smartWeave = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveAttack) && weaving;
 		bool smartMove = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovement) && moving;
 
@@ -570,14 +572,8 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		if (shouldCloseGap)
 			return RDM.Corpsacorps;
 
-		if (meleeCombo) {
-
-			// If we're out of range while in the combo, become Corps-a-corps to get back in range. Otherwise, just run the combo.
-			if (targeting && !isClose && level >= RDM.Levels.Corpsacorps)
-				return RDM.Corpsacorps;
-
+		if (meleeCombo)
 			return actionID; // meleeCombo is only true if the helper function assigned the appropriate actionID value
-		}
 
 		if (smartMove) {
 			// Can't slowcast spells if you're moving, so we have to fall back to instants.
