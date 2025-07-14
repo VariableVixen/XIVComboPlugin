@@ -430,7 +430,7 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			return RDM.ViceOfThorns;
 
 		// Grand Impact is SPECIFICALLY excluded because it's a spell, not an ability, which makes it a GCD.
-		// Therefore, since this helper can be used for moving OR for weaving, it should be handled by the AOE spell combo instead.
+		// Therefore, since this helper can be used for moving OR for weaving, it should be handled by the caller instead.
 
 		if (level >= RDM.Levels.Fleche) {
 			uint actionID = RDM.Fleche;
@@ -511,7 +511,7 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			// This is basically universal.
 			// I know it's a mess. Moving it into another method was basically the best I could do, since the whole thing is duplicated for weaving and moving but with different variables.
 			bool
-				engageCheck = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveMelee) && weaving,
+				engageCheck = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveMelee),
 				holdOneEngageCharge = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveMeleeHoldOne),
 				engageEarly = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveMeleeFirst);
 			uint alt = noCastingSubCheck(level, engageCheck, holdOneEngageCharge, engageEarly, targeting && isClose, accelWeave);
@@ -525,7 +525,7 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			return actionID; // isFinishingAny is only true if the helper function assigned the appropriate actionID value
 
 		if (instacasting) {
-			// TODO: need to account for hardcasting spells with no cast time!
+			// This block covers instacasting as the result of a TIMED buff, and so should only replace with spells that NORMALLY have a (long) cast time.
 
 			if (level < RDM.Levels.Verthunder)
 				return RDM.Jolt;
@@ -579,9 +579,11 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 			// Can't slowcast spells if you're moving, so we have to fall back to instants.
 			// I know it's a mess. Moving it into another method was basically the best I could do, since the whole thing is duplicated for weaving and moving but with different variables.
 			bool
-				engageCheck = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovementMelee) && moving,
+				engageCheck = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovementMelee),
 				holdOneEngageCharge = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovementMeleeHoldOne),
 				engageEarly = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovementMeleeFirst);
+			// Note that this explicitly does NOT include Grand Impact, because that's GCD. This means that you'll first exhaust a bunch of things that are ALSO weavable before using GI.
+			// Swiftcast, Acceleration, Engagement, Prefulgence, Vice of Thorns, Fleche, and Contra Sixte are ALL checked in here.
 			uint alt = noCastingSubCheck(level, engageCheck, holdOneEngageCharge, engageEarly, targeting && isClose, accelMove);
 			if (alt > 0)
 				return alt;
