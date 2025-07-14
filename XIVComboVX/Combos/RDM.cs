@@ -213,14 +213,18 @@ internal static class RDM {
 		return false;
 	}
 
-	public static bool CheckAbilityAttacks(ref uint actionID, byte level) {
-		if (!CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFleche))
+	public static bool CheckPrefulgenceThorns(uint actionID, out uint replacementID, byte level, bool allowPrefulgence = true, bool allowThorns = true) {
+		replacementID = actionID;
+		return CheckPrefulgenceThorns(ref replacementID, level, allowPrefulgence, allowThorns);
+	}
+	public static bool CheckPrefulgenceThorns(ref uint actionID, byte level, bool allowPrefulgence = true, bool allowThorns = true) {
+		if (!allowPrefulgence && !allowThorns) // nothing to do
 			return false;
 
-		float prefulgenceTimeLeft = CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFlechePrefulgence) && level >= Levels.Prefulgence
+		float prefulgenceTimeLeft = allowPrefulgence && level >= Levels.Prefulgence
 			? CustomCombo.SelfEffectDuration(Buffs.PrefulgenceReady)
 			: 0f;
-		float thornsTimeLeft = CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFlecheThorns) && level >= Levels.ViceOfThorns
+		float thornsTimeLeft = allowThorns && level >= Levels.ViceOfThorns
 			? CustomCombo.SelfEffectDuration(Buffs.ThornedFlourish)
 			: 0f;
 
@@ -239,6 +243,19 @@ internal static class RDM {
 			actionID = ViceOfThorns;
 			return true;
 		}
+
+		return false;
+	}
+
+	public static bool CheckAbilityAttacks(ref uint actionID, byte level, CustomComboPreset checkPrefulgence, CustomComboPreset checkThorns) {
+		if (!CustomCombo.IsEnabled(CustomComboPreset.RedMageContreFleche))
+			return false;
+
+		bool
+			allowPrefulgence = CustomCombo.IsEnabled(checkPrefulgence),
+			allowThorns = CustomCombo.IsEnabled(checkThorns);
+		if (CheckPrefulgenceThorns(ref actionID, level, allowPrefulgence, allowThorns))
+			return true;
 
 		if (level >= Levels.ContreSixte) {
 			actionID = CustomCombo.PickByCooldown(actionID, Fleche, ContreSixte);
@@ -309,7 +326,7 @@ internal class RedMageContreFlecheFeature: CustomCombo {
 	public override uint[] ActionIDs { get; } = [RDM.Fleche, RDM.ContreSixte];
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
-		RDM.CheckAbilityAttacks(ref actionID, level);
+		RDM.CheckAbilityAttacks(ref actionID, level, CustomComboPreset.RedMageContreFlechePrefulgence, CustomComboPreset.RedMageContreFlecheThorns);
 
 		return actionID;
 	}
@@ -342,7 +359,7 @@ internal class RedMageSmartcastAoECombo: CustomCombo {
 		// However, that's available on the ST smartcast option, which means it's still available while the AoE one here will show your GCD.
 		// More importantly, I don't want to duplicate the whole block above the finishers, so deal with it.
 		if ((IsEnabled(CustomComboPreset.RedMageSmartcastAoEWeaveAttack) && weaving) || (IsEnabled(CustomComboPreset.RedMageSmartcastAoEMovement) && !fastCast && IsMoving)) {
-			if (RDM.CheckAbilityAttacks(ref actionID, level)) {
+			if (RDM.CheckAbilityAttacks(ref actionID, level, CustomComboPreset.RedMageContreFlechePrefulgence, CustomComboPreset.RedMageContreFlecheThorns)) {
 				return actionID;
 			}
 			else if (level >= RDM.Levels.ContreSixte) {
@@ -422,19 +439,16 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		if (shouldEngage && engageEarly)
 			return RDM.Engagement;
 
-		// TODO check the times on Prefulgence Ready and Thorned Flourish to prioritise one over the other if it's about to run out
-		if (level >= RDM.Levels.Prefulgence && SelfHasEffect(RDM.Buffs.PrefulgenceReady))
-			return RDM.Prefulgence;
-
-		if (level >= RDM.Levels.ViceOfThorns && SelfHasEffect(RDM.Buffs.ThornedFlourish))
-			return RDM.ViceOfThorns;
+		if (RDM.CheckPrefulgenceThorns(0, out uint replacement, level))
+			return replacement;
 
 		// Grand Impact is SPECIFICALLY excluded because it's a spell, not an ability, which makes it a GCD.
 		// Therefore, since this helper can be used for moving OR for weaving, it should be handled by the caller instead.
 
 		if (level >= RDM.Levels.Fleche) {
 			uint actionID = RDM.Fleche;
-			RDM.CheckAbilityAttacks(ref actionID, level);
+			// Prefulgence and Vice of Thorns are already checked above, so we don't want to duplicate the check here
+			RDM.CheckAbilityAttacks(ref actionID, level, CustomComboPreset.None, CustomComboPreset.None);
 			if (IsOffCooldown(actionID))
 				return actionID;
 		}
@@ -472,8 +486,10 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		int blackThreshold = white + imbalanceDiffMax;
 		int whiteThreshold = black + imbalanceDiffMax;
 
-		bool verfireUp = level >= RDM.Levels.Verfire && SelfHasEffect(RDM.Buffs.VerfireReady);
-		bool verstoneUp = level >= RDM.Levels.Verstone && SelfHasEffect(RDM.Buffs.VerstoneReady);
+		bool verfireUp = level >= RDM.Levels.Verfire
+			&& SelfEffectDuration(RDM.Buffs.VerfireReady) >= 2.7; // if the buff goes away before you finish casting, you lose the cast and drift
+		bool verstoneUp = level >= RDM.Levels.Verstone
+			&& SelfEffectDuration(RDM.Buffs.VerstoneReady) >= 2.7; // likewise
 		bool isFinishingAny = RDM.CheckFinishers(ref actionID, lastComboActionId, level);
 
 		bool meleeCombo = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeCombo)
@@ -502,7 +518,9 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		bool accelWeave = allowAccel && IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetAccelerationWeave);
 		bool accelMove = allowAccel && IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetAccelerationMoving);
 		bool accelNoNormal = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetAccelerationNoOverride);
-		bool useGrandImpact = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetGrandImpact) && level >= RDM.Levels.GrandImpact && SelfHasEffect(RDM.Buffs.GrandImpactReady);
+		bool useGrandImpact = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetGrandImpact)
+			&& level >= RDM.Levels.GrandImpact
+			&& SelfHasEffect(RDM.Buffs.GrandImpactReady);
 
 		if (Common.CheckLucidWeave(CustomComboPreset.RedMageSmartcastSingleTargetWeaveLucid, level, Service.Configuration.RedMageSmartcastSingleWeaveLucidManaThreshold, actionID))
 			return Common.LucidDreaming;
@@ -600,7 +618,6 @@ internal class RedmageSmartcastSingleComboFull: CustomCombo {
 		// Stand fast, slow cast!
 
 		if (verfireUp && verstoneUp) {
-			// TODO should probably check at the VERY least that the effect for the chosen action has at least ~3 seconds left, or you won't finish the cast before it interrupts you and you'll drift
 
 			// Decide by mana levels
 			if (black < white || Math.Min(100, white + procDelta) == black)
