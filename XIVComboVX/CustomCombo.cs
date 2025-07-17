@@ -38,7 +38,7 @@ internal abstract class CustomCombo {
 		CustomComboInfoAttribute presetInfo = this.Preset.GetAttribute<CustomComboInfoAttribute>()!;
 		this.JobID = presetInfo.JobID;
 		this.ModuleName = this.GetType().Name;
-		this.AffectedIDs = new(this.ActionIDs);
+		this.AffectedIDs = [.. this.ActionIDs];
 	}
 
 	public bool TryInvoke(uint actionID, uint lastComboActionId, float comboTime, byte level, uint classJobID, out uint newActionID) {

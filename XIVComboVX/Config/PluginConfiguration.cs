@@ -312,15 +312,6 @@ public class PluginConfiguration: IPluginConfiguration {
 	)]
 	public float ReaperScytheDeathDebuffTime { get; set; } = 5F;
 
-	[ComboDetailSetting(
-		CustomComboPreset.ReaperHarvestFeature,
-		"Minimum stacks of Immortal Sacrifice",
-		"When you have at least this many stacks of Immortal Sacrifice, Arcane Circle will become Plentiful Harvest",
-		1,
-		8
-	)]
-	public uint ReaperArcaneHarvestStackThreshold { get; set; } = 1;
-
 	#endregion
 
 	#region SAM settings

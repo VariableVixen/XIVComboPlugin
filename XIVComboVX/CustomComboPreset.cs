@@ -1053,28 +1053,11 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Slice Lemure's Feature", "Replace Infernal Slice with Lemure's Slice when two or more stacks of Void Shroud are active.", RPR.JobID)]
 	ReaperSliceLemuresFeature = 39019,
 
-	[CustomComboInfo("Slice Communio Feature", "Replace Infernal Slice with Communio when one stack of Shroud is left.", RPR.JobID)]
+	[CustomComboInfo("Slice Communio Feature", "Replace Infernal Slice with Communio when one stack of Shroud is left, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
 	ReaperSliceCommunioFeature = 39020,
 
 	[CustomComboInfo("Slice Soulsow Feature", "Replace Infernal Slice with Soulsow when out of combat and not active.", RPR.JobID)]
 	ReaperSliceSoulsowFeature = 39030,
-
-	[Conflicts(ReaperShadowGibbetFeature)]
-	[CustomComboInfo("Shadow Gallows Feature", "Replace Shadow of Death with Gallows while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
-	ReaperShadowGallowsFeature = 39005,
-
-	[Conflicts(ReaperShadowGallowsFeature)]
-	[CustomComboInfo("Shadow Gibbet Feature", "Replace Shadow of Death with Gibbet while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
-	ReaperShadowGibbetFeature = 39006,
-
-	[CustomComboInfo("Shadow Lemure's Feature", "Replace Shadow of Death with Lemure's Slice when two or more stacks of Void Shroud are active.", RPR.JobID)]
-	ReaperShadowLemuresFeature = 39023,
-
-	[CustomComboInfo("Shadow Communio Feature", "Replace Shadow of Death with Communio when one stack of Shroud is left.", RPR.JobID)]
-	ReaperShadowCommunioFeature = 39024,
-
-	[CustomComboInfo("Shadow Soulsow Feature", "Replace Shadow of Death with Soulsow when out of combat, not active, and you have no target.", RPR.JobID)]
-	ReaperShadowSoulsowFeature = 39029,
 
 	[Conflicts(ReaperSoulGibbetFeature)]
 	[CustomComboInfo("Soul Gallows Feature", "Replace Soul Slice with Gallows while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
@@ -1087,7 +1070,7 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Soul Lemure's Feature", "Replace Soul Slice with Lemure's Slice when two or more stacks of Void Shroud are active.", RPR.JobID)]
 	ReaperSoulLemuresFeature = 39027,
 
-	[CustomComboInfo("Soul Communio Feature", "Replace Soul Slice with Communio when one stack of Shroud is left.", RPR.JobID)]
+	[CustomComboInfo("Soul Communio Feature", "Replace Soul Slice with Communio when one stack of Shroud is left, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
 	ReaperSoulCommunioFeature = 39028,
 
 	[CustomComboInfo("Soul Slice Overcap Feature", "Replace Soul Slice with Blood Stalk when not Enshrouded and Soul Gauge is over 50.", RPR.JobID)]
@@ -1124,7 +1107,7 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Scythe Lemure's Feature", "Replace Nightmare Scythe with Lemure's Scythe when two or more stacks of Void Shroud are active.", RPR.JobID)]
 	ReaperScytheLemuresFeature = 39021,
 
-	[CustomComboInfo("Scythe Communio Feature", "Replace Nightmare Scythe with Communio when one stack is left of Shroud.", RPR.JobID)]
+	[CustomComboInfo("Scythe Communio Feature", "Replace Nightmare Scythe with Communio when one stack is left of Shroud, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
 	ReaperScytheCommunioFeature = 39022,
 
 	[CustomComboInfo("Scythe Soulsow Feature", "Replace Nightmare Scythe with Soulsow when out of combat and not active.", RPR.JobID)]
@@ -1139,10 +1122,10 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Lemure's Soul Reaver Feature", "Replace Gibbet, Gallows, and Guillotine with Lemure's Slice or Scythe when two or more stacks of Void Shroud are active.", RPR.JobID)]
 	ReaperLemuresSoulReaverFeature = 39011,
 
-	[CustomComboInfo("Communio Soul Reaver Feature", "Replace Gibbet, Gallows, and Guillotine with Communio when one stack is left of Shroud.", RPR.JobID)]
+	[CustomComboInfo("Communio Soul Reaver Feature", "Replace Gibbet, Gallows, and Guillotine with Communio when one stack is left of Shroud, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
 	ReaperCommunioSoulReaverFeature = 39012,
 
-	[CustomComboInfo("Enshroud Communio Feature", "Replace Enshroud with Communio when Enshrouded.", RPR.JobID)]
+	[CustomComboInfo("Enshroud Communio Feature", "Replace Enshroud with Communio when Enshrouded, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
 	ReaperEnshroudCommunioFeature = 39009,
 
 	[CustomComboInfo("Blood Stalk Gluttony Feature", "Replace Blood Stalk with Gluttony when available and Soul Gauge is at least 50.", RPR.JobID)]
@@ -1151,10 +1134,10 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Grim Swathe Gluttony Feature", "Replace Grim Swathe with Gluttony when available and Soul Gauge is at least 50.", RPR.JobID)]
 	ReaperGrimSwatheGluttonyFeature = 39016,
 
-	[CustomComboInfo("Arcane Harvest Feature", "Replace Arcane Circle with Plentiful Harvest when you have enough stacks of Immortal Sacrifice.", RPR.JobID)]
+	[CustomComboInfo("Arcane Harvest Feature", "Replace Arcane Circle with Plentiful Harvest when you have any stacks of Immortal Sacrifice.", RPR.JobID)]
 	ReaperHarvestFeature = 39008,
 
-	[CustomComboInfo("Regress Feature", "Replace Hell's Ingress and Egress turn with Regress when Threshold is active, instead of just the opposite of the one used.", RPR.JobID)]
+	[CustomComboInfo("Regress Feature", "Replace Hell's Ingress and Egress with Regress when Threshold is active, instead of just the opposite of the one used.", RPR.JobID)]
 	ReaperRegressFeature = 39010,
 
 	[ParentPreset(ReaperRegressFeature)]
