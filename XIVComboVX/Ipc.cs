@@ -21,14 +21,7 @@ internal class Ipc: IDisposable {
 	private readonly Task registrationWorker;
 	private bool disposed;
 
-	private bool tippyFound;
-	internal bool TippyLoaded {
-		get {
-			if (!this.tippyFound)
-				this.tippyFound = Service.Interface.InstalledPlugins.Where(state => state.InternalName == TippyPluginId).Any();
-			return this.tippyFound;
-		}
-	}
+	internal static bool TippyLoaded => Service.Interface.InstalledPlugins.Where(state => state.InternalName == TippyPluginId).Any();
 
 	private readonly ICallGateSubscriber<string, bool> tippyRegisterTip;
 	private readonly ICallGateSubscriber<string, bool> tippyRegisterMessage;
@@ -46,7 +39,7 @@ internal class Ipc: IDisposable {
 		while (!this.stop.IsCancellationRequested) {
 			try { // catches cancellation so the task shows as completed, once it's actually gotten started
 
-				if (this.TippyLoaded) {
+				if (TippyLoaded) {
 					if (!this.tippyRegistrationQueue.IsEmpty) {
 						string tippyTip = null!;
 						try {
