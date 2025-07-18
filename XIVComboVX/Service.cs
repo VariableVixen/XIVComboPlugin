@@ -20,7 +20,7 @@ internal class Service {
 
 	public static ComboDataCache DataCache { get; set; } = null!;
 
-	public static LogUtil TickLogger { get; set; } = null!;
+	public static SingleTickLogger TickLogger { get; set; } = null!;
 
 	public static GameState GameState { get; set; } = null!;
 
