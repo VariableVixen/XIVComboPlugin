@@ -23,7 +23,7 @@ internal abstract class CustomCombo {
 
 	public abstract CustomComboPreset Preset { get; }
 	public virtual uint[] ActionIDs { get; } = [];
-	public readonly HashSet<uint> AffectedIDs;
+	private readonly HashSet<uint> affectedIDs;
 	public readonly string ModuleName;
 
 	public byte JobID { get; }
@@ -38,7 +38,7 @@ internal abstract class CustomCombo {
 		CustomComboInfoAttribute presetInfo = this.Preset.GetAttribute<CustomComboInfoAttribute>()!;
 		this.JobID = presetInfo.JobID;
 		this.ModuleName = this.GetType().Name;
-		this.AffectedIDs = [.. this.ActionIDs];
+		this.affectedIDs = [.. this.ActionIDs];
 	}
 
 	public bool TryInvoke(uint actionID, uint lastComboActionId, float comboTime, byte level, uint classJobID, out uint newActionID) {
@@ -55,7 +55,7 @@ internal abstract class CustomCombo {
 
 		if (this.JobID > 0 && this.JobID != classJobID && this.ClassID != classJobID)
 			return false;
-		if (this.AffectedIDs.Count > 0 && !this.AffectedIDs.Contains(actionID))
+		if (this.affectedIDs.Count > 0 && !this.affectedIDs.Contains(actionID))
 			return false;
 		if (!IsEnabled(this.Preset))
 			return false;
