@@ -24,7 +24,7 @@ internal class IconReplacer: IDisposable {
 	private readonly Dictionary<uint, List<CustomCombo>> customCombos = [];
 
 	public IconReplacer() {
-		Service.Log.Information("Loading registered combos");
+		Service.Log.Information($"{LogTag.CoreSetup} Loading registered combos");
 		int total = 0;
 		IEnumerable<CustomCombo> combos = Assembly.GetAssembly(this.GetType())!.GetTypes()
 			.Where(t => !t.IsAbstract && (t.BaseType == typeof(CustomCombo) || t.BaseType?.BaseType == typeof(CustomCombo)))
@@ -43,7 +43,7 @@ internal class IconReplacer: IDisposable {
 				all.Add(combo);
 			}
 		}
-		Service.Log.Information($"Loaded {total} replacers for {this.customCombos.Count} actions");
+		Service.Log.Information($"{LogTag.CoreSetup} Loaded {total} replacers for {this.customCombos.Count} actions");
 
 		this.getIconHook = Service.Interop.HookFromAddress<GetIconDelegate>(ActionManager.Addresses.GetAdjustedActionId.Value, this.getIconDetour);
 		this.isIconReplaceableHook = Service.Interop.HookFromAddress<IsIconReplaceableDelegate>(Service.Address.IsActionIdReplaceable, this.isIconReplaceableDetour);

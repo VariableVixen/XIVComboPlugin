@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 using Dalamud.Game.Command;
 using Dalamud.Game.Text;
@@ -9,6 +10,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 
 using VariableVixen.XIVComboVX.Attributes;
@@ -20,20 +22,46 @@ public sealed class Plugin: IDalamudPlugin {
 	public const string Name = "XIVComboVX";
 
 	private bool disposed = false;
+	private readonly Thread finalSetupThread;
 
-	private static readonly string[] nonConflictingPluginIds = [];
-	private static readonly string[] conflictingPluginNameSubstrings = [
+	private static readonly HashSet<string> nonConflictingPluginIds = [];
+	private static readonly HashSet<string> conflictingPluginNameSubstrings = [
 		"combo",
 	];
-	private static readonly string[] conflictingPluginIdSubstrings = [
+	private static readonly HashSet<string> conflictingPluginIdSubstrings = [
 		"combo",
 	];
 
 	internal const string CommandBase = "/pcombo";
 	internal const string CommandCustom = CommandBase + "vx";
 
-	private readonly WindowSystem? windowSystem;
-	private readonly ConfigWindow? configWindow;
+	private WindowSystem? windowSystem;
+	internal WindowSystem? WindowSystem {
+		get => this.windowSystem;
+		set {
+#if DEBUG
+			if (this.windowSystem is not null)
+				throw new InvalidOperationException("attempted to assign new WindowSystem while one already exists");
+			this.windowSystem = value;
+#else
+			this.windowSystem ??= value;
+#endif
+		}
+	}
+
+	private ConfigWindow? configWindow;
+	internal ConfigWindow? ConfigWindow {
+		get => this.configWindow;
+		set {
+#if DEBUG
+			if (this.configWindow is not null)
+				throw new InvalidOperationException("attempted to assign new ConfigWindow while one already exists");
+			this.configWindow = value;
+#else
+			this.configWindow ??= value;
+#endif
+		}
+	}
 
 	public static readonly Version Version = Assembly.GetExecutingAssembly().GetName().Version!;
 
@@ -51,7 +79,8 @@ public sealed class Plugin: IDalamudPlugin {
 
 	public static bool AcquiredBaseCommand { get; private set; } = false;
 
-	public Plugin(IDalamudPluginInterface pluginInterface) {
+	public Plugin(IDalamudPluginInterface pluginInterface, IPluginLog log) {
+		log.Information($"{LogTag.CoreSetup} Preinitialising plugin core");
 
 		pluginInterface.Create<Service>();
 
@@ -66,22 +95,31 @@ public sealed class Plugin: IDalamudPlugin {
 
 		Service.Address.Setup();
 
+		this.finalSetupThread = new(this.deferredInit);
+
+		log.Information($"{LogTag.CoreSetup} Preinitialisation complete, starting main setup");
+		this.finalSetupThread.Start();
+	}
+
+	private void deferredInit() {
 		if (Service.Address.LoadSuccessful) {
 			Service.DataCache = new();
 			Service.IconReplacer = new();
 			Service.GameState = new();
 			Service.ChatUtils = new();
 
-			this.configWindow = new();
-			this.windowSystem = new(this.GetType().Namespace!);
-			this.windowSystem.AddWindow(this.configWindow);
+			this.ConfigWindow = new();
+			this.WindowSystem = new(this.GetType().Namespace!);
+			this.WindowSystem.AddWindow(this.ConfigWindow);
 
 			Service.Interface.UiBuilder.OpenConfigUi += this.ToggleConfigUi;
-			Service.Interface.UiBuilder.Draw += this.windowSystem.Draw;
+			Service.Interface.UiBuilder.Draw += this.WindowSystem.Draw;
 		}
+#if DEBUG
 		else {
 			Service.Commands.ProcessCommand("/xllog");
 		}
+#endif
 
 		CommandInfo handler = new(this.OnPluginCommand) {
 			HelpMessage = Service.Address.LoadSuccessful ? "Open a window to edit custom combo settings." : "Do nothing, because the plugin failed to initialise.",
@@ -100,7 +138,7 @@ public sealed class Plugin: IDalamudPlugin {
 			$"I see you're using {Name}. Have you tried being good at the game instead?"
 		);
 
-		Service.Log.Information($"{this.FullPluginSignature} initialised {(Service.Address.LoadSuccessful ? "" : "un")}successfully");
+		Service.Log.Information($"{LogTag.CoreSetup} {this.FullPluginSignature} initialised {(Service.Address.LoadSuccessful ? "" : "un")}successfully");
 		if (Service.Configuration.IsFirstRun || !Service.Configuration.LastVersion.Equals(Version)) {
 			Service.UpdateAlert = new(Version, Service.Configuration.IsFirstRun);
 
@@ -123,7 +161,7 @@ public sealed class Plugin: IDalamudPlugin {
 			msg.AddUiForegroundOff();
 			msg.AddText(" enabled. It is recommended to ");
 			Service.ChatUtils.AddOpenConfigLink(msg, "open the settings");
-			msg.AddText($" and replace {(deprecated == 1 ? "it" : "them")} with the recommended alternatives.");
+			msg.AddText($" and replace {(deprecated == 1 ? "it" : "them")} with the listed alternatives.");
 
 			Service.ChatGui.Print(new XivChatEntry() {
 				Type = XivChatType.ErrorMessage,
@@ -138,16 +176,21 @@ public sealed class Plugin: IDalamudPlugin {
 	private void onActivePluginsChanged(PluginListInvalidationKind kind, bool affectedThisPlugin) => CheckForOtherComboPlugins();
 
 	public static int CheckForOtherComboPlugins() {
-		string[] otherComboPlugins = Service.Interface.InstalledPlugins
+		IExposedPlugin[] others = Service.Interface.InstalledPlugins
 			// ignore unloaded plugins, they have no effect
 			.Where(p => p.IsLoaded)
 			// ignore us, we don't conflict with ourselves
 			.Where(p => p.InternalName != Service.Interface.InternalName)
 			// any false positives reported go in here to be ignored
-			.Where(p => !nonConflictingPluginIds.Any(s => p.InternalName == s))
+			.Where(p => !nonConflictingPluginIds.Contains(p.InternalName))
+			// convert to an array so we don't re-run the above filters multiple times
+			.ToArray();
+		string[] otherComboPlugins = others
 			// check the internal and display names for any (case-insensitive) substrings that look like problems
 			.Where(p => conflictingPluginIdSubstrings.Any(s => p.InternalName.Contains(s, StringComparison.OrdinalIgnoreCase)))
-			.Where(p => conflictingPluginNameSubstrings.Any(s => p.Name.Contains(s, StringComparison.OrdinalIgnoreCase)))
+			.Concat(others
+				.Where(p => conflictingPluginNameSubstrings.Any(s => p.Name.Contains(s, StringComparison.OrdinalIgnoreCase)))
+			)
 			// the list is used for user-facing display, so we only need the display name
 			.Select(p => p.Name)
 			.ToArray();
@@ -244,8 +287,8 @@ public sealed class Plugin: IDalamudPlugin {
 				Service.Commands.RemoveHandler(CommandBase);
 
 			Service.Interface.UiBuilder.OpenConfigUi -= this.ToggleConfigUi;
-			if (this.windowSystem is not null)
-				Service.Interface.UiBuilder.Draw -= this.windowSystem.Draw;
+			if (this.WindowSystem is not null)
+				Service.Interface.UiBuilder.Draw -= this.WindowSystem.Draw;
 
 			Service.IconReplacer?.Dispose();
 			Service.DataCache?.Dispose();
@@ -260,11 +303,11 @@ public sealed class Plugin: IDalamudPlugin {
 	#endregion
 
 	internal void ToggleConfigUi() {
-		if (this.configWindow is not null) {
-			this.configWindow.IsOpen = !this.configWindow.IsOpen;
+		if (this.ConfigWindow is not null) {
+			this.ConfigWindow.IsOpen = !this.ConfigWindow.IsOpen;
 		}
 		else {
-			Service.Log.Error("Cannot toggle configuration window, reference does not exist");
+			Service.Log.Error($"{LogTag.ConfigWindow} Cannot toggle configuration window, reference does not exist");
 		}
 	}
 
@@ -347,7 +390,7 @@ public sealed class Plugin: IDalamudPlugin {
 						new UIForegroundPayload(0),
 						new TextPayload("configuration has been reset to the defaults.")
 					]);
-					if (this.configWindow is not null && !this.configWindow.IsOpen) {
+					if (this.ConfigWindow is not null && !this.ConfigWindow.IsOpen) {
 						parts.AddRange([
 							new TextPayload("\nYou will need to "),
 							new UIForegroundPayload(ChatUtil.ColourForeOpenConfig),

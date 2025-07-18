@@ -25,15 +25,15 @@ internal class PluginAddressResolver {
 
 	internal unsafe void Setup() {
 		try {
-			Service.Log.Information("Scanning for ComboTimer signature");
+			Service.Log.Information($"{LogTag.SignatureScan} Scanning for ComboTimer signature");
 			this.ComboTimer = new nint(&ActionManager.Instance()->Combo.Timer);
 
-			Service.Log.Information("Scanning for IsActionIdReplaceable signature");
+			Service.Log.Information($"{LogTag.SignatureScan} Scanning for IsActionIdReplaceable signature");
 			this.IsActionIdReplaceable = Service.SigScanner.ScanText("40 53 48 83 EC 20 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 1F");
 		}
 		catch (Exception ex) {
 			this.LoadFailReason = ex;
-			StringBuilder msg = new();
+			StringBuilder msg = new($"{LogTag.SignatureScan} ");
 			msg.AppendLine("Address scanning failed, plugin cannot load.");
 			msg.AppendLine("Please present this error message to the developer.");
 			msg.AppendLine();
@@ -48,10 +48,10 @@ internal class PluginAddressResolver {
 			return;
 		}
 
-		Service.Log.Information("Address resolution successful");
+		Service.Log.Information($"{LogTag.SignatureScan} Address resolution successful");
 
-		Service.Log.Information($"IsIconReplaceable   0x{this.IsActionIdReplaceableAddr}");
-		Service.Log.Information($"ComboTimer          0x{this.ComboTimerAddr}");
-		Service.Log.Information($"LastComboMove       0x{this.LastComboMoveAddr}");
+		Service.Log.Information($"{LogTag.SignatureScan} IsIconReplaceable   0x{this.IsActionIdReplaceableAddr}");
+		Service.Log.Information($"{LogTag.SignatureScan} ComboTimer          0x{this.ComboTimerAddr}");
+		Service.Log.Information($"{LogTag.SignatureScan} LastComboMove       0x{this.LastComboMoveAddr}");
 	}
 }

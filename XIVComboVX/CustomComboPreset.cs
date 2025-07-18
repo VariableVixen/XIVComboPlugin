@@ -1632,8 +1632,8 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Chum / Electric Current Feature", "Replace Chum with Electric Current when swimming.", DOL.JobID)]
 	FisherElectricChumFeature = 99008,
 
-	[CustomComboInfo("Priming Meticulous combo", "Replace Meticulous actions with Priming Touch when Special Collector active and have more than 400GP.", DOL.JobID)]
-	PrimedMetFeature = 99027,
+	[CustomComboInfo("Priming Meticulous combo", "Replace Meticulous actions with Priming Touch when Special Collector is active and you have at least 400 GP.", DOL.JobID)]
+	MeticulousPrimingTouchFeature = 99027,
 
 	[CustomComboInfo("Mooch / Spareful Hand Feature", "Replace Mooch with Spareful Hand if you have space available in Swimbait box.", DOL.JobID)]
 	FisherSwimbaitFeature = -99026, // negative ID means force-disabled, but the enum entry still exists to compile - remove the negative sign to enable

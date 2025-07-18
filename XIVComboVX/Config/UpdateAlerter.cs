@@ -47,19 +47,19 @@ internal class UpdateAlerter: IDisposable {
 	}
 
 	internal void CheckMessage() {
-		Service.Log.Information("Checking whether to display update message");
+		Service.Log.Information($"{LogTag.UpdateAlert} Checking whether to display update message");
 		if (this.disposed) {
 			this.Unregister();
-			Service.Log.Information("Update alerter already disposed");
+			Service.Log.Information($"{LogTag.UpdateAlert} Update alerter already disposed");
 			return;
 		}
 		if (this.seenUpdateMessage) {
 			this.Unregister();
-			Service.Log.Information("Message already displayed, unregistering");
+			Service.Log.Information($"{LogTag.UpdateAlert} Message already displayed, unregistering");
 			return;
 		}
 
-		Service.Log.Information($"Checks passed, delaying message by {MessageDelayMs}ms - may be reset if message is triggered again within that time");
+		Service.Log.Information($"{LogTag.UpdateAlert} Checks passed, delaying message by {MessageDelayMs}ms - may be reset if message is triggered again within that time");
 
 		this.aborter = new();
 
@@ -75,7 +75,7 @@ internal class UpdateAlerter: IDisposable {
 		this.seenUpdateMessage = true;
 		this.Unregister();
 
-		Service.Log.Information("Displaying update alert in game chat");
+		Service.Log.Information($"{LogTag.UpdateAlert} Displaying update alert in game chat");
 
 		List<Payload> parts = [];
 #if !DEBUG
@@ -102,13 +102,13 @@ internal class UpdateAlerter: IDisposable {
 	}
 
 	internal void Register() {
-		Service.Log.Information("Registering update alerter");
+		Service.Log.Information($"{LogTag.UpdateAlert} Registering update alerter");
 		Service.ChatGui.ChatMessage += this.onChatMessage;
 		Service.Client.Login += this.onLogin;
 	}
 
 	internal void Unregister() {
-		Service.Log.Information("Unregistering update alerter");
+		Service.Log.Information($"{LogTag.UpdateAlert} Unregistering update alerter");
 		Service.ChatGui.ChatMessage -= this.onChatMessage;
 		Service.Client.Login -= this.onLogin;
 	}

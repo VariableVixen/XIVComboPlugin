@@ -16,14 +16,14 @@ internal class SingleTickLogger: IDisposable {
 
 	public void EnableNextTick() {
 		this.EnabledNextTick = true;
-		Service.Log.Information("Enabled logging snapshot for next tick");
+		Service.Log.Information($"{LogTag.SingleTick} Enabled logging snapshot for next tick");
 	}
 
 	private void onTick(IFramework framework) {
 		if (this.Enabled)
-			Service.Log.Information("Logging snapshot complete");
+			Service.Log.Information($"{LogTag.SingleTick} Logging snapshot complete");
 		if (this.EnabledNextTick)
-			Service.Log.Information("Beginning logging snapshot");
+			Service.Log.Information($"{LogTag.SingleTick} Beginning logging snapshot");
 		this.Enabled = this.EnabledNextTick;
 		this.EnabledNextTick = false;
 	}

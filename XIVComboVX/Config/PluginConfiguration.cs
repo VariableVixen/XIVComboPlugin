@@ -455,11 +455,11 @@ public class PluginConfiguration: IPluginConfiguration {
 		int cleaned = this.EnabledActions.RemoveWhere(p => {
 			bool valid = Enum.IsDefined(p);
 			if (!valid)
-				Service.Log.Info($"Removing invalid preset ID {p}");
+				Service.Log.Info($"{LogTag.ConfigCleanup} Removing invalid preset ID {p}");
 			return !valid;
 		});
 		if (cleaned > 0) {
-			Service.Log.Info($"{cleaned} invalid preset{(cleaned == 1 ? string.Empty : "s")} removed");
+			Service.Log.Info($"{LogTag.ConfigCleanup} {cleaned} invalid preset{(cleaned == 1 ? string.Empty : "s")} removed");
 			this.Save();
 		}
 	}
@@ -484,7 +484,7 @@ public class PluginConfiguration: IPluginConfiguration {
 					int job = v / 100;
 					int id = v - job * 100;
 					int n = job * 1000 + id;
-					Service.Log.Info($"Updating old preset {p} ({id} for job {job}) to {n}");
+					Service.Log.Info($"{LogTag.ConfigUpgrade} Updating old preset {p} ({id} for job {job}) to {n}");
 					return (CustomComboPreset)n;
 				})
 				.ToHashSet();

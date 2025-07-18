@@ -328,9 +328,9 @@ internal class FisherSwapFeatures: CustomCombo {
 	}
 }
 
-internal class PrimedMetFeature: CustomCombo {
+internal class MeticulousPrimingTouchFeature: CustomCombo {
 
-	public override CustomComboPreset Preset { get; } = CustomComboPreset.PrimedMetFeature;
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.MeticulousPrimingTouchFeature;
 
 	public override uint[] ActionIDs => [MIN.MeticulousProspector, BTN.MeticulousWoodsman];
 
