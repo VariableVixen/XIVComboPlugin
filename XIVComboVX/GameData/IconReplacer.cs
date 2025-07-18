@@ -67,6 +67,7 @@ internal class IconReplacer: IDisposable {
 
 			if (player is null)
 				return this.OriginalHook(actionID);
+			Service.DataCache.Player = player;
 
 			uint lastComboActionId = *(uint*)Service.Address.LastComboMove;
 			float comboTime = *(float*)Service.Address.ComboTimer;

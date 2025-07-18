@@ -23,11 +23,14 @@ internal class ComboDataCache: ManagedCache {
 	private readonly Dictionary<Type, JobGaugeBase> jobGaugeCache = [];
 	private readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
 
+	// Don't even touch these
+	public IPlayerCharacter Player { get; internal set; } = null!; // assigned in IconReplacer.getIconDetour each tick, used only by the combos
+
 	#region Core/setup
 
 	private delegate nint GetActionCooldownSlotDelegate(nint actionManager, int cooldownGroup);
 
-	public ComboDataCache() : base() { }
+	internal ComboDataCache() : base() { }
 
 	protected override void Dispose(bool disposing) {
 		base.Dispose(disposing);
@@ -108,7 +111,7 @@ internal class ComboDataCache: ManagedCache {
 	}
 
 	public unsafe (ushort Current, ushort Max) GetMaxCharges(uint actionID) {
-		IPlayerCharacter player = Service.Client.LocalPlayer!;
+		IPlayerCharacter player = this.Player;
 		if (player == null)
 			return (0, 0);
 

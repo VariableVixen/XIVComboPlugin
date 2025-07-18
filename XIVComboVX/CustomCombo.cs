@@ -179,7 +179,7 @@ internal abstract class CustomCombo {
 	#region Player details/stats
 
 	protected internal static IPlayerCharacter LocalPlayer
-		=> Service.Client.LocalPlayer!;
+		=> Service.DataCache.Player;
 
 	protected internal static bool HasCondition(ConditionFlag flag)
 		=> Service.Conditions[flag];
