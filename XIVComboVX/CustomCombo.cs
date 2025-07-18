@@ -63,15 +63,15 @@ internal abstract class CustomCombo {
 		if (comboTime <= 0)
 			lastComboActionId = 0;
 
-		Service.TickLogger.Debug($"{this.ModuleName}.Invoke({actionID}, {lastComboActionId}, {comboTime}, {level})");
+		Service.TickLogger.Info($"{this.ModuleName}.Invoke({actionID}, {lastComboActionId}, {comboTime}, {level})");
 		try {
 			uint resultingActionID = this.Invoke(actionID, lastComboActionId, comboTime, level);
 			if (resultingActionID == 0 || actionID == resultingActionID) {
-				Service.TickLogger.Debug("NO REPLACEMENT");
+				Service.TickLogger.Info("NO REPLACEMENT");
 				return false;
 			}
 
-			Service.TickLogger.Debug($"Became #{resultingActionID}");
+			Service.TickLogger.Info($"Became #{resultingActionID}");
 			newActionID = resultingActionID;
 			return true;
 		}
@@ -84,15 +84,15 @@ internal abstract class CustomCombo {
 
 	protected internal static bool IsEnabled(CustomComboPreset preset) {
 		if ((int)preset < 0) {
-			Service.TickLogger.Debug($"Aborting is-enabled check, {preset}#{(int)preset} is forcibly disabled");
+			Service.TickLogger.Info($"Aborting is-enabled check, {preset}#{(int)preset} is forcibly disabled");
 			return false;
 		}
 		if ((int)preset < 100) {
-			Service.TickLogger.Debug($"Bypassing is-enabled check for preset #{(int)preset}");
+			Service.TickLogger.Info($"Bypassing is-enabled check for preset #{(int)preset}");
 			return true;
 		}
 		bool enabled = Service.Configuration.IsEnabled(preset);
-		Service.TickLogger.Debug($"Checking status of preset #{(int)preset} - {enabled}");
+		Service.TickLogger.Info($"Checking status of preset #{(int)preset} - {enabled}");
 		return enabled;
 	}
 
@@ -154,7 +154,7 @@ internal abstract class CustomCombo {
 			.Select(selector)
 			.Aggregate((a1, a2) => compare(preference, a1, a2))
 			.ActionID;
-		Service.TickLogger.Debug($"Final selection: {id}");
+		Service.TickLogger.Info($"Final selection: {id}");
 		return id;
 	}
 

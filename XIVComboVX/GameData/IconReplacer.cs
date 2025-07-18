@@ -61,18 +61,22 @@ internal class IconReplacer: IDisposable {
 		this.isIconReplaceableHook?.Dispose();
 	}
 
-	private ulong isIconReplaceableDetour(uint actionID) => this.customCombos.ContainsKey(actionID) ? 1u : 0;
+	private ulong isIconReplaceableDetour(uint actionID) => 1;
 
 	private unsafe uint getIconDetour(nint actionManager, uint actionID) {
 		try {
 			this.actionManager = actionManager;
 
-			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos))
+			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos)) {
+				Service.TickLogger.Info($"No replacers found for action #{actionID}");
 				return this.OriginalHook(actionID);
+			}
 
 			IPlayerCharacter? player = Service.Client.LocalPlayer;
-			if (player is null)
+			if (player is null) {
+				Service.TickLogger.Warning($"Cannot replace action #{actionID} when player is null");
 				return this.OriginalHook(actionID);
+			}
 			Service.DataCache.Player = player;
 
 			uint lastComboActionId = *(uint*)Service.Address.LastComboMove;
@@ -80,12 +84,13 @@ internal class IconReplacer: IDisposable {
 			byte level = player.Level;
 			uint classJobID = player.ClassJob.RowId;
 
-			Service.TickLogger.Debug($"Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
+			Service.TickLogger.Info($"Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
 			foreach (CustomCombo combo in combos) {
 				if (combo.TryInvoke(actionID, lastComboActionId, comboTime, level, classJobID, out uint newActionID))
 					return this.OriginalHook(newActionID);
 			}
 
+			Service.TickLogger.Info($"No replacement for action #{actionID}");
 			return this.OriginalHook(actionID);
 		}
 		catch (Exception ex) {

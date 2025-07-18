@@ -40,6 +40,10 @@ internal class SingleTickLogger: IDisposable {
 		if (this.Enabled)
 			Service.Log.Warning($"{msg}\n{cause ?? new Exception(STACK_TRACE_MSG)}");
 	}
+	internal void Info(string msg) {
+		if (this.Enabled)
+			Service.Log.Info(msg);
+	}
 	[Conditional("DEBUG")]
 	internal void Debug(string msg) {
 		if (this.Enabled)
