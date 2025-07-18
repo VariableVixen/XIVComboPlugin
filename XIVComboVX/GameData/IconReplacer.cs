@@ -6,6 +6,8 @@ using System.Reflection;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
 
+using FFXIVClientStructs.FFXIV.Client.Game;
+
 namespace VariableVixen.XIVComboVX.GameData;
 
 internal class IconReplacer: IDisposable {
@@ -19,21 +21,31 @@ internal class IconReplacer: IDisposable {
 
 	private nint actionManager = nint.Zero;
 
-	private readonly List<CustomCombo> customCombos;
+	private readonly Dictionary<uint, List<CustomCombo>> customCombos = [];
 
 	public IconReplacer() {
 		Service.Log.Information("Loading registered combos");
-		this.customCombos = Assembly.GetAssembly(this.GetType())!.GetTypes()
+		int total = 0;
+		IEnumerable<CustomCombo> combos = Assembly.GetAssembly(this.GetType())!.GetTypes()
 			.Where(t => !t.IsAbstract && (t.BaseType == typeof(CustomCombo) || t.BaseType?.BaseType == typeof(CustomCombo)))
-			.Select(Activator.CreateInstance)
-			.Cast<CustomCombo>()
-			.ToList();
-		Service.Log.Information($"Loaded {this.customCombos.Count} replacers");
-#if DEBUG
-		Service.Log.Information(string.Join(", ", this.customCombos.Select(combo => combo.GetType().Name)));
-#endif
+			.Select(t => {
+				++total;
+				return Activator.CreateInstance(t);
+			})
+			.Cast<CustomCombo>();
+		foreach (CustomCombo combo in combos) {
+			uint[] actions = combo.ActionIDs;
+			foreach (uint id in actions) {
+				if (!this.customCombos.TryGetValue(id, out List<CustomCombo>? all)) {
+					all = [];
+					this.customCombos[id] = all;
+				}
+				all.Add(combo);
+			}
+		}
+		Service.Log.Information($"Loaded {total} replacers for {this.customCombos.Count} actions");
 
-		this.getIconHook = Service.Interop.HookFromAddress<GetIconDelegate>(FFXIVClientStructs.FFXIV.Client.Game.ActionManager.Addresses.GetAdjustedActionId.Value, this.getIconDetour);
+		this.getIconHook = Service.Interop.HookFromAddress<GetIconDelegate>(ActionManager.Addresses.GetAdjustedActionId.Value, this.getIconDetour);
 		this.isIconReplaceableHook = Service.Interop.HookFromAddress<IsIconReplaceableDelegate>(Service.Address.IsActionIdReplaceable, this.isIconReplaceableDetour);
 
 		this.getIconHook.Enable();
@@ -49,22 +61,16 @@ internal class IconReplacer: IDisposable {
 		this.isIconReplaceableHook?.Dispose();
 	}
 
-	private ulong isIconReplaceableDetour(uint actionID) => 1;
+	private ulong isIconReplaceableDetour(uint actionID) => this.customCombos.ContainsKey(actionID) ? 1u : 0;
 
-	/// <summary>
-	/// Replace an ability with another ability
-	/// actionID is the original ability to be "used"
-	/// Return either actionID (itself) or a new Action table ID as the
-	/// ability to take its place.
-	/// I tend to make the "combo chain" button be the last move in the combo
-	/// For example, Souleater combo on DRK happens by dragging Souleater
-	/// onto your bar and mashing it.
-	/// </summary>
 	private unsafe uint getIconDetour(nint actionManager, uint actionID) {
 		try {
 			this.actionManager = actionManager;
-			IPlayerCharacter? player = Service.Client.LocalPlayer;
 
+			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos))
+				return this.OriginalHook(actionID);
+
+			IPlayerCharacter? player = Service.Client.LocalPlayer;
 			if (player is null)
 				return this.OriginalHook(actionID);
 			Service.DataCache.Player = player;
@@ -74,9 +80,10 @@ internal class IconReplacer: IDisposable {
 			byte level = player.Level;
 			uint classJobID = player.ClassJob.RowId;
 
-			foreach (CustomCombo combo in this.customCombos) {
+			Service.TickLogger.Debug($"Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
+			foreach (CustomCombo combo in combos) {
 				if (combo.TryInvoke(actionID, lastComboActionId, comboTime, level, classJobID, out uint newActionID))
-					return newActionID;
+					return this.OriginalHook(newActionID);
 			}
 
 			return this.OriginalHook(actionID);
