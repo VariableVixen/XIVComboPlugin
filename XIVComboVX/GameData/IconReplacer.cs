@@ -35,6 +35,8 @@ internal class IconReplacer: IDisposable {
 			.Cast<CustomCombo>();
 		foreach (CustomCombo combo in combos) {
 			uint[] actions = combo.ActionIDs;
+			if (actions.Length == 0)
+				actions = [0];
 			foreach (uint id in actions) {
 				if (!this.customCombos.TryGetValue(id, out List<CustomCombo>? all)) {
 					all = [];
@@ -67,7 +69,7 @@ internal class IconReplacer: IDisposable {
 		try {
 			this.actionManager = actionManager;
 
-			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos)) {
+			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos) && !this.customCombos.TryGetValue(0, out combos)) {
 				Service.TickLogger.Info($"No replacers found for action #{actionID}");
 				return this.OriginalHook(actionID);
 			}
