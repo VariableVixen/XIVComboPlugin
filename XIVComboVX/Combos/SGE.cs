@@ -2,8 +2,6 @@ using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 
-using VariableVixen.XIVComboVX;
-
 namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class SGE {
@@ -200,7 +198,7 @@ internal class SagePhlegma: CustomCombo {
 			// First, if you have a target in range for Phlegma and it's usable, we just do that
 			if (TargetDistance <= 6 && CanUse(phlegma)) {
 
-				if (Common.CheckLucidWeave(CustomComboPreset.SageLucidPhlegma, level, Service.Configuration.SageLucidPhlegmaManaThreshold, actionID))
+				if (CheckLucidWeave(CustomComboPreset.SageLucidPhlegma, level, Service.Configuration.SageLucidPhlegmaManaThreshold, actionID))
 					return Common.LucidDreaming;
 
 				return phlegma;
@@ -224,7 +222,7 @@ internal class SagePhlegma: CustomCombo {
 			if (IsEnabled(CustomComboPreset.SagePhlegmaToxicon) && level >= SGE.Levels.Toxikon) {
 				if (GetJobGauge<SGEGauge>().Addersting > 0 && (!CanUse(phlegma) || TargetDistance > 6)) {
 
-					if (Common.CheckLucidWeave(CustomComboPreset.SageLucidToxikon, level, Service.Configuration.SageLucidToxikonManaThreshold, actionID))
+					if (CheckLucidWeave(CustomComboPreset.SageLucidToxikon, level, Service.Configuration.SageLucidToxikonManaThreshold, actionID))
 						return Common.LucidDreaming;
 
 					return OriginalHook(SGE.Toxikon);
@@ -239,7 +237,7 @@ internal class SagePhlegma: CustomCombo {
 			if (IsEnabled(CustomComboPreset.SagePhlegmaDosis)) {
 				if (TargetDistance <= 25) {
 
-					if (Common.CheckLucidWeave(CustomComboPreset.SageLucidDosis, level, Service.Configuration.SageLucidDosisManaThreshold, actionID))
+					if (CheckLucidWeave(CustomComboPreset.SageLucidDosis, level, Service.Configuration.SageLucidDosisManaThreshold, actionID))
 						return Common.LucidDreaming;
 
 					return OriginalHook(SGE.Dosis);
@@ -253,7 +251,7 @@ internal class SagePhlegma: CustomCombo {
 		// This also triggers if you HAVE a target, but they're out of range for Dosis/Icarus (or you just don't have that stuff enabled)
 		if (IsEnabled(CustomComboPreset.SagePhlegmaDyskrasia) && level >= SGE.Levels.Dyskrasia) {
 
-			if (Common.CheckLucidWeave(CustomComboPreset.SageLucidDyskrasia, level, Service.Configuration.SageLucidDyskrasiaManaThreshold, actionID))
+			if (CheckLucidWeave(CustomComboPreset.SageLucidDyskrasia, level, Service.Configuration.SageLucidDyskrasiaManaThreshold, actionID))
 				return Common.LucidDreaming;
 
 			return OriginalHook(SGE.Dyskrasia);
@@ -270,7 +268,7 @@ internal class SageDosis: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(CustomComboPreset.SageLucidDosis, level, Service.Configuration.SageLucidDosisManaThreshold, actionID))
+		if (CheckLucidWeave(CustomComboPreset.SageLucidDosis, level, Service.Configuration.SageLucidDosisManaThreshold, actionID))
 			return Common.LucidDreaming;
 
 		SGEGauge gauge = GetJobGauge<SGEGauge>();
@@ -334,17 +332,13 @@ internal class SageIcarus: CustomCombo {
 }
 
 internal class SageDyskrasia: CustomCombo {
-	public override CustomComboPreset Preset { get; } = CustomComboPreset.SageLucidDyskrasia;
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.SgeAny;
 	public override uint[] ActionIDs => [SGE.Dyskrasia];
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
-		if (level >= Common.Levels.LucidDreaming) {
-			if (LocalPlayer.CurrentMp < Service.Configuration.SageLucidDyskrasiaManaThreshold) {
-				if (CanUse(Common.LucidDreaming) && CanWeave(actionID))
-					return Common.LucidDreaming;
-			}
-		}
+		if (CheckLucidWeave(CustomComboPreset.SageLucidDyskrasia, level, Service.Configuration.SageLucidDyskrasiaManaThreshold, actionID))
+			return Common.LucidDreaming;
 
 		return actionID;
 	}

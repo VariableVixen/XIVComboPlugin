@@ -299,4 +299,3 @@ internal class SamuraiIkishotenNamikiriFeature: CustomCombo {
 		return actionID;
 	}
 }
-

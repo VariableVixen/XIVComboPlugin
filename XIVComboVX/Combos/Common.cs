@@ -33,22 +33,6 @@ internal static class Common {
 			LucidDreaming = 14,
 			Swiftcast = 18;
 	}
-
-	internal static bool CheckLucidWeave(CustomComboPreset preset, byte level, uint manaThreshold, uint baseAction) {
-
-		if (CustomCombo.IsEnabled(preset)) {
-			if (level >= Levels.LucidDreaming) {
-				if (CustomCombo.LocalPlayer.CurrentMp < manaThreshold) {
-					if (CustomCombo.CanWeave(baseAction)) {
-						if (CustomCombo.CanUse(LucidDreaming))
-							return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
 }
 
 internal abstract class SwiftRaiseCombo: CustomCombo {

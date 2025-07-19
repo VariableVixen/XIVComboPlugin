@@ -147,7 +147,7 @@ internal class DancerDanceStepCombo: CustomCombo {
 	public override uint[] ActionIDs { get; } = [DNC.StandardStep, DNC.TechnicalStep];
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
-		if (level >= DNC.Levels.StandardStep && Service.DataCache.DancerSmartDancing(out uint danceStep))
+		if (level >= DNC.Levels.StandardStep && DancerSmartDancing(out uint danceStep))
 			return danceStep;
 
 		if (level >= DNC.Levels.TechnicalStep) {
@@ -189,7 +189,7 @@ internal class DancerSingleTargetMultibutton: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		if (IsEnabled(CustomComboPreset.DancerSmartDanceFeature)) {
-			if (level >= DNC.Levels.StandardStep && Service.DataCache.DancerSmartDancing(out uint danceStep))
+			if (level >= DNC.Levels.StandardStep && DancerSmartDancing(out uint danceStep))
 				return danceStep;
 		}
 
@@ -265,7 +265,7 @@ internal class DancerAoeMultibutton: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		if (IsEnabled(CustomComboPreset.DancerSmartDanceFeature)) {
-			if (level >= DNC.Levels.StandardStep && Service.DataCache.DancerSmartDancing(out uint danceStep))
+			if (level >= DNC.Levels.StandardStep && DancerSmartDancing(out uint danceStep))
 				return danceStep;
 		}
 

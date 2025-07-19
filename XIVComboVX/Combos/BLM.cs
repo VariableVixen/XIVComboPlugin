@@ -304,11 +304,11 @@ internal class BlackFireToIce3: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 		BLMGauge gauge = GetJobGauge<BLMGauge>();
 
-		if (gauge.InAstralFire && LocalPlayer.CurrentMp >= 1600 && level >= BLM.Blizzard3) 
+		if (gauge.InAstralFire && LocalPlayer.CurrentMp >= 1600 && level >= BLM.Blizzard3)
 			return BLM.Blizzard;
-		
+
 		return BLM.Blizzard3;
-		
+
 	}
 }
 

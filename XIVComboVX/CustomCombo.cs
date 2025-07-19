@@ -12,9 +12,15 @@ using Dalamud.Utility;
 
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
+using Lumina.Excel;
+
 using VariableVixen.XIVComboVX.Attributes;
 using VariableVixen.XIVComboVX.Combos;
 using VariableVixen.XIVComboVX.GameData;
+
+using ActionManager = FFXIVClientStructs.FFXIV.Client.Game.ActionManager;
+using ExcelAction = Lumina.Excel.Sheets.Action;
+using RecastDetail = FFXIVClientStructs.FFXIV.Client.Game.RecastDetail;
 
 namespace VariableVixen.XIVComboVX;
 
@@ -82,7 +88,7 @@ internal abstract class CustomCombo {
 	}
 	protected abstract uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level);
 
-	protected internal static bool IsEnabled(CustomComboPreset preset) {
+	protected static bool IsEnabled(CustomComboPreset preset) {
 		if ((int)preset < 0) {
 			Service.TickLogger.Info($"Aborting is-enabled check, {preset}#{(int)preset} is forcibly disabled");
 			return false;
@@ -96,9 +102,38 @@ internal abstract class CustomCombo {
 		return enabled;
 	}
 
+	#region Caching
+
+	// Invalidate these
+	private static readonly Dictionary<(uint StatusID, uint? TargetID, uint? SourceID), Status?> statusCache = [];
+	private static readonly Dictionary<uint, CooldownData> cooldownCache = [];
+	private static bool? canInterruptTarget = null;
+	private static uint? dancerNextDanceStep = null;
+
+	// Do not invalidate these
+	private static readonly Dictionary<uint, byte> cooldownGroupCache = [];
+	private static readonly Dictionary<Type, JobGaugeBase> jobGaugeCache = [];
+	private static readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
+
+	// These are updated directly, not actually invalidated
+	protected static IPlayerCharacter LocalPlayer { get; private set; } = null!;
+
+	// vixen and the terrible horrible no good very bad hack
+	internal static IPlayerCharacter? CachedLocalPlayer => LocalPlayer;
+
+	internal static void ResetCache(IPlayerCharacter player) {
+		statusCache.Clear();
+		cooldownCache.Clear();
+		canInterruptTarget = null;
+		dancerNextDanceStep = null;
+		LocalPlayer = player;
+	}
+
+	#endregion
+
 	#region Common calculations and shortcuts
 
-	protected internal static uint PickByCooldown(uint preference, params uint[] actions) {
+	protected static uint PickByCooldown(uint preference, params uint[] actions) {
 
 		static (uint ActionID, CooldownData Data) selector(uint actionID) => (actionID, GetCooldown(actionID));
 
@@ -170,7 +205,7 @@ internal abstract class CustomCombo {
 		return false;
 	}
 
-	protected internal static uint OriginalHook(uint actionID) => Service.IconReplacer.OriginalHook(actionID);
+	protected static uint OriginalHook(uint actionID) => Service.IconReplacer.OriginalHook(actionID);
 
 	protected static bool IsOriginal(uint actionID) => OriginalHook(actionID) == actionID;
 
@@ -178,49 +213,53 @@ internal abstract class CustomCombo {
 
 	#region Player details/stats
 
-	protected internal static IPlayerCharacter LocalPlayer
-		=> Service.DataCache.Player;
+	protected static bool HasCondition(ConditionFlag flag) => Service.Conditions[flag];
 
-	protected internal static bool HasCondition(ConditionFlag flag)
-		=> Service.Conditions[flag];
+	protected static bool InCombat => Service.Conditions[ConditionFlag.InCombat];
 
-	protected internal static bool InCombat
-		=> Service.Conditions[ConditionFlag.InCombat];
+	protected static bool HasPetPresent => Service.BuddyList.PetBuddy is not null;
 
-	protected internal static bool HasPetPresent
-		=> Service.BuddyList.PetBuddy is not null;
+	protected static double PlayerHealthPercentage => (double)LocalPlayer.CurrentHp / LocalPlayer.MaxHp * 100.0;
 
-	protected static double PlayerHealthPercentage
-		=> (double)LocalPlayer.CurrentHp / LocalPlayer.MaxHp * 100.0;
+	protected static bool ShouldSwiftcast => IsOffCooldown(Common.Swiftcast)
+		&& !SelfHasEffect(Common.Buffs.LostChainspell)
+		&& !SelfHasEffect(RDM.Buffs.Dualcast);
+	protected static bool IsFastcasting => SelfHasEffect(Common.Buffs.Swiftcast1)
+		|| SelfHasEffect(Common.Buffs.Swiftcast2)
+		|| SelfHasEffect(Common.Buffs.Swiftcast3)
+		|| SelfHasEffect(RDM.Buffs.Dualcast)
+		|| SelfHasEffect(Common.Buffs.LostChainspell);
+	protected static bool IsHardcasting => !IsFastcasting;
 
-	protected internal static bool ShouldSwiftcast
-		=> IsOffCooldown(Common.Swiftcast)
-			&& !SelfHasEffect(Common.Buffs.LostChainspell)
-			&& !SelfHasEffect(RDM.Buffs.Dualcast);
-	protected internal static bool IsFastcasting
-		=> SelfHasEffect(Common.Buffs.Swiftcast1)
-			|| SelfHasEffect(Common.Buffs.Swiftcast2)
-			|| SelfHasEffect(Common.Buffs.Swiftcast3)
-			|| SelfHasEffect(RDM.Buffs.Dualcast)
-			|| SelfHasEffect(Common.Buffs.LostChainspell);
-	protected internal static bool IsHardcasting => !IsFastcasting;
+	protected static T GetJobGauge<T>() where T : JobGaugeBase {
+		if (!jobGaugeCache.TryGetValue(typeof(T), out JobGaugeBase? gauge))
+			gauge = jobGaugeCache[typeof(T)] = Service.JobGauge.Get<T>();
 
-	protected internal static T GetJobGauge<T>() where T : JobGaugeBase
-		=> Service.DataCache.GetJobGauge<T>();
+		return (T)gauge;
+	}
 
-	protected internal static unsafe bool IsMoving
-		=> AgentMap.Instance() is not null && AgentMap.Instance()->IsPlayerMoving;
+	protected static unsafe bool IsMoving => AgentMap.Instance() is not null && AgentMap.Instance()->IsPlayerMoving;
 
 	#endregion
 
 	#region Target details/stats
 
-	protected internal static IGameObject? CurrentTarget => Service.Targets.SoftTarget ?? Service.Targets.Target;
+	protected static IGameObject? CurrentTarget => Service.Targets.SoftTarget ?? Service.Targets.Target;
 
 	protected static bool HasTarget => CurrentTarget is not null;
-	protected internal static bool CanInterrupt => Service.DataCache.CanInterruptTarget;
+	protected static bool CanInterrupt {
+		get {
+			if (!canInterruptTarget.HasValue) {
+				IGameObject? target = CustomCombo.CurrentTarget;
+				canInterruptTarget = target is IBattleChara actor
+					&& actor.IsCasting
+					&& actor.IsCastInterruptible;
+			}
+			return canInterruptTarget.Value;
+		}
+	}
 
-	protected internal static double TargetDistance {
+	protected static double TargetDistance {
 		get {
 			if (LocalPlayer is null || CurrentTarget is null)
 				return 0;
@@ -233,7 +272,7 @@ internal abstract class CustomCombo {
 			return Vector2.Distance(tPos, sPos) - target.HitboxRadius - LocalPlayer.HitboxRadius;
 		}
 	}
-	protected internal static bool InMeleeRange => TargetDistance <= 3;
+	protected static bool InMeleeRange => TargetDistance <= 3;
 
 	protected static double TargetCurrentHp => CurrentTarget is IBattleChara npc ? npc.CurrentHp : 0;
 	protected static double TargetMaxHp => CurrentTarget is IBattleChara npc ? npc.MaxHp : 0;
@@ -243,78 +282,288 @@ internal abstract class CustomCombo {
 
 	#region Cooldowns and charges
 
-	protected internal static CooldownData GetCooldown(uint actionID)
-		=> Service.DataCache.GetCooldown(actionID);
+	protected static unsafe CooldownData GetCooldown(uint actionID) {
+		if (cooldownCache.TryGetValue(actionID, out CooldownData found))
+			return found;
 
-	protected internal static bool IsOnCooldown(uint actionID)
-		=> GetCooldown(actionID).IsCooldown;
+		ActionManager* actionManager = ActionManager.Instance();
+		if (actionManager is null)
+			return cooldownCache[actionID] = default;
 
-	protected internal static bool IsOffCooldown(uint actionID)
-		=> !GetCooldown(actionID).IsCooldown;
+		if (!cooldownGroupCache.TryGetValue(actionID, out byte cooldownGroup)) {
+			ExcelSheet<ExcelAction> sheet = Service.GameData.GetExcelSheet<ExcelAction>()!;
+			ExcelAction row = sheet.GetRow(actionID)!;
+			cooldownGroupCache[actionID] = cooldownGroup = row.CooldownGroup;
+		}
 
-	protected internal static bool HasCharges(uint actionID)
-		=> GetCooldown(actionID).HasCharges;
+		RecastDetail* cooldownPtr = actionManager->GetRecastGroupDetail(cooldownGroup - 1);
+		cooldownPtr->ActionId = actionID;
 
-	protected internal static bool CanUse(uint actionID)
-		=> GetCooldown(actionID).Available;
+		CooldownData cd = cooldownCache[actionID] = *(CooldownData*)cooldownPtr;
+		Service.TickLogger.Debug($"Retrieved cooldown data for action #{actionID}: {cd.DebugLabel}");
+		return cd;
+	}
 
-	protected internal static bool CanWeave(uint actionID, double weaveTime = 0.7)
-	   => GetCooldown(actionID).CooldownRemaining > weaveTime;
-	protected internal static bool CanSpellWeave(uint actionID, double weaveTime = 0.5)
-		=> GetCooldown(actionID).CooldownRemaining > weaveTime && !LocalPlayer.IsCasting;
+	protected static bool IsOnCooldown(uint actionID) => GetCooldown(actionID).IsCooldown;
+
+	protected static bool IsOffCooldown(uint actionID) => !GetCooldown(actionID).IsCooldown;
+
+	protected static bool HasCharges(uint actionID) => GetCooldown(actionID).HasCharges;
+
+	protected static bool CanUse(uint actionID) => GetCooldown(actionID).Available;
+
+	protected static bool CanWeave(uint actionID, double weaveTime = 0.7) => GetCooldown(actionID).CooldownRemaining > weaveTime;
+	protected static bool CanSpellWeave(uint actionID, double weaveTime = 0.5) => GetCooldown(actionID).CooldownRemaining > weaveTime && !LocalPlayer.IsCasting;
 
 	#endregion
 
 	#region Effects
 
-	protected internal static Status? SelfFindEffect(ushort effectId)
-		=> FindEffect(effectId, LocalPlayer, null);
-	protected internal static bool SelfHasEffect(ushort effectId)
-		=> SelfFindEffect(effectId) is not null;
-	protected internal static float SelfEffectDuration(ushort effectId)
-		=> SelfFindEffect(effectId)?.RemainingTime ?? 0;
-	protected internal static float SelfEffectStacks(ushort effectId)
-		=> SelfFindEffect(effectId)?.Param ?? 0;
+	protected static Status? SelfFindEffect(ushort effectId) => FindEffect(effectId, LocalPlayer, null);
+	protected static bool SelfHasEffect(ushort effectId) => SelfFindEffect(effectId) is not null;
+	protected static float SelfEffectDuration(ushort effectId) => SelfFindEffect(effectId)?.RemainingTime ?? 0;
+	protected static float SelfEffectStacks(ushort effectId) => SelfFindEffect(effectId)?.Param ?? 0;
 
-	protected internal static Status? TargetFindAnyEffect(ushort effectId)
-		=> FindEffect(effectId, CurrentTarget, null);
-	protected internal static bool TargetHasAnyEffect(ushort effectId)
-		=> TargetFindAnyEffect(effectId) is not null;
-	protected internal static float TargetAnyEffectDuration(ushort effectId)
-		=> TargetFindAnyEffect(effectId)?.RemainingTime ?? 0;
-	protected internal static float TargetAnyEffectStacks(ushort effectId)
-		=> TargetFindAnyEffect(effectId)?.Param ?? 0;
+	protected static Status? TargetFindAnyEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, null);
+	protected static bool TargetHasAnyEffect(ushort effectId) => TargetFindAnyEffect(effectId) is not null;
+	protected static float TargetAnyEffectDuration(ushort effectId) => TargetFindAnyEffect(effectId)?.RemainingTime ?? 0;
+	protected static float TargetAnyEffectStacks(ushort effectId) => TargetFindAnyEffect(effectId)?.Param ?? 0;
 
-	protected internal static Status? TargetFindOwnEffect(ushort effectId)
-		=> FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
-	protected internal static bool TargetHasOwnEffect(ushort effectId)
-		=> TargetFindOwnEffect(effectId) is not null;
-	protected internal static float TargetOwnEffectDuration(ushort effectId)
-		=> TargetFindOwnEffect(effectId)?.RemainingTime ?? 0;
-	protected internal static float TargetOwnEffectStacks(ushort effectId)
-		=> TargetFindOwnEffect(effectId)?.Param ?? 0;
+	protected static Status? TargetFindOwnEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
+	protected static bool TargetHasOwnEffect(ushort effectId) => TargetFindOwnEffect(effectId) is not null;
+	protected static float TargetOwnEffectDuration(ushort effectId) => TargetFindOwnEffect(effectId)?.RemainingTime ?? 0;
+	protected static float TargetOwnEffectStacks(ushort effectId) => TargetFindOwnEffect(effectId)?.Param ?? 0;
 
-	protected internal static Status? FindEffect(ushort effectId, IGameObject? actor, uint? sourceId)
-		=> Service.DataCache.GetStatus(effectId, actor, sourceId);
+	protected static Status? FindEffect(uint statusID, IGameObject? actor, uint? sourceID) {
+		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.EntityId, sourceID);
+		if (statusCache.TryGetValue(key, out Status? found))
+			return found;
+
+		if (actor is null)
+			return statusCache[key] = null;
+
+		if (actor is not IBattleChara chara)
+			return statusCache[key] = null;
+
+		foreach (Status? status in chara.StatusList) {
+			if (status.StatusId == statusID && (!sourceID.HasValue || status.SourceId == 0 || status.SourceId == InvalidObjectID || status.SourceId == sourceID))
+				return statusCache[key] = status;
+		}
+
+		return statusCache[key] = null;
+	}
 
 	#endregion
 
 	#region Job-specific utilities
+	// These are only in here - at the abstract root class of all combos everywhere - because they need to access cached values.
+	// I don't want those cached values to be accessible from anywhere outside of CustomCombo and its children, because they're
+	// only reset JUST before any combos run, so as to avoid unnecessary work.
+#pragma warning disable IDE0045 // Convert to conditional expression - helper function readability
 
-	protected internal static uint DancerDancing() {
-		DNCGauge gauge = GetJobGauge<DNCGauge>();
+	internal static bool CheckLucidWeave(CustomComboPreset preset, byte level, uint manaThreshold, uint baseAction) {
 
-		if (gauge.IsDancing) {
-			bool fast = SelfHasEffect(DNC.Buffs.StandardStep);
-			int max = fast ? 2 : 4;
-
-			return gauge.CompletedSteps >= max
-				? OriginalHook(fast ? DNC.StandardStep : DNC.TechnicalStep)
-				: gauge.NextStep;
+		if (IsEnabled(preset)) {
+			if (level >= Common.Levels.LucidDreaming) {
+				if (LocalPlayer.CurrentMp < manaThreshold) {
+					if (CanWeave(baseAction)) {
+						if (CanUse(Common.LucidDreaming))
+							return true;
+					}
+				}
+			}
 		}
 
-		return 0;
+		return false;
 	}
 
+	protected static bool DancerSmartDancing(out uint nextStep) {
+		if (dancerNextDanceStep is null) {
+			DNCGauge gauge = GetJobGauge<DNCGauge>();
+
+			if (gauge.IsDancing) {
+				bool fast = SelfHasEffect(DNC.Buffs.StandardStep);
+				int max = fast ? 2 : 4;
+
+				dancerNextDanceStep = gauge.CompletedSteps >= max
+					? OriginalHook(fast ? DNC.StandardStep : DNC.TechnicalStep)
+					: gauge.NextStep;
+			}
+			else {
+				dancerNextDanceStep = 0;
+			}
+		}
+
+		nextStep = dancerNextDanceStep.Value;
+		return nextStep > 0;
+	}
+	public static byte RedmageManaForMeleeChain(byte level) {
+		byte mana = RDM.ManaCostMelee1;
+		if (level >= RDM.Levels.Zwerchhau) {
+			mana += RDM.ManaCostMelee2;
+			if (level >= RDM.Levels.Redoublement)
+				mana += RDM.ManaCostMelee3;
+		}
+		return mana;
+	}
+
+	public static bool RedmageCheckFinishers(ref uint actionID, uint lastComboMove, byte level) {
+		const int
+			finisherDelta = 11,
+			imbalanceDiffMax = 30;
+
+		if (lastComboMove is RDM.Verflare or RDM.Verholy && level >= RDM.Levels.Scorch) {
+			actionID = RDM.Scorch;
+			return true;
+		}
+
+		if (lastComboMove is RDM.Scorch && level >= RDM.Levels.Resolution) {
+			actionID = RDM.Resolution;
+			return true;
+		}
+
+		RDMGauge gauge = GetJobGauge<RDMGauge>();
+
+		if (gauge.ManaStacks == 3 && level >= RDM.Levels.Verflare) {
+			int black = gauge.BlackMana;
+			int white = gauge.WhiteMana;
+			bool canFinishWhite = level >= RDM.Levels.Verholy;
+			int blackThreshold = white + imbalanceDiffMax;
+			int whiteThreshold = black + imbalanceDiffMax;
+			bool verfireUp = level >= RDM.Levels.Verfire && SelfHasEffect(RDM.Buffs.VerfireReady);
+			bool verstoneUp = level >= RDM.Levels.Verstone && SelfHasEffect(RDM.Buffs.VerstoneReady);
+
+			if (black >= white && canFinishWhite) {
+				// If we can already Verstone, but we can't Verfire, and Verflare WON'T imbalance us, use Verflare
+				if (verstoneUp && !verfireUp && black + finisherDelta <= blackThreshold)
+					actionID = RDM.Verflare;
+				else
+					actionID = RDM.Verholy;
+			}
+			// If we can already Verfire, but we can't Verstone, and we can use Verholy, and it WON'T imbalance us, use Verholy
+			else if (verfireUp && !verstoneUp && canFinishWhite && white + finisherDelta <= whiteThreshold) {
+				actionID = RDM.Verholy;
+			}
+			else {
+				actionID = RDM.Verflare;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static bool RedmageCheckMeleeST(ref uint actionID, uint lastComboMove, byte level, bool checkComboStart) {
+		RDMGauge gauge = GetJobGauge<RDMGauge>();
+		byte black = gauge.BlackMana;
+		byte white = gauge.WhiteMana;
+		byte mana = black != white || black == 100
+			? Math.Min(black, white)
+			: (byte)0;
+		bool buff = level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay);
+
+		if (lastComboMove is RDM.Zwerchhau or RDM.EnchantedZwerchhau && level >= RDM.Levels.Redoublement && (buff || mana >= RDM.ManaCostMelee3)) {
+			actionID = RDM.EnchantedRedoublement;
+			return true;
+		}
+
+		if (lastComboMove is RDM.Riposte or RDM.EnchantedRiposte && level >= RDM.Levels.Zwerchhau && (buff || mana >= RDM.ManaCostMelee2)) {
+			actionID = RDM.EnchantedZwerchhau;
+			return true;
+		}
+
+		if (checkComboStart && (buff || mana >= RedmageManaForMeleeChain(level))) {
+			actionID = RDM.EnchantedRiposte;
+			return true;
+		}
+
+		return false;
+	}
+
+	public static bool RedmageCheckMeleeAOE(ref uint actionID, uint lastComboMove, byte level, bool checkComboStart) {
+		if (level < RDM.Levels.EnchantedMoulinets)
+			return false;
+
+		RDMGauge gauge = GetJobGauge<RDMGauge>();
+		byte mana = Math.Min(gauge.BlackMana, gauge.WhiteMana);
+		bool buff = level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay);
+
+		if (lastComboMove is RDM.EnchantedMoulinetDeux && (buff || mana >= RDM.ManaCostMelee3)) {
+			actionID = RDM.EnchantedMoulinetTrois;
+			return true;
+		}
+
+		if (lastComboMove is RDM.Moulinet or RDM.EnchantedMoulinet && (buff || mana >= RDM.ManaCostMelee2)) {
+			actionID = RDM.EnchantedMoulinetDeux;
+			return true;
+		}
+
+		if (checkComboStart && (buff || mana >= RDM.ManaCostMelee1)) {
+			actionID = RDM.EnchantedMoulinet;
+			return true;
+		}
+
+		return false;
+	}
+
+	public static bool RedmageCheckPrefulgenceThorns(uint actionID, out uint replacementID, byte level, bool allowPrefulgence = true, bool allowThorns = true) {
+		replacementID = actionID;
+		return CheckPrefulgenceThorns(ref replacementID, level, allowPrefulgence, allowThorns);
+	}
+	public static bool CheckPrefulgenceThorns(ref uint actionID, byte level, bool allowPrefulgence = true, bool allowThorns = true) {
+		if (!allowPrefulgence && !allowThorns) // nothing to do
+			return false;
+
+		float prefulgenceTimeLeft = allowPrefulgence && level >= RDM.Levels.Prefulgence
+			? SelfEffectDuration(RDM.Buffs.PrefulgenceReady)
+			: 0f;
+		float thornsTimeLeft = allowThorns && level >= RDM.Levels.ViceOfThorns
+			? SelfEffectDuration(RDM.Buffs.ThornedFlourish)
+			: 0f;
+
+		if (prefulgenceTimeLeft > 0) {
+
+			// If we're almost out of time to use VoT but Prefulgence has enough time left to use VoT and also itself, use VoT first to save it from being lost
+			if (thornsTimeLeft is > 0 and < 3 && prefulgenceTimeLeft >= 3)
+				actionID = RDM.ViceOfThorns;
+			else
+				actionID = RDM.Prefulgence;
+
+			return true;
+		}
+
+		if (thornsTimeLeft > 0) {
+			actionID = RDM.ViceOfThorns;
+			return true;
+		}
+
+		return false;
+	}
+
+	public static bool RedmageCheckAbilityAttacks(ref uint actionID, byte level, CustomComboPreset checkPrefulgence, CustomComboPreset checkThorns) {
+		if (!IsEnabled(CustomComboPreset.RedMageContreFleche))
+			return false;
+
+		bool
+			allowPrefulgence = IsEnabled(checkPrefulgence),
+			allowThorns = IsEnabled(checkThorns);
+		if (CheckPrefulgenceThorns(ref actionID, level, allowPrefulgence, allowThorns))
+			return true;
+
+		if (level >= RDM.Levels.ContreSixte) {
+			actionID = PickByCooldown(actionID, RDM.Fleche, RDM.ContreSixte);
+			return true;
+		}
+
+		if (level >= RDM.Levels.Fleche) {
+			actionID = RDM.Fleche;
+			return true;
+		}
+
+		return false;
+	}
+
+#pragma warning restore IDE0045 // Convert to conditional expression
 	#endregion
 }

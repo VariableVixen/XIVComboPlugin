@@ -1,5 +1,4 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
-using Dalamud.Game.Text;
 
 namespace VariableVixen.XIVComboVX.Combos;
 
@@ -72,7 +71,7 @@ internal class WhiteMageAero: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
+		if (CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
 			return Common.LucidDreaming;
 
 		return actionID;
@@ -85,7 +84,7 @@ internal class WhiteMageStone: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
+		if (CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
 			return Common.LucidDreaming;
 
 		if (IsEnabled(CustomComboPreset.WhiteMageDotRefresh)) {
@@ -147,7 +146,7 @@ internal class WhiteMageHoly: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
+		if (CheckLucidWeave(CustomComboPreset.WhiteMageLucidWeave, level, Service.Configuration.WhiteMageLucidWeaveManaThreshold, actionID))
 			return Common.LucidDreaming;
 
 		if (IsEnabled(CustomComboPreset.WhiteMageHolyMiseryFeature)) {

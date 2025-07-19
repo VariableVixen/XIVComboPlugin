@@ -1,4 +1,9 @@
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+
+using Dalamud.Game.ClientState.Objects.SubKinds;
+
+using ActionManager = FFXIVClientStructs.FFXIV.Client.Game.ActionManager;
 
 namespace VariableVixen.XIVComboVX.GameData;
 
@@ -9,6 +14,26 @@ internal readonly struct CooldownData {
 	[FieldOffset(0x8)] private readonly float cooldownElapsed;
 	[FieldOffset(0xC)] private readonly float cooldownTotal;
 
+	private static readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
+	private static unsafe (ushort Current, ushort Max) getMaxCharges(uint actionID) {
+		IPlayerCharacter? player = CustomCombo.CachedLocalPlayer;
+		if (player is null)
+			return (0, 0);
+
+		uint job = player.ClassJob.RowId;
+		byte level = player.Level;
+		if (job == 0 || level == 0)
+			return (0, 0);
+
+		(uint actionID, uint job, byte level) key = (actionID, job, level);
+		if (chargesCache.TryGetValue(key, out (ushort CurrentMax, ushort Max) found))
+			return found;
+
+		ushort cur = ActionManager.GetMaxCharges(actionID, 0);
+		ushort max = ActionManager.GetMaxCharges(actionID, 100);
+		return chargesCache[key] = (cur, max);
+	}
+
 	public uint ActionID => this.actionID;
 
 	/// <summary>
@@ -16,7 +41,7 @@ internal readonly struct CooldownData {
 	/// </summary>
 	public bool IsCooldown {
 		get {
-			(ushort cur, ushort max) = Service.DataCache.GetMaxCharges(this.ActionID);
+			(ushort cur, ushort max) = getMaxCharges(this.ActionID);
 			return cur == max
 				? this.isCooldown
 				: this.cooldownElapsed < this.CooldownTotal;
@@ -38,7 +63,7 @@ internal readonly struct CooldownData {
 			if (this.cooldownTotal <= 0)
 				return 0;
 
-			(ushort cur, ushort max) = Service.DataCache.GetMaxCharges(this.ActionID);
+			(ushort cur, ushort max) = getMaxCharges(this.ActionID);
 			return cur == max
 				? this.cooldownTotal
 				: this.cooldownTotal / max * cur;
@@ -53,7 +78,7 @@ internal readonly struct CooldownData {
 	/// <summary>
 	/// The maximum number of charges available at the current level
 	/// </summary>
-	public ushort MaxCharges => Service.DataCache.GetMaxCharges(this.ActionID).Current;
+	public ushort MaxCharges => getMaxCharges(this.ActionID).Current;
 
 	/// <summary>
 	/// Whether the action has any charges available at the current level
@@ -81,7 +106,7 @@ internal readonly struct CooldownData {
 			if (!this.IsCooldown)
 				return 0;
 
-			(ushort cur, ushort _) = Service.DataCache.GetMaxCharges(this.ActionID);
+			(ushort cur, ushort _) = getMaxCharges(this.ActionID);
 
 			return this.CooldownRemaining % (this.CooldownTotal / cur);
 		}

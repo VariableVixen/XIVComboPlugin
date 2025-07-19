@@ -77,12 +77,14 @@ internal class IconReplacer: IDisposable {
 				Service.TickLogger.Warning($"Cannot replace action #{actionID} when player is null");
 				return this.OriginalHook(actionID);
 			}
-			Service.DataCache.Player = player;
 
 			uint lastComboActionId = *(uint*)Service.Address.LastComboMove;
 			float comboTime = *(float*)Service.Address.ComboTimer;
 			byte level = player.Level;
 			uint classJobID = player.ClassJob.RowId;
+
+			Service.TickLogger.Debug("Resetting combo data cache");
+			CustomCombo.ResetCache(player);
 
 			Service.TickLogger.Info($"Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
 			foreach (CustomCombo combo in combos) {

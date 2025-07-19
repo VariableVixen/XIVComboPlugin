@@ -103,7 +103,6 @@ public sealed class Plugin: IDalamudPlugin {
 
 	private void deferredInit() {
 		if (Service.Address.LoadSuccessful) {
-			Service.DataCache = new();
 			Service.IconReplacer = new();
 			Service.GameState = new();
 			Service.ChatUtils = new();
@@ -291,7 +290,6 @@ public sealed class Plugin: IDalamudPlugin {
 				Service.Interface.UiBuilder.Draw -= this.WindowSystem.Draw;
 
 			Service.IconReplacer?.Dispose();
-			Service.DataCache?.Dispose();
 			Service.UpdateAlert?.Dispose();
 			Service.ChatUtils?.Dispose();
 			Service.GameState?.Dispose();

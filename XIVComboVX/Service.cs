@@ -18,8 +18,6 @@ internal class Service {
 
 	public static PluginAddressResolver Address { get; set; } = null!;
 
-	public static ComboDataCache DataCache { get; set; } = null!;
-
 	public static SingleTickLogger TickLogger { get; set; } = null!;
 
 	public static GameState GameState { get; set; } = null!;

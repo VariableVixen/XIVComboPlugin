@@ -1,7 +1,5 @@
 using Dalamud.Game.ClientState.JobGauge.Types;
 
-using Microsoft.Win32.SafeHandles;
-
 namespace VariableVixen.XIVComboVX.Combos;
 
 internal static class SCH {
@@ -72,7 +70,7 @@ internal class ScholarArtOfWar: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(this.Preset, level, Service.Configuration.ScholarLucidArtOfWarManaThreshold, actionID))
+		if (CheckLucidWeave(this.Preset, level, Service.Configuration.ScholarLucidArtOfWarManaThreshold, actionID))
 			return Common.LucidDreaming;
 
 		return actionID;
@@ -85,7 +83,7 @@ internal class ScholarRuinBoil: CustomCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 
-		if (Common.CheckLucidWeave(CustomComboPreset.ScholarLucidRuinBroil, level, Service.Configuration.ScholarLucidRuinBroilManaThreshold, actionID))
+		if (CheckLucidWeave(CustomComboPreset.ScholarLucidRuinBroil, level, Service.Configuration.ScholarLucidRuinBroilManaThreshold, actionID))
 			return Common.LucidDreaming;
 
 		if (IsEnabled(CustomComboPreset.ScholarMobileRuinBroil)) {
