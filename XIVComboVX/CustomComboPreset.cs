@@ -1026,12 +1026,8 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Slice Combo", "Replace Infernal Slice with its combo chain.", RPR.JobID)]
 	ReaperSliceCombo = 39001,
 
-	[CustomComboInfo("Slice Weave Assist", "Replace Infernal Slice with Blood Stalk (or variants) when available and weaving wouldn't clip your GCD.", RPR.JobID)]
+	[CustomComboInfo("Slice Weave Assist", "Replace Infernal Slice with Blood Stalk (or variants) when available and weaving wouldn't clip your GCD.\nThis includes Sacrificium.", RPR.JobID)]
 	ReaperSliceWeaveAssist = 39042,
-
-	[ParentPreset(ReaperSliceWeaveAssist)]
-	[CustomComboInfo("Ignore Reaving", "Allow weaving even if you're already reaving.", RPR.JobID)]
-	ReaperSliceWeaveAssistDoubleReaving = 39048,
 
 	[CustomComboInfo("Slice of Death Feature", "Replace Infernal Slice with Shadow of Death when the target's Death's Design debuff is low.", RPR.JobID)]
 	ReaperSliceShadowFeature = 39040,
@@ -1047,7 +1043,7 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Slice Gallows Feature", "Replace Infernal Slice with Gallows while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
 	ReaperSliceGallowsFeature = 39004,
 
-	[CustomComboInfo("Slice Enhanced Soul Reaver Feature", "Replace Infernal Slice with whichever of Gibbet or Gallows is currently enhanced while Reaving, Enshrouded, or an Executioner.\nNo effect if neither is enhanced - combine this with one of the above two for a default!", RPR.JobID)]
+	[CustomComboInfo("Slice Enhanced Reaver Feature", "Replace Infernal Slice with whichever of Gibbet or Gallows is currently enhanced while Reaving, Enshrouded, or an Executioner.\nNo effect if neither is enhanced - combine this with one of the above two for a default!", RPR.JobID)]
 	ReaperSliceSmart = 39013,
 
 	[CustomComboInfo("Slice Lemure's Feature", "Replace Infernal Slice with Lemure's Slice when two or more stacks of Void Shroud are active.", RPR.JobID)]
@@ -1059,41 +1055,11 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Slice Soulsow Feature", "Replace Infernal Slice with Soulsow when out of combat and not active.", RPR.JobID)]
 	ReaperSliceSoulsowFeature = 39030,
 
-	[Conflicts(ReaperSoulGibbetFeature)]
-	[CustomComboInfo("Soul Gallows Feature", "Replace Soul Slice with Gallows while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
-	ReaperSoulGallowsFeature = 39025,
-
-	[Conflicts(ReaperSoulGallowsFeature)]
-	[CustomComboInfo("Soul Gibbet Feature", "Replace Soul Slice with Gibbet while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
-	ReaperSoulGibbetFeature = 39026,
-
-	[CustomComboInfo("Soul Lemure's Feature", "Replace Soul Slice with Lemure's Slice when two or more stacks of Void Shroud are active.", RPR.JobID)]
-	ReaperSoulLemuresFeature = 39027,
-
-	[CustomComboInfo("Soul Communio Feature", "Replace Soul Slice with Communio when one stack of Shroud is left, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
-	ReaperSoulCommunioFeature = 39028,
-
-	[CustomComboInfo("Soul Slice Overcap Feature", "Replace Soul Slice with Blood Stalk when not Enshrouded and Soul Gauge is over 50.", RPR.JobID)]
-	ReaperSoulOvercapFeature = 39034,
-
-	[CustomComboInfo("Soul Scythe Overcap Feature", "Replace Soul Scythe with Grim Swathe when not Enshrouded, and Soul Gauge is over 50.", RPR.JobID)]
-	ReaperSoulScytheOvercapFeature = 39035,
-
-	[CustomComboInfo("Soul Slice Weave Assist", "Replace Soul Slice with Blood Stalk (or variants) when available and weaving wouldn't clip your GCD.", RPR.JobID)]
-	ReaperSoulSliceWeaveAssist = 39044,
-
-	[CustomComboInfo("Soul Scythe Weave Assist", "Replace Soul Scythe with Grim Swathe (or variants) when available and weaving wouldn't clip your GCD.", RPR.JobID)]
-	ReaperSoulScytheWeaveAssist = 39045,
-
 	[CustomComboInfo("Scythe Combo", "Replace Nightmare Scythe with its combo chain.", RPR.JobID)]
 	ReaperScytheCombo = 39002,
 
-	[CustomComboInfo("Scythe Weave Assist", "Replace Nightmare Scythe with Grim Swathe (or variants) when available and weaving wouldn't clip your GCD.", RPR.JobID)]
+	[CustomComboInfo("Scythe Weave Assist", "Replace Nightmare Scythe with Grim Swathe (or variants) when available and weaving wouldn't clip your GCD.\nThis includes Sacrificium.", RPR.JobID)]
 	ReaperScytheWeaveAssist = 39043,
-
-	[ParentPreset(ReaperScytheWeaveAssist)]
-	[CustomComboInfo("Ignore Reaving", "Allow weaving even if you're already reaving.", RPR.JobID)]
-	ReaperScytheWeaveAssistDoubleReaving = 39049,
 
 	[CustomComboInfo("Scythe of Death Feature", "Replace Nightmare Scythe with Whorl of Death when the target's Death's Design debuff is low.", RPR.JobID)]
 	ReaperScytheWhorlFeature = 39041,
@@ -1115,6 +1081,32 @@ public enum CustomComboPreset {
 
 	[CustomComboInfo("Scythe Harvest Moon Feature", "Replace Nightmare Scythe with Harvest Moon when Soulsow is active and you have a target.", RPR.JobID)]
 	ReaperScytheHarvestMoonFeature = 39032,
+
+	[Conflicts(ReaperSoulSliceGibbetFeature)]
+	[CustomComboInfo("Soul Gallows Feature", "Replace Soul Slice with Gallows while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
+	ReaperSoulSliceGallowsFeature = 39025,
+
+	[Conflicts(ReaperSoulSliceGallowsFeature)]
+	[CustomComboInfo("Soul Gibbet Feature", "Replace Soul Slice with Gibbet while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
+	ReaperSoulSliceGibbetFeature = 39026,
+
+	[CustomComboInfo("Soul Lemure's Feature", "Replace Soul Slice with Lemure's Slice when two or more stacks of Void Shroud are active.", RPR.JobID)]
+	ReaperSoulSliceLemuresFeature = 39027,
+
+	[CustomComboInfo("Soul Communio Feature", "Replace Soul Slice with Communio when one stack of Shroud is left, and with Perfectio when Perfectio Parata is active.", RPR.JobID)]
+	ReaperSoulSliceCommunioFeature = 39028,
+
+	[CustomComboInfo("Soul Overcap Feature", "Replace Soul Slice with Blood Stalk when not Enshrouded and Soul Gauge is over 50.", RPR.JobID)]
+	ReaperSoulSliceOvercapFeature = 39034,
+
+	[CustomComboInfo("Soul Slice Weave Assist", "Replace Soul Slice with Blood Stalk (or variants) when available and weaving wouldn't clip your GCD.\nThis includes Sacrificium.", RPR.JobID)]
+	ReaperSoulSliceWeaveAssist = 39044,
+
+	[CustomComboInfo("Soul Scythe Overcap Feature", "Replace Soul Scythe with Grim Swathe when not Enshrouded, and Soul Gauge is over 50.", RPR.JobID)]
+	ReaperSoulScytheOvercapFeature = 39035,
+
+	[CustomComboInfo("Soul Scythe Weave Assist", "Replace Soul Scythe with Grim Swathe (or variants) when available and weaving wouldn't clip your GCD.\nThis includes Sacrificium.", RPR.JobID)]
+	ReaperSoulScytheWeaveAssist = 39045,
 
 	[CustomComboInfo("Enhanced Soul Reaver Feature", "Replace Gibbet and Gallows with whichever is currently enhanced while Reaving, Enshrouded, or an Executioner.", RPR.JobID)]
 	ReaperEnhancedSoulReaverFeature = 39017,
