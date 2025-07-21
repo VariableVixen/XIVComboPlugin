@@ -28,6 +28,7 @@ internal class Service {
 
 	public static Ipc Ipc { get; set; } = null!;
 
+	[PluginService] public static IDataManager DataManager { get; set; } = null!;
 	[PluginService] public static IPluginLog Log { get; private set; } = null!;
 	[PluginService] public static IDalamudPluginInterface Interface { get; private set; } = null!;
 	[PluginService] public static ISigScanner SigScanner { get; private set; } = null!;

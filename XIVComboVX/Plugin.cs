@@ -15,6 +15,7 @@ using Dalamud.Utility;
 
 using VariableVixen.XIVComboVX.Attributes;
 using VariableVixen.XIVComboVX.Config;
+using VariableVixen.XIVComboVX.GameData;
 
 namespace VariableVixen.XIVComboVX;
 
@@ -22,7 +23,10 @@ public sealed class Plugin: IDalamudPlugin {
 	public const string Name = "XIVComboVX";
 
 	private bool disposed = false;
-	private readonly Thread finalSetupThread;
+	private readonly Thread? finalSetupThread;
+#pragma warning disable CS0649 // Field is never assigned to - only happens in release builds
+	private readonly Thread? luminaLoadingThread;
+#pragma warning restore CS0649
 
 	private static readonly HashSet<string> nonConflictingPluginIds = [];
 	private static readonly HashSet<string> conflictingPluginNameSubstrings = [
@@ -96,12 +100,18 @@ public sealed class Plugin: IDalamudPlugin {
 		Service.Address.Setup();
 
 		this.finalSetupThread = new(this.deferredInit);
+#if DEBUG
+		this.luminaLoadingThread = new(Labels.Load);
+#endif
 
 		log.Information($"{LogTag.CoreSetup} Preinitialisation complete, starting main setup");
 		this.finalSetupThread.Start();
 	}
 
 	private void deferredInit() {
+		this.luminaLoadingThread?.Start();
+		this.luminaLoadingThread?.Join();
+
 		if (Service.Address.LoadSuccessful) {
 			Service.IconReplacer = new();
 			Service.GameState = new();
@@ -283,6 +293,8 @@ public sealed class Plugin: IDalamudPlugin {
 		this.disposed = true;
 
 		if (disposing) {
+			this.finalSetupThread?.Join();
+
 			Service.Framework.Update -= CustomCombo.ResetCacheEveryTick;
 
 			Service.Commands.RemoveHandler(CommandCustom);
