@@ -105,15 +105,15 @@ internal abstract class CustomCombo {
 	#region Caching
 
 	// Invalidate these
-	private static readonly Dictionary<(uint StatusID, uint? TargetID, uint? SourceID), Status?> statusCache = [];
-	private static readonly Dictionary<uint, CooldownData> cooldownCache = [];
-	private static bool? canInterruptTarget = null;
-	private static uint? dancerNextDanceStep = null;
+	protected static readonly Dictionary<(uint StatusID, uint? TargetID, uint? SourceID), Status?> statusCache = [];
+	protected static readonly Dictionary<uint, CooldownData> cooldownCache = [];
+	protected static bool? canInterruptTarget = null;
+	protected static uint? dancerNextDanceStep = null;
 
 	// Do not invalidate these
-	private static readonly Dictionary<uint, byte> cooldownGroupCache = [];
-	private static readonly Dictionary<Type, JobGaugeBase> jobGaugeCache = [];
-	private static readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
+	protected static readonly Dictionary<uint, byte> cooldownGroupCache = [];
+	protected static readonly Dictionary<Type, JobGaugeBase> jobGaugeCache = [];
+	protected static readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
 
 	// These are updated directly, not actually invalidated
 	protected static IPlayerCharacter LocalPlayer { get; private set; } = null!;
@@ -131,7 +131,19 @@ internal abstract class CustomCombo {
 
 	#endregion
 
+#pragma warning disable IDE0045 // Convert to conditional expression - helper function readability
+
 	#region Common calculations and shortcuts
+
+	protected static bool CheckLucidWeave(CustomComboPreset preset, byte level, uint manaThreshold, uint baseAction) {
+
+		if (level >= Common.Levels.LucidDreaming && IsEnabled(preset)) {
+			if (LocalPlayer.CurrentMp < manaThreshold && CanWeave(baseAction) && CanUse(Common.LucidDreaming))
+				return true;
+		}
+
+		return false;
+	}
 
 	protected static uint PickByCooldown(uint preference, params uint[] actions) {
 
@@ -319,6 +331,25 @@ internal abstract class CustomCombo {
 
 	#region Effects
 
+	protected static Status? FindEffect(uint statusID, IGameObject? actor, uint? sourceID) {
+		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.EntityId, sourceID);
+
+		if (statusCache.TryGetValue(key, out Status? found))
+			return found;
+
+		if (actor is null)
+			return statusCache[key] = null;
+		if (actor is not IBattleChara chara)
+			return statusCache[key] = null;
+
+		foreach (Status? status in chara.StatusList) {
+			if (status.StatusId == statusID && (!sourceID.HasValue || status.SourceId is 0 or InvalidObjectID || status.SourceId == sourceID))
+				return statusCache[key] = status;
+		}
+
+		return statusCache[key] = null;
+	}
+
 	protected static Status? SelfFindEffect(ushort effectId) => FindEffect(effectId, LocalPlayer, null);
 	protected static bool SelfHasEffect(ushort effectId) => SelfFindEffect(effectId) is not null;
 	protected static float SelfEffectDuration(ushort effectId) => SelfFindEffect(effectId)?.RemainingTime ?? 0;
@@ -334,236 +365,7 @@ internal abstract class CustomCombo {
 	protected static float TargetOwnEffectDuration(ushort effectId) => TargetFindOwnEffect(effectId)?.RemainingTime ?? 0;
 	protected static float TargetOwnEffectStacks(ushort effectId) => TargetFindOwnEffect(effectId)?.Param ?? 0;
 
-	protected static Status? FindEffect(uint statusID, IGameObject? actor, uint? sourceID) {
-		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.EntityId, sourceID);
-		if (statusCache.TryGetValue(key, out Status? found))
-			return found;
-
-		if (actor is null)
-			return statusCache[key] = null;
-
-		if (actor is not IBattleChara chara)
-			return statusCache[key] = null;
-
-		foreach (Status? status in chara.StatusList) {
-			if (status.StatusId == statusID && (!sourceID.HasValue || status.SourceId == 0 || status.SourceId == InvalidObjectID || status.SourceId == sourceID))
-				return statusCache[key] = status;
-		}
-
-		return statusCache[key] = null;
-	}
-
 	#endregion
-
-	#region Job-specific utilities
-	// These are only in here - at the abstract root class of all combos everywhere - because they need to access cached values.
-	// I don't want those cached values to be accessible from anywhere outside of CustomCombo and its children, because they're
-	// only reset JUST before any combos run, so as to avoid unnecessary work.
-#pragma warning disable IDE0045 // Convert to conditional expression - helper function readability
-
-	internal static bool CheckLucidWeave(CustomComboPreset preset, byte level, uint manaThreshold, uint baseAction) {
-
-		if (IsEnabled(preset)) {
-			if (level >= Common.Levels.LucidDreaming) {
-				if (LocalPlayer.CurrentMp < manaThreshold) {
-					if (CanWeave(baseAction)) {
-						if (CanUse(Common.LucidDreaming))
-							return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-
-	protected static bool DancerSmartDancing(out uint nextStep) {
-		if (dancerNextDanceStep is null) {
-			DNCGauge gauge = GetJobGauge<DNCGauge>();
-
-			if (gauge.IsDancing) {
-				bool fast = SelfHasEffect(DNC.Buffs.StandardStep);
-				int max = fast ? 2 : 4;
-
-				dancerNextDanceStep = gauge.CompletedSteps >= max
-					? OriginalHook(fast ? DNC.StandardStep : DNC.TechnicalStep)
-					: gauge.NextStep;
-			}
-			else {
-				dancerNextDanceStep = 0;
-			}
-		}
-
-		nextStep = dancerNextDanceStep.Value;
-		return nextStep > 0;
-	}
-	public static byte RedmageManaForMeleeChain(byte level) {
-		byte mana = RDM.ManaCostMelee1;
-		if (level >= RDM.Levels.Zwerchhau) {
-			mana += RDM.ManaCostMelee2;
-			if (level >= RDM.Levels.Redoublement)
-				mana += RDM.ManaCostMelee3;
-		}
-		return mana;
-	}
-
-	public static bool RedmageCheckFinishers(ref uint actionID, uint lastComboMove, byte level) {
-		const int
-			finisherDelta = 11,
-			imbalanceDiffMax = 30;
-
-		if (lastComboMove is RDM.Verflare or RDM.Verholy && level >= RDM.Levels.Scorch) {
-			actionID = RDM.Scorch;
-			return true;
-		}
-
-		if (lastComboMove is RDM.Scorch && level >= RDM.Levels.Resolution) {
-			actionID = RDM.Resolution;
-			return true;
-		}
-
-		RDMGauge gauge = GetJobGauge<RDMGauge>();
-
-		if (gauge.ManaStacks == 3 && level >= RDM.Levels.Verflare) {
-			int black = gauge.BlackMana;
-			int white = gauge.WhiteMana;
-			bool canFinishWhite = level >= RDM.Levels.Verholy;
-			int blackThreshold = white + imbalanceDiffMax;
-			int whiteThreshold = black + imbalanceDiffMax;
-			bool verfireUp = level >= RDM.Levels.Verfire && SelfHasEffect(RDM.Buffs.VerfireReady);
-			bool verstoneUp = level >= RDM.Levels.Verstone && SelfHasEffect(RDM.Buffs.VerstoneReady);
-
-			if (black >= white && canFinishWhite) {
-				// If we can already Verstone, but we can't Verfire, and Verflare WON'T imbalance us, use Verflare
-				if (verstoneUp && !verfireUp && black + finisherDelta <= blackThreshold)
-					actionID = RDM.Verflare;
-				else
-					actionID = RDM.Verholy;
-			}
-			// If we can already Verfire, but we can't Verstone, and we can use Verholy, and it WON'T imbalance us, use Verholy
-			else if (verfireUp && !verstoneUp && canFinishWhite && white + finisherDelta <= whiteThreshold) {
-				actionID = RDM.Verholy;
-			}
-			else {
-				actionID = RDM.Verflare;
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public static bool RedmageCheckMeleeST(ref uint actionID, uint lastComboMove, byte level, bool checkComboStart) {
-		RDMGauge gauge = GetJobGauge<RDMGauge>();
-		byte black = gauge.BlackMana;
-		byte white = gauge.WhiteMana;
-		byte mana = black != white || black == 100
-			? Math.Min(black, white)
-			: (byte)0;
-		bool buff = level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay);
-
-		if (lastComboMove is RDM.Zwerchhau or RDM.EnchantedZwerchhau && level >= RDM.Levels.Redoublement && (buff || mana >= RDM.ManaCostMelee3)) {
-			actionID = RDM.EnchantedRedoublement;
-			return true;
-		}
-
-		if (lastComboMove is RDM.Riposte or RDM.EnchantedRiposte && level >= RDM.Levels.Zwerchhau && (buff || mana >= RDM.ManaCostMelee2)) {
-			actionID = RDM.EnchantedZwerchhau;
-			return true;
-		}
-
-		if (checkComboStart && (buff || mana >= RedmageManaForMeleeChain(level))) {
-			actionID = RDM.EnchantedRiposte;
-			return true;
-		}
-
-		return false;
-	}
-
-	public static bool RedmageCheckMeleeAOE(ref uint actionID, uint lastComboMove, byte level, bool checkComboStart) {
-		if (level < RDM.Levels.EnchantedMoulinets)
-			return false;
-
-		RDMGauge gauge = GetJobGauge<RDMGauge>();
-		byte mana = Math.Min(gauge.BlackMana, gauge.WhiteMana);
-		bool buff = level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay);
-
-		if (lastComboMove is RDM.EnchantedMoulinetDeux && (buff || mana >= RDM.ManaCostMelee3)) {
-			actionID = RDM.EnchantedMoulinetTrois;
-			return true;
-		}
-
-		if (lastComboMove is RDM.Moulinet or RDM.EnchantedMoulinet && (buff || mana >= RDM.ManaCostMelee2)) {
-			actionID = RDM.EnchantedMoulinetDeux;
-			return true;
-		}
-
-		if (checkComboStart && (buff || mana >= RDM.ManaCostMelee1)) {
-			actionID = RDM.EnchantedMoulinet;
-			return true;
-		}
-
-		return false;
-	}
-
-	public static bool RedmageCheckPrefulgenceThorns(uint actionID, out uint replacementID, byte level, bool allowPrefulgence = true, bool allowThorns = true) {
-		replacementID = actionID;
-		return CheckPrefulgenceThorns(ref replacementID, level, allowPrefulgence, allowThorns);
-	}
-	public static bool CheckPrefulgenceThorns(ref uint actionID, byte level, bool allowPrefulgence = true, bool allowThorns = true) {
-		if (!allowPrefulgence && !allowThorns) // nothing to do
-			return false;
-
-		float prefulgenceTimeLeft = allowPrefulgence && level >= RDM.Levels.Prefulgence
-			? SelfEffectDuration(RDM.Buffs.PrefulgenceReady)
-			: 0f;
-		float thornsTimeLeft = allowThorns && level >= RDM.Levels.ViceOfThorns
-			? SelfEffectDuration(RDM.Buffs.ThornedFlourish)
-			: 0f;
-
-		if (prefulgenceTimeLeft > 0) {
-
-			// If we're almost out of time to use VoT but Prefulgence has enough time left to use VoT and also itself, use VoT first to save it from being lost
-			if (thornsTimeLeft is > 0 and < 3 && prefulgenceTimeLeft >= 3)
-				actionID = RDM.ViceOfThorns;
-			else
-				actionID = RDM.Prefulgence;
-
-			return true;
-		}
-
-		if (thornsTimeLeft > 0) {
-			actionID = RDM.ViceOfThorns;
-			return true;
-		}
-
-		return false;
-	}
-
-	public static bool RedmageCheckAbilityAttacks(ref uint actionID, byte level, CustomComboPreset checkPrefulgence, CustomComboPreset checkThorns) {
-		if (!IsEnabled(CustomComboPreset.RedMageContreFleche))
-			return false;
-
-		bool
-			allowPrefulgence = IsEnabled(checkPrefulgence),
-			allowThorns = IsEnabled(checkThorns);
-		if (CheckPrefulgenceThorns(ref actionID, level, allowPrefulgence, allowThorns))
-			return true;
-
-		if (level >= RDM.Levels.ContreSixte) {
-			actionID = PickByCooldown(actionID, RDM.Fleche, RDM.ContreSixte);
-			return true;
-		}
-
-		if (level >= RDM.Levels.Fleche) {
-			actionID = RDM.Fleche;
-			return true;
-		}
-
-		return false;
-	}
 
 #pragma warning restore IDE0045 // Convert to conditional expression
-	#endregion
 }

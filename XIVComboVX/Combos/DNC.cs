@@ -86,7 +86,34 @@ internal static class DNC {
 	}
 }
 
-internal class DancerDanceComboCompatibility: CustomCombo {
+internal abstract class DancerCombo: CustomCombo {
+#pragma warning disable IDE0045 // Convert to conditional expression - helper function readability
+
+	protected static bool DancerSmartDancing(out uint nextStep) {
+		if (dancerNextDanceStep is null) {
+			DNCGauge gauge = GetJobGauge<DNCGauge>();
+
+			if (gauge.IsDancing) {
+				bool fast = SelfHasEffect(DNC.Buffs.StandardStep);
+				int max = fast ? 2 : 4;
+
+				dancerNextDanceStep = gauge.CompletedSteps >= max
+					? OriginalHook(fast ? DNC.StandardStep : DNC.TechnicalStep)
+					: gauge.NextStep;
+			}
+			else {
+				dancerNextDanceStep = 0;
+			}
+		}
+
+		nextStep = dancerNextDanceStep.Value;
+		return nextStep > 0;
+	}
+
+#pragma warning restore IDE0045 // Convert to conditional expression
+}
+
+internal class DancerDanceComboCompatibility: DancerCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.DancerDanceComboCompatibility;
 	public override uint[] ActionIDs => [
 		Service.Configuration.DancerEmboiteRedActionID,
@@ -117,7 +144,7 @@ internal class DancerDanceComboCompatibility: CustomCombo {
 	}
 }
 
-internal class DancerFanDanceCombos: CustomCombo {
+internal class DancerFanDanceCombos: DancerCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.DncAny;
 	public override uint[] ActionIDs { get; } = [DNC.FanDance1, DNC.FanDance2];
 
@@ -142,7 +169,7 @@ internal class DancerFanDanceCombos: CustomCombo {
 	}
 }
 
-internal class DancerDanceStepCombo: CustomCombo {
+internal class DancerDanceStepCombo: DancerCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.DancerDanceStepCombo;
 	public override uint[] ActionIDs { get; } = [DNC.StandardStep, DNC.TechnicalStep];
 
@@ -170,7 +197,7 @@ internal class DancerDanceStepCombo: CustomCombo {
 	}
 }
 
-internal class DancerFlourishFeature: CustomCombo {
+internal class DancerFlourishFeature: DancerCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.DancerFlourishFeature;
 	public override uint[] ActionIDs { get; } = [DNC.Flourish];
 
@@ -183,7 +210,7 @@ internal class DancerFlourishFeature: CustomCombo {
 	}
 }
 
-internal class DancerSingleTargetMultibutton: CustomCombo {
+internal class DancerSingleTargetMultibutton: DancerCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.DancerSingleTargetMultibutton;
 	public override uint[] ActionIDs { get; } = [DNC.Cascade];
 
@@ -259,7 +286,7 @@ internal class DancerSingleTargetMultibutton: CustomCombo {
 	}
 }
 
-internal class DancerAoeMultibutton: CustomCombo {
+internal class DancerAoeMultibutton: DancerCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.DancerAoeMultibutton;
 	public override uint[] ActionIDs { get; } = [DNC.Windmill];
 
@@ -330,7 +357,7 @@ internal class DancerAoeMultibutton: CustomCombo {
 	}
 }
 
-internal class DancerDevilmentFeature: CustomCombo {
+internal class DancerDevilmentFeature: DancerCombo {
 	public override CustomComboPreset Preset { get; } = CustomComboPreset.DancerDevilmentFeature;
 	public override uint[] ActionIDs { get; } = [DNC.Devilment];
 
@@ -343,7 +370,7 @@ internal class DancerDevilmentFeature: CustomCombo {
 	}
 }
 
-internal class DancerCuringWindFeature: CustomCombo {
+internal class DancerCuringWindFeature: DancerCombo {
 	public override CustomComboPreset Preset { get; } = CustomComboPreset.DncAny;
 	public override uint[] ActionIDs { get; } = [DNC.CuringWaltz];
 
