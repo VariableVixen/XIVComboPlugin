@@ -375,18 +375,18 @@ internal abstract class CustomCombo {
 
 	protected static Status? SelfFindEffect(ushort effectId) => FindEffect(effectId, LocalPlayer, null);
 	protected static bool SelfHasEffect(ushort effectId) => SelfFindEffect(effectId) is not null;
-	protected static float SelfEffectDuration(ushort effectId) => SelfFindEffect(effectId)?.RemainingTime ?? 0;
-	protected static float SelfEffectStacks(ushort effectId) => SelfFindEffect(effectId)?.Param ?? 0;
+	protected static float SelfEffectDuration(ushort effectId) => Math.Abs(SelfFindEffect(effectId)?.RemainingTime ?? 0);
+	protected static float SelfEffectStacks(ushort effectId) => Math.Abs(SelfFindEffect(effectId)?.Param ?? 0);
 
 	protected static Status? TargetFindAnyEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, null);
 	protected static bool TargetHasAnyEffect(ushort effectId) => TargetFindAnyEffect(effectId) is not null;
-	protected static float TargetAnyEffectDuration(ushort effectId) => TargetFindAnyEffect(effectId)?.RemainingTime ?? 0;
-	protected static float TargetAnyEffectStacks(ushort effectId) => TargetFindAnyEffect(effectId)?.Param ?? 0;
+	protected static float TargetAnyEffectDuration(ushort effectId) => Math.Abs(TargetFindAnyEffect(effectId)?.RemainingTime ?? 0);
+	protected static float TargetAnyEffectStacks(ushort effectId) => Math.Abs(TargetFindAnyEffect(effectId)?.Param ?? 0);
 
 	protected static Status? TargetFindOwnEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
 	protected static bool TargetHasOwnEffect(ushort effectId) => TargetFindOwnEffect(effectId) is not null;
-	protected static float TargetOwnEffectDuration(ushort effectId) => TargetFindOwnEffect(effectId)?.RemainingTime ?? 0;
-	protected static float TargetOwnEffectStacks(ushort effectId) => TargetFindOwnEffect(effectId)?.Param ?? 0;
+	protected static float TargetOwnEffectDuration(ushort effectId) => Math.Abs(TargetFindOwnEffect(effectId)?.RemainingTime ?? 0);
+	protected static float TargetOwnEffectStacks(ushort effectId) => Math.Abs(TargetFindOwnEffect(effectId)?.Param ?? 0);
 
 	#endregion
 
