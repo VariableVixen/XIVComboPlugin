@@ -66,22 +66,22 @@ internal class ComboDetailSetting {
 			_ => 0,
 		};
 		if (attr.Min < typeMin) {
-			Service.Log.Warning($"{this.Combo}:{this.Property.Name} has minimum value {attr.Min} below {this.Type.Name}.MinValue, bounding to {typeMin}");
+			Service.Log.Warning($"{LogTag.ConfigWindow} {this.Combo}:{this.Property.Name} has minimum value {attr.Min} below {this.Type.Name}.MinValue, bounding to {typeMin}");
 			this.Min = typeMin;
 		}
 		else if (attr.Min > typeMax) {
-			Service.Log.Warning($"{this.Combo}:{this.Property.Name} has minimum value {attr.Min} above {this.Type.Name}.MaxValue, bounding to {typeMax}");
+			Service.Log.Warning($"{LogTag.ConfigWindow} {this.Combo}:{this.Property.Name} has minimum value {attr.Min} above {this.Type.Name}.MaxValue, bounding to {typeMax}");
 			this.Min = typeMax;
 		}
 		else {
 			this.Min = attr.Min;
 		}
 		if (attr.Max > typeMax) {
-			Service.Log.Warning($"{this.Combo}:{this.Property.Name} has maximum value {attr.Max} above {this.Type.Name}.MaxValue, bounding to {typeMax}");
+			Service.Log.Warning($"{LogTag.ConfigWindow} {this.Combo}:{this.Property.Name} has maximum value {attr.Max} above {this.Type.Name}.MaxValue, bounding to {typeMax}");
 			this.Max = typeMax;
 		}
 		else if (attr.Max < typeMin) {
-			Service.Log.Warning($"{this.Combo}:{this.Property.Name} has maximum value {attr.Max} below {this.Type.Name}.MinValue, bounding to {typeMin}");
+			Service.Log.Warning($"{LogTag.ConfigWindow} {this.Combo}:{this.Property.Name} has maximum value {attr.Max} below {this.Type.Name}.MinValue, bounding to {typeMin}");
 			this.Max = typeMin;
 		}
 		else {

@@ -130,7 +130,7 @@ public class ConfigWindow: Window {
 
 				this.presetOrdinals[preset] = ++ord;
 
-				Service.Log.Information($"{LogTag.ConfigWindow} Indexed {preset} as {ord}");
+				Service.Log.Information($"{LogTag.ConfigWindow} Indexed {preset.GetDebugLabel()} as {ord}");
 
 				// if this preset has children, iterate and index them immediately because they'll be grouped under it in the config window
 				if (this.parentToChildrenPresets.TryGetValue(preset, out List<(CustomComboPreset Preset, CustomComboInfoAttribute Info)>? children) && children?.Count > 0) {
@@ -148,7 +148,7 @@ public class ConfigWindow: Window {
 						if (!this.presetOrdinals.ContainsKey(next))
 							this.presetOrdinals[next] = ++ord;
 
-						Service.Log.Information($"{LogTag.ConfigWindow} Indexed {next} as {ord}");
+						Service.Log.Information($"{LogTag.ConfigWindow} Indexed {next.GetDebugLabel()} as {ord}");
 
 						// if the current preset being indexed has children, they need to be added to the FRONT of the queue (but still in the order they're presented)
 						if (this.parentToChildrenPresets.TryGetValue(next, out List<(CustomComboPreset Preset, CustomComboInfoAttribute Info)>? subchildren)) {
@@ -510,9 +510,7 @@ public class ConfigWindow: Window {
 						default:
 							throw new FormatException($"Invalid detail type {detail.ImGuiType}");
 					}
-					Service.TickLogger.Debug(
-						$"{detail.Label} ({detail.Type.Name}/{detail.ImGuiType}) {detail.Min} <= [{detail.Val}] <= {detail.Max} ({range})"
-					);
+					Service.TickLogger.Debug($"{LogTag.ConfigWindow} {detail.Label} ({detail.Type.Name}/{detail.ImGuiType}) {detail.Min} <= [{detail.Val}] <= {detail.Max} ({range})");
 					bool changed = useSlider
 						? ImGui.SliderScalar(
 							detail.Label + $"##{detail.Combo}",

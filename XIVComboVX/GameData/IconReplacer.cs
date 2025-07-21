@@ -70,13 +70,13 @@ internal class IconReplacer: IDisposable {
 			this.actionManager = actionManager;
 
 			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos) && !this.customCombos.TryGetValue(0, out combos)) {
-				Service.TickLogger.Info($"No replacers found for action #{actionID}");
+				Service.TickLogger.Info($"{LogTag.Combo} No replacers found for action #{actionID}");
 				return this.OriginalHook(actionID);
 			}
 
 			IPlayerCharacter? player = CustomCombo.CachedLocalPlayer;
 			if (player is null) {
-				Service.TickLogger.Warning($"Cannot replace action #{actionID} when player is null");
+				Service.TickLogger.Warning($"{LogTag.Combo} Cannot replace action #{actionID} when player is null");
 				return this.OriginalHook(actionID);
 			}
 
@@ -85,17 +85,17 @@ internal class IconReplacer: IDisposable {
 			byte level = player.Level;
 			uint classJobID = player.ClassJob.RowId;
 
-			Service.TickLogger.Info($"Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
+			Service.TickLogger.Info($"{LogTag.Combo} Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
 			foreach (CustomCombo combo in combos) {
 				if (combo.TryInvoke(actionID, lastComboActionId, comboTime, level, classJobID, out uint newActionID))
 					return this.OriginalHook(newActionID);
 			}
 
-			Service.TickLogger.Info($"No replacement for action #{actionID}");
+			Service.TickLogger.Info($"{LogTag.Combo} No replacement for action #{actionID}");
 			return this.OriginalHook(actionID);
 		}
 		catch (Exception ex) {
-			Service.TickLogger.Error("Don't crash the game", ex);
+			Service.TickLogger.Error($"{LogTag.Combo} Don't crash the game", ex);
 			return this.getIconHook.Original(actionManager, actionID);
 		}
 	}

@@ -73,7 +73,7 @@ public sealed class Plugin: IDalamudPlugin {
 
 #pragma warning disable CA1822 // Mark members as static (some of these shouldn't be used until the plugin is initialised)
 	public string PluginInstallType => $"{(Service.Interface.IsDev ? "dev" : "standard")} install";
-	public string ShortPluginSignature => $"{Plugin.Name} v{Version}";
+	public string ShortPluginSignature => $"{Name} v{Version}";
 	public string FullPluginSignature => $"{this.ShortPluginSignature} ({PluginBuildType}, {this.PluginInstallType})";
 #pragma warning restore CA1822 // Mark members as static
 

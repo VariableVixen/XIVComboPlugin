@@ -61,30 +61,36 @@ internal abstract class CustomCombo {
 		if (classJobID is >= 16 and <= 18)
 			classJobID = DOL.JobID;
 
-		if (this.JobID > 0 && this.JobID != classJobID && this.ClassID != classJobID)
+		if (this.JobID > 0 && this.JobID != classJobID && this.ClassID != classJobID) {
+			Service.TickLogger.Info($"{LogTag.Combo} Wrong class/job for {this.ModuleName}");
 			return false;
-		if (this.affectedIDs.Count > 0 && !this.affectedIDs.Contains(actionID))
+		}
+		if (this.affectedIDs.Count > 0 && !this.affectedIDs.Contains(actionID)) {
+			Service.TickLogger.Error($"{LogTag.Combo} {this.ModuleName} does not affect action #{actionID} - this replacer should not have been invoked!");
 			return false;
-		if (!IsEnabled(this.Preset))
+		}
+		if (!IsEnabled(this.Preset)) {
+			Service.TickLogger.Info($"{LogTag.Combo} Preset {this.Preset} is disabled, replacer {this.ModuleName} is inactive");
 			return false;
+		}
 
 		if (comboTime <= 0)
 			lastComboActionId = 0;
 
-		Service.TickLogger.Info($"{this.ModuleName}.Invoke({actionID}, {lastComboActionId}, {comboTime}, {level})");
+		Service.TickLogger.Info($"{LogTag.Combo} {this.ModuleName}.Invoke({actionID}, {lastComboActionId}, {comboTime}, {level})");
 		try {
 			uint resultingActionID = this.Invoke(actionID, lastComboActionId, comboTime, level);
 			if (resultingActionID == 0 || actionID == resultingActionID) {
-				Service.TickLogger.Info("NO REPLACEMENT");
+				Service.TickLogger.Debug($"{LogTag.Combo} No replacement from {this.ModuleName}");
 				return false;
 			}
 
-			Service.TickLogger.Info($"Became #{resultingActionID}");
+			Service.TickLogger.Info($"{LogTag.Combo} Became #{resultingActionID}");
 			newActionID = resultingActionID;
 			return true;
 		}
 		catch (Exception ex) {
-			Service.TickLogger.Error($"Error in {this.ModuleName}.Invoke({actionID}, {lastComboActionId}, {comboTime}, {level})", ex);
+			Service.TickLogger.Error($"{LogTag.Combo} Error in {this.ModuleName}.Invoke({actionID}, {lastComboActionId}, {comboTime}, {level})", ex);
 			return false;
 		}
 	}
@@ -92,15 +98,15 @@ internal abstract class CustomCombo {
 
 	protected static bool IsEnabled(CustomComboPreset preset) {
 		if ((int)preset < 0) {
-			Service.TickLogger.Info($"Aborting is-enabled check, {preset}#{(int)preset} is forcibly disabled");
+			Service.TickLogger.Info($"{LogTag.Combo} Aborting is-enabled check, {preset.GetDebugLabel()} is forcibly disabled");
 			return false;
 		}
 		if ((int)preset < 100) {
-			Service.TickLogger.Info($"Bypassing is-enabled check for preset #{(int)preset}");
+			Service.TickLogger.Info($"{LogTag.Combo} Bypassing is-enabled check for preset {preset.GetDebugLabel()}");
 			return true;
 		}
 		bool enabled = Service.Configuration.IsEnabled(preset);
-		Service.TickLogger.Info($"Checking status of preset #{(int)preset} - {enabled}");
+		Service.TickLogger.Info($"{LogTag.Combo} Checking status of preset {preset.GetDebugLabel()} - {enabled}");
 		return enabled;
 	}
 
@@ -126,7 +132,7 @@ internal abstract class CustomCombo {
 	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "delegate conformance")]
 	internal static void ResetCacheEveryTick(IFramework framework) => ResetCache();
 	internal static void ResetCache() {
-		Service.TickLogger.Info($"Resetting cache");
+		Service.TickLogger.Debug($"{LogTag.DataCache} Resetting cache");
 		statusCache.Clear();
 		cooldownCache.Clear();
 		canInterruptTarget = null;
@@ -198,7 +204,7 @@ internal abstract class CustomCombo {
 			// And they've got a TTS-style voice just constantly repeating "PAIN. PAIN. PAIN. PAIN. PAIN." from it?
 			// Yeah.
 
-			Service.TickLogger.Debug($"CDCMP: {a.ActionID}, {b.ActionID}: {choice.ActionID}\n{a.Data.DebugLabel}\n{b.Data.DebugLabel}");
+			Service.TickLogger.Debug($"{LogTag.Combo} CDCMP: {a.ActionID}, {b.ActionID}: {choice.ActionID}\n{a.Data.DebugLabel}\n{b.Data.DebugLabel}");
 			return choice;
 		}
 
@@ -206,7 +212,7 @@ internal abstract class CustomCombo {
 			.Select(selector)
 			.Aggregate((a1, a2) => compare(preference, a1, a2))
 			.ActionID;
-		Service.TickLogger.Info($"Final selection: {id}");
+		Service.TickLogger.Info($"{LogTag.Combo} Final selection: {id}");
 		return id;
 	}
 
@@ -317,7 +323,7 @@ internal abstract class CustomCombo {
 		cooldownPtr->ActionId = actionID;
 
 		CooldownData cd = cooldownCache[actionID] = *(CooldownData*)cooldownPtr;
-		Service.TickLogger.Debug($"Retrieved cooldown data for action #{actionID}: {cd.DebugLabel}");
+		Service.TickLogger.Debug($"{LogTag.Combo} Retrieved cooldown data for action #{actionID}: {cd.DebugLabel}");
 		return cd;
 	}
 
@@ -339,8 +345,15 @@ internal abstract class CustomCombo {
 	protected static Status? FindEffect(uint statusID, IGameObject? actor, uint? sourceID) {
 		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.EntityId, sourceID);
 
-		if (statusCache.TryGetValue(key, out Status? found))
+		if (statusCache.TryGetValue(key, out Status? found)) {
+			Service.TickLogger.Info($"{LogTag.StatusEffect} Found cached status data for #{statusID}: "
+				+ (found is null
+					? "not active"
+					: $"{found.Param} stacks, {found.RemainingTime} seconds"
+				)
+			);
 			return found;
+		}
 
 		if (actor is null)
 			return statusCache[key] = null;
@@ -348,10 +361,15 @@ internal abstract class CustomCombo {
 			return statusCache[key] = null;
 
 		foreach (Status? status in chara.StatusList) {
-			if (status.StatusId == statusID && (!sourceID.HasValue || status.SourceId is 0 or InvalidObjectID || status.SourceId == sourceID))
+			if (status is null)
+				continue;
+			if (status.StatusId == statusID && (!sourceID.HasValue || status.SourceId is 0 or InvalidObjectID || status.SourceId == sourceID)) {
+				Service.TickLogger.Info($"{LogTag.StatusEffect} Caching status data for #{statusID}: {status.Param} stacks, {status.RemainingTime} seconds");
 				return statusCache[key] = status;
+			}
 		}
 
+		Service.TickLogger.Info($"{LogTag.StatusEffect} Caching null status for #{statusID}");
 		return statusCache[key] = null;
 	}
 
