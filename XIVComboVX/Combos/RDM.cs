@@ -508,8 +508,8 @@ internal class RedmageSmartcastSingleComboFull: RedmageCombo {
 		meleeCombo &= isClose;
 
 		bool weaving = CanWeave(actionID);
-		bool smartWeave = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveAttack) && weaving;
-		bool smartMove = IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovement) && moving;
+		bool smartWeave = weaving && IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetWeaveAttack);
+		bool smartMove = moving && IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMovement);
 
 		bool accelerate = level >= Common.Levels.Swiftcast
 			&& !instacasting
