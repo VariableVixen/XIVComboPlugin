@@ -77,11 +77,12 @@ internal class IconReplacer: IDisposable {
 				return this.OriginalHook(actionID);
 			}
 
-			IPlayerCharacter? player = CustomCombo.CachedLocalPlayer;
+			IPlayerCharacter? player = Service.Client.LocalPlayer;
 			if (player is null) {
 				Service.TickLogger.Warning($"{LogTag.Combo} Cannot replace action {Labels.Action(actionID)} when player is null");
 				return this.OriginalHook(actionID);
 			}
+			CustomCombo.CachedLocalPlayer = player;
 
 			uint lastComboActionId = *(uint*)Service.Address.LastComboMove;
 			float comboTime = *(float*)Service.Address.ComboTimer;

@@ -124,10 +124,27 @@ internal abstract class CustomCombo {
 	protected static readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
 
 	// These are updated directly, not actually invalidated
-	protected static IPlayerCharacter LocalPlayer { get; private set; } = null!;
+	private static IPlayerCharacter playerCharacter = null!;
+	protected static IPlayerCharacter LocalPlayer {
+		get {
+			if (!playerCharacter.IsValid())
+				playerCharacter = Service.Client.LocalPlayer!;
+			return playerCharacter;
+		}
+		private set {
+			if (value is not null && value.IsValid())
+				playerCharacter = value;
+		}
+	}
 
 	// vixen and the terrible horrible no good very bad hack
-	internal static IPlayerCharacter? CachedLocalPlayer => LocalPlayer;
+	internal static IPlayerCharacter? CachedLocalPlayer {
+		get => LocalPlayer;
+		set {
+			if (!playerCharacter.IsValid())
+				LocalPlayer = value!;
+		}
+	}
 
 	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "delegate conformance")]
 	internal static void ResetCacheEveryTick(IFramework framework) => ResetCache();
