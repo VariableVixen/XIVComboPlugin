@@ -69,6 +69,9 @@ internal class IconReplacer: IDisposable {
 		try {
 			this.actionManager = actionManager;
 
+			if (!Service.Configuration.Active)
+				return this.OriginalHook(actionID);
+
 			if (!this.customCombos.TryGetValue(actionID, out List<CustomCombo>? combos) && !this.customCombos.TryGetValue(0, out combos)) {
 				Service.TickLogger.Info($"{LogTag.Combo} No replacers found for action #{actionID}");
 				return this.OriginalHook(actionID);
