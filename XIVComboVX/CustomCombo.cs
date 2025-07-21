@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 
@@ -8,6 +9,7 @@ using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Statuses;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -121,12 +123,15 @@ internal abstract class CustomCombo {
 	// vixen and the terrible horrible no good very bad hack
 	internal static IPlayerCharacter? CachedLocalPlayer => LocalPlayer;
 
-	internal static void ResetCache(IPlayerCharacter player) {
+	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "delegate conformance")]
+	internal static void ResetCacheEveryTick(IFramework framework) => ResetCache();
+	internal static void ResetCache() {
+		Service.TickLogger.Info($"Resetting cache");
 		statusCache.Clear();
 		cooldownCache.Clear();
 		canInterruptTarget = null;
 		dancerNextDanceStep = null;
-		LocalPlayer = player;
+		LocalPlayer = Service.Client.LocalPlayer!;
 	}
 
 	#endregion

@@ -74,7 +74,7 @@ internal class IconReplacer: IDisposable {
 				return this.OriginalHook(actionID);
 			}
 
-			IPlayerCharacter? player = Service.Client.LocalPlayer;
+			IPlayerCharacter? player = CustomCombo.CachedLocalPlayer;
 			if (player is null) {
 				Service.TickLogger.Warning($"Cannot replace action #{actionID} when player is null");
 				return this.OriginalHook(actionID);
@@ -84,9 +84,6 @@ internal class IconReplacer: IDisposable {
 			float comboTime = *(float*)Service.Address.ComboTimer;
 			byte level = player.Level;
 			uint classJobID = player.ClassJob.RowId;
-
-			Service.TickLogger.Debug("Resetting combo data cache");
-			CustomCombo.ResetCache(player);
 
 			Service.TickLogger.Info($"Checking {combos.Count} replacer{(combos.Count == 1 ? "" : "s")} for action #{actionID}");
 			foreach (CustomCombo combo in combos) {

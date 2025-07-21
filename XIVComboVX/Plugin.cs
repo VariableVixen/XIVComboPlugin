@@ -113,6 +113,8 @@ public sealed class Plugin: IDalamudPlugin {
 
 			Service.Interface.UiBuilder.OpenConfigUi += this.ToggleConfigUi;
 			Service.Interface.UiBuilder.Draw += this.WindowSystem.Draw;
+
+			Service.Framework.Update += CustomCombo.ResetCacheEveryTick;
 		}
 #if DEBUG
 		else {
@@ -281,6 +283,8 @@ public sealed class Plugin: IDalamudPlugin {
 		this.disposed = true;
 
 		if (disposing) {
+			Service.Framework.Update -= CustomCombo.ResetCacheEveryTick;
+
 			Service.Commands.RemoveHandler(CommandCustom);
 			if (AcquiredBaseCommand)
 				Service.Commands.RemoveHandler(CommandBase);
