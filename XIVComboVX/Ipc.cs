@@ -53,7 +53,7 @@ internal class Ipc: IDisposable {
 							this.AddTips(tippyTip);
 						}
 						catch (IpcError ex) {
-							Service.TickLogger.Error("Failed to register tip for Tippy's pool", ex);
+							Service.Log.Error("Failed to register tip for Tippy's pool", ex);
 							this.tippyRegistrationQueue.Clear();
 						}
 					}
@@ -90,7 +90,7 @@ internal class Ipc: IDisposable {
 			return false;
 		}
 		catch (IpcError ex) {
-			Service.TickLogger.Error("Failed to register priority message for Tippy", ex);
+			Service.Log.Error("Failed to register priority message for Tippy", ex);
 			return false;
 		}
 	}
