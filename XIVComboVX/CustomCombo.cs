@@ -73,6 +73,10 @@ internal abstract class CustomCombo {
 			Service.TickLogger.Info($"{LogTag.Combo} Preset {this.Preset} is disabled, replacer {this.ModuleName} is inactive");
 			return false;
 		}
+		if (LocalPlayer is null) {
+			Service.TickLogger.Error($"{LogTag.Combo} Cached player instance is null - this replacer should not have been invoked!");
+			return false;
+		}
 
 		if (comboTime <= 0)
 			lastComboActionId = 0;
@@ -124,26 +128,30 @@ internal abstract class CustomCombo {
 	protected static readonly Dictionary<(uint ActionID, uint ClassJobID, byte Level), (ushort CurrentMax, ushort Max)> chargesCache = [];
 
 	// These are updated directly, not actually invalidated
-	private static IPlayerCharacter playerCharacter = null!;
-	protected static IPlayerCharacter LocalPlayer {
-		get {
-			if (!playerCharacter.IsValid())
-				playerCharacter = Service.Client.LocalPlayer!;
-			return playerCharacter;
-		}
-		private set {
-			if (value is not null && value.IsValid())
-				playerCharacter = value;
-		}
-	}
+	protected static IPlayerCharacter LocalPlayer { get; private set; } = null!;
 
 	// vixen and the terrible horrible no good very bad hack
 	internal static IPlayerCharacter? CachedLocalPlayer {
-		get => LocalPlayer;
-		set {
-			if (!playerCharacter.IsValid())
-				LocalPlayer = value!;
+		// If you access the player from OUTSIDE of a combo, it will attempt to verify (and, if necessary, update) the cached copy.
+		// This is not done on the protected version, because we want to minimise the processing done during each access by a replacer.
+		// The whole point of caching the player object (done by IconReplacer's detour) is to reduce the overhead of re-aquiring
+		// the player object from the game every single time it's accessed.
+		get {
+			IPlayerCharacter? player = LocalPlayer;
+			if (player?.IsValid() is not true) {
+				player = Service.Client.LocalPlayer;
+				LocalPlayer = player!;
+			}
+			return player;
 		}
+		// This property is assigned by IconReplacer.getIconDetour() on each call, because updating it per-framework-update wasn't enough.
+		// That caused crashes during zone transitions for some reason I couldn't identify because it was a CTD every time.
+		// This property should ONLY be assigned by that specific method, which first verifies that the player object is valid.
+		// If it isn't valid, the detour aborts and never calls any replacers, which is important because otherwise they would try to access
+		// an invalid (but non-null) value, which I'm PRETTY sure is what was causing those crashes.
+		// On top of that, the detour will explicitly assign null to this property, so that any replacers that somehow run regardless will
+		// access a null value and end up throwing a null pointer exception, which is safely caught, rather than crashing on bad memory.
+		set => LocalPlayer = value!;
 	}
 
 	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "delegate conformance")]
@@ -154,7 +162,6 @@ internal abstract class CustomCombo {
 		cooldownCache.Clear();
 		canInterruptTarget = null;
 		dancerNextDanceStep = null;
-		LocalPlayer = Service.Client.LocalPlayer!;
 	}
 
 	#endregion

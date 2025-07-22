@@ -78,8 +78,9 @@ internal class IconReplacer: IDisposable {
 			}
 
 			IPlayerCharacter? player = Service.Client.LocalPlayer;
-			if (player is null) {
-				Service.TickLogger.Warning($"{LogTag.Combo} Cannot replace action {Labels.Action(actionID)} when player is null");
+			if (player?.IsValid() is not true) {
+				CustomCombo.CachedLocalPlayer = null;
+				Service.TickLogger.Warning($"{LogTag.Combo} Cannot replace action {Labels.Action(actionID)} without a player");
 				return this.OriginalHook(actionID);
 			}
 			CustomCombo.CachedLocalPlayer = player;
