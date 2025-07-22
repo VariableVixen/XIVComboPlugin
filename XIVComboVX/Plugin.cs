@@ -151,7 +151,8 @@ public sealed class Plugin: IDalamudPlugin {
 
 		Service.Log.Information($"{LogTag.CoreSetup} {this.FullPluginSignature} initialised {(Service.Address.LoadSuccessful ? "" : "un")}successfully");
 		if (Service.Configuration.IsFirstRun || !Service.Configuration.LastVersion.Equals(Version)) {
-			Service.UpdateAlert = new(Version, Service.Configuration.IsFirstRun);
+			if (!Service.Interface.IsDev)
+				Service.UpdateAlert = new(Version, Service.Configuration.IsFirstRun);
 
 			Service.Configuration.LastVersion = Version;
 			Service.Configuration.Save();
