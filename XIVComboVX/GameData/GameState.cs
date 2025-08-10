@@ -1,5 +1,7 @@
 using System;
 
+using Dalamud.Game.NativeWrapper;
+
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace VariableVixen.XIVComboVX.GameData;
@@ -7,24 +9,19 @@ namespace VariableVixen.XIVComboVX.GameData;
 internal unsafe class GameState: IDisposable {
 	private bool disposed;
 
-	private AtkUnitBase* chatLogPointer;
+	private AtkUnitBasePtr chatLogPointer;
 
-	internal AtkUnitBase* ChatLog {
+	internal AtkUnitBasePtr ChatLog {
 		get {
 			if (Service.Client.LocalPlayer is null)
 				return null;
-			if (this.chatLogPointer is null)
-				this.chatLogPointer = (AtkUnitBase*)Service.GameGui.GetAddonByName("ChatLog", 1);
+			if (this.chatLogPointer.IsNull)
+				this.chatLogPointer = Service.GameGui.GetAddonByName("ChatLog", 1);
 			return this.chatLogPointer;
 		}
 	}
 
-	internal bool IsChatVisible {
-		get {
-			AtkUnitBase* cl = this.ChatLog;
-			return cl is not null && cl->IsVisible;
-		}
-	}
+	internal bool IsChatVisible => this.ChatLog.IsVisible;
 
 	#region Registration and cleanup
 

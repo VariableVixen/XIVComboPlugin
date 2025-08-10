@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 using VariableVixen.XIVComboVX.Attributes;
 

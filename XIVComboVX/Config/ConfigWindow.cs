@@ -7,12 +7,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
-
-using ImGuiNET;
 
 using VariableVixen.XIVComboVX.Attributes;
 
@@ -515,7 +514,7 @@ public class ConfigWindow: Window {
 						? ImGui.SliderScalar(
 							detail.Label + $"##{detail.Combo}",
 							detail.ImGuiType,
-							ptrVal,
+							ref ptrVal,
 							ptrMin,
 							ptrMax,
 							fmt,
@@ -524,7 +523,7 @@ public class ConfigWindow: Window {
 						: ImGui.InputScalar(
 							detail.Label + $"##{detail.Combo}",
 							detail.ImGuiType,
-							ptrVal,
+							ref ptrVal,
 							ptrStep,
 							ptrStep,
 							fmt,

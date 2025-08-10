@@ -26,8 +26,8 @@ internal class ChatUtil: IDisposable {
 		ColourGlowOpenConfig = 37;
 
 	internal ChatUtil() {
-		this.openConfig = Service.Interface.AddChatLinkHandler(OpenConfigId, this.onClickChatLink);
-		this.openIssueTracker = Service.Interface.AddChatLinkHandler(OpenIssueTrackerId, this.onClickChatLink);
+		this.openConfig = Service.ChatGui.AddChatLinkHandler(OpenConfigId, this.onClickChatLink);
+		this.openIssueTracker = Service.ChatGui.AddChatLinkHandler(OpenIssueTrackerId, this.onClickChatLink);
 	}
 
 	internal void AddOpenConfigLink(SeStringBuilder sb, string label) {
@@ -85,7 +85,7 @@ internal class ChatUtil: IDisposable {
 			return;
 		this.disposed = true;
 
-		Service.Interface.RemoveChatLinkHandler();
+		Service.ChatGui.RemoveChatLinkHandler();
 	}
 
 	#endregion

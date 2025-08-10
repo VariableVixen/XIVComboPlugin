@@ -185,7 +185,7 @@ public sealed class Plugin: IDalamudPlugin {
 		Service.Interface.ActivePluginsChanged += this.onActivePluginsChanged;
 	}
 
-	private void onActivePluginsChanged(PluginListInvalidationKind kind, bool affectedThisPlugin) => CheckForOtherComboPlugins();
+	private void onActivePluginsChanged(IActivePluginsChangedEventArgs e) => CheckForOtherComboPlugins();
 
 	public static int CheckForOtherComboPlugins() {
 		IExposedPlugin[] others = Service.Interface.InstalledPlugins
