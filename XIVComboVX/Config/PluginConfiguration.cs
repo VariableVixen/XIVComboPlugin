@@ -416,6 +416,9 @@ public class PluginConfiguration: IPluginConfiguration {
 		}
 	}
 
+	[JsonProperty("LetMeMakeBadChoices")]
+	public bool SuppressMultipleComboPluginWarning { get; set; } = false;
+
 	[JsonProperty("HideDisabledFeaturesChildren")]
 	public bool HideDisabledFeaturesChildren { get; set; } = false;
 

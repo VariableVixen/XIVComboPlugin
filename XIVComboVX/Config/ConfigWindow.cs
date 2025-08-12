@@ -33,7 +33,9 @@ public class ConfigWindow: Window {
 	private static readonly Vector4 warningColour = new(200f / 255f, 25f / 255f, 35f / 255f, 1f);
 	private static readonly Vector4 deprecatedColour = new(0f / 255f, 95f / 255f, 190f / 255f, 1f);
 
-	private const int Width = 900;
+	private const int
+		WindowWidth = 900,
+		TooltipWidth = 600;
 
 	public ConfigWindow() : base($"Custom Combo Setup - {Service.Plugin.ShortPluginSignature}, {Plugin.PluginBuildType}###{Plugin.Name} Custom Combo Setup", ImGuiWindowFlags.MenuBar) {
 		this.RespectCloseHotkey = true;
@@ -161,10 +163,10 @@ public class ConfigWindow: Window {
 		}
 
 		this.SizeCondition = ImGuiCond.FirstUseEver;
-		this.Size = new(Width, 800);
+		this.Size = new(WindowWidth, 800);
 		this.SizeConstraints = new() {
-			MinimumSize = new(Width, 400),
-			MaximumSize = new(Width, int.MaxValue),
+			MinimumSize = new(WindowWidth, 400),
+			MaximumSize = new(WindowWidth, int.MaxValue),
 		};
 	}
 
@@ -175,33 +177,38 @@ public class ConfigWindow: Window {
 		bool registerNormalCommand = Service.Configuration.RegisterCommonCommand;
 		bool showUpdateMessage = Service.Configuration.ShowUpdateMessage;
 		bool compactMode = Service.Configuration.CompactSettingsWindow;
+		bool suppressBadIdeaWarning = Service.Configuration.SuppressMultipleComboPluginWarning;
 
 		if (ImGui.BeginMenuBar()) {
 
 			if (ImGui.BeginMenu("Settings")) {
 
-				bool clickEnabled = ImGui.MenuItem("Enable action replacement", "", ref pluginActive);
+				bool clickEnabled = ImGui.MenuItem("Enable action replacement", ref pluginActive);
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
-					ImGui.Text("If disabled, no actions will be replaced, regardless of configured");
-					ImGui.Text("combos and features. This allows you to see what actions you actually");
-					ImGui.Text("assigned on your hotbars without manually disabling everything and");
-					ImGui.Text("having to turn it all back on after, one by one.");
+					ImGui.PushTextWrapPos(TooltipWidth);
+					ImGui.Text(
+						"If disabled, no actions will be replaced, regardless of configured combos and features."
+						+ " This allows you to see what actions you actually assigned on your hotbars without manually disabling everything and having to turn it all back on after, one by one."
+					);
 					ImGui.Text("");
 					ImGui.Text("This option does NOT persist between plugin loads.");
 					ImGui.Text("It will always be reset to ON when you launch the game.");
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickEnabled)
 					Service.Configuration.Active = pluginActive;
 
-				bool clickCollapse = ImGui.MenuItem("Collapse disabled features", "", ref hideChildren);
+				bool clickCollapse = ImGui.MenuItem("Collapse disabled features", ref hideChildren);
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
-					ImGui.Text("If enabled, children of disabled features will be hidden.");
-					ImGui.Text("A message will be shown under any disabled feature that");
-					ImGui.Text("has child features, so you can still tell that there are more");
-					ImGui.Text("features available dependent on the disabled one.");
+					ImGui.PushTextWrapPos(TooltipWidth);
+					ImGui.Text(
+						"If enabled, children of disabled features will be hidden."
+						+ " A message will be shown under any disabled feature that has child features, so you can still tell that there are more features available dependent on the disabled one."
+					);
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickCollapse) {
@@ -209,19 +216,20 @@ public class ConfigWindow: Window {
 					Service.Configuration.Save();
 				}
 
-				bool clickRegister = ImGui.MenuItem($"Register {Plugin.CommandBase}", "", ref registerNormalCommand);
+				bool clickRegister = ImGui.MenuItem($"Register {Plugin.CommandBase}", ref registerNormalCommand);
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
-					ImGui.Text($"If enabled, {Plugin.Name} will attempt to register the {Plugin.CommandBase} command.");
-					ImGui.Text("This is the command generally used by all forks of XIVCombo, which");
-					ImGui.Text("means it will conflict if you have multiple forks installed. This");
-					ImGui.Text("isn't advised to begin with, but this option will allow for slightly");
-					ImGui.Text("better compatibility than would otherwise be available, at least.");
+					ImGui.PushTextWrapPos(TooltipWidth);
+					ImGui.Text(
+						$"If enabled, {Plugin.Name} will attempt to register the {Plugin.CommandBase} command."
+						+ " This is the command generally used by all forks of XIVCombo, which means it will conflict if you have multiple forks installed."
+						+ " This isn't advised to begin with, but this option will allow for slightly better compatibility than would otherwise be available, at least."
+					);
 					ImGui.Text("");
-					ImGui.Text("This plugin always registers its own (separate) command to open the");
-					ImGui.Text("settings window, regardless of whether the default one is also used.");
+					ImGui.Text("This plugin always registers its own (separate) command to open the settings window, regardless of whether the default one is also used.");
 					ImGui.Text("");
 					ImGui.Text("This option only takes effect after a restart.");
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickRegister) {
@@ -229,12 +237,14 @@ public class ConfigWindow: Window {
 					Service.Configuration.Save();
 				}
 
-				bool clickUpdates = ImGui.MenuItem("Show update messages", "", ref showUpdateMessage);
+				bool clickUpdates = ImGui.MenuItem("Show update messages", ref showUpdateMessage);
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
-					ImGui.Text("If enabled, an alert will be shown in your chatlog whenever the plugin updates.");
-					ImGui.Text("The message includes the old version, the new version, and a clickable 'link' to");
-					ImGui.Text("open the plugin configuration window.");
+					ImGui.PushTextWrapPos(TooltipWidth);
+					ImGui.Text(
+						"If enabled, an alert will be shown in your chatlog whenever the plugin updates."
+						+ " The message includes the old version, the new version, and a clickable 'link' to open the plugin configuration window.");
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickUpdates) {
@@ -242,16 +252,46 @@ public class ConfigWindow: Window {
 					Service.Configuration.Save();
 				}
 
-				bool clickCompact = ImGui.MenuItem("Compact display", "", ref compactMode);
+				bool clickCompact = ImGui.MenuItem("Compact display", ref compactMode);
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
-					ImGui.Text("If enabled, combo descriptions will be moved into tooltips shown on hover.");
-					ImGui.Text("This makes the combo display more compact, which can be useful with the");
-					ImGui.Text("new detail settings taking up extra space.");
+					ImGui.PushTextWrapPos(TooltipWidth);
+					ImGui.Text(
+						"If enabled, combo descriptions will be moved into tooltips shown on hover."
+						+ " This makes the combo display more compact, which can be useful with the new detail settings taking up extra space.");
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickCompact) {
 					Service.Configuration.CompactSettingsWindow = compactMode;
+					Service.Configuration.Save();
+				}
+
+				ImGui.BeginDisabled(!Service.Plugin.OtherComboPluginsActive);
+				bool clickAllowMultiCombo = ImGui.MenuItem("Suppress multi-combo warning", ref suppressBadIdeaWarning);
+				ImGui.EndDisabled();
+				if (ImGui.IsItemHovered()) {
+					ImGui.BeginTooltip();
+					ImGui.PushTextWrapPos(TooltipWidth);
+					ImGui.Text(
+						"Using multiple combo plugins at the same time is a very bad idea,"
+						+ $" which is why {Plugin.Name} prints a big warning into your chat about this and then turns itself off."
+						+ " However, if you are absolutely certain that you know what you're doing and you want to do this anyway, you can disable this warning message."
+					);
+					if (!Service.Plugin.OtherComboPluginsActive) {
+						ImGui.Text("");
+						ImGui.Text(
+							$"You may only enable this option when {Plugin.Name} detects that you appear to have multiple combo plugins enabled."
+							+ " This forces you to see the very big warning message at least once, because - and I cannot emphasise this enough - it is a Very Bad Idea."
+						);
+					}
+					ImGui.Text("");
+					ImGui.TextColored(warningColour, "NO SUPPORT WILL BE GIVEN IF YOU USE MULTIPLE COMBO PLUGINS!");
+					ImGui.PopTextWrapPos();
+					ImGui.EndTooltip();
+				}
+				if (clickAllowMultiCombo) {
+					Service.Configuration.SuppressMultipleComboPluginWarning = suppressBadIdeaWarning;
 					Service.Configuration.Save();
 				}
 
@@ -263,8 +303,10 @@ public class ConfigWindow: Window {
 				bool clickReset = ImGui.MenuItem("Reset configuration");
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
+					ImGui.PushTextWrapPos(TooltipWidth);
 					ImGui.Text("This will completely reset your entire configuration to the defaults.");
 					ImGui.TextColored(warningColour, "THIS CANNOT BE UNDONE!");
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickReset)
@@ -273,7 +315,6 @@ public class ConfigWindow: Window {
 				ImGui.EndMenu();
 			}
 
-#if DEBUG
 			if (ImGui.BeginMenu("Debugging")) {
 
 				IPlayerCharacter? player = Service.Client.LocalPlayer;
@@ -287,8 +328,10 @@ public class ConfigWindow: Window {
 				bool clickDebug = ImGui.MenuItem("Snapshot debug messages");
 				if (ImGui.IsItemHovered()) {
 					ImGui.BeginTooltip();
+					ImGui.PushTextWrapPos(TooltipWidth);
 					ImGui.Text("This enables a snapshot of debug messages in the dalamud log.");
 					ImGui.Text("They will appear in your log file and also in the /xllog window.");
+					ImGui.PopTextWrapPos();
 					ImGui.EndTooltip();
 				}
 				if (clickDebug)
@@ -296,7 +339,6 @@ public class ConfigWindow: Window {
 
 				ImGui.EndMenu();
 			}
-#endif
 
 			ImGui.EndMenuBar();
 		}
@@ -320,7 +362,7 @@ public class ConfigWindow: Window {
 			}
 		}
 
-		ImGui.PushTextWrapPos((this.Size?.X ?? Width) - 10);
+		ImGui.PushTextWrapPos((this.Size?.X ?? WindowWidth) - 10);
 		ImGui.TextUnformatted("Not all jobs are currently supported, due to the scale of the changes in patch 7.0; they are being worked on as the devs have time and will be updated as possible."
 			+ " Additionally, some combos may not fully account for job changes and so may not work quite right. You are strongly encouraged to test combos that you use OUTSIDE of duties"
 			+ " in order to ensure that they function as expected. If you find anything broken, please use the button in title bar of this window to open the github, and create an issue"
@@ -409,7 +451,7 @@ public class ConfigWindow: Window {
 			Service.Configuration.Save();
 		}
 
-		ImGui.PushTextWrapPos((this.Size?.Y ?? Width) - 20);
+		ImGui.PushTextWrapPos((this.Size?.Y ?? WindowWidth) - 20);
 
 		if (!compactMode)
 			ImGui.TextUnformatted(info.Description);

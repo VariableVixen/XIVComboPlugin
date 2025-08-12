@@ -28,6 +28,7 @@ public sealed class Plugin: IDalamudPlugin {
 	private readonly Thread? luminaLoadingThread;
 #pragma warning restore CS0649
 
+	public bool OtherComboPluginsActive { get; private set; }
 	private static readonly HashSet<string> nonConflictingPluginIds = [];
 	private static readonly HashSet<string> conflictingPluginNameSubstrings = [
 		"combo",
@@ -181,13 +182,13 @@ public sealed class Plugin: IDalamudPlugin {
 			});
 		}
 
-		CheckForOtherComboPlugins();
+		this.CheckForOtherComboPlugins();
 		Service.Interface.ActivePluginsChanged += this.onActivePluginsChanged;
 	}
 
-	private void onActivePluginsChanged(IActivePluginsChangedEventArgs e) => CheckForOtherComboPlugins();
+	private void onActivePluginsChanged(IActivePluginsChangedEventArgs e) => this.CheckForOtherComboPlugins();
 
-	public static int CheckForOtherComboPlugins() {
+	public int CheckForOtherComboPlugins() {
 		string[] otherComboPlugins = Service.Interface.InstalledPlugins
 			// ignore unloaded plugins, they have no effect
 			.Where(p => p.IsLoaded)
@@ -207,7 +208,12 @@ public sealed class Plugin: IDalamudPlugin {
 
 		if (otherComboPlugins.Length > 0) {
 			// it is a Bad Idea to run more than one combo fork at the same time, but that's never stopped users before
-			otherComboPluginsDetected(otherComboPlugins);
+			this.OtherComboPluginsActive = true;
+			if (!Service.Configuration.SuppressMultipleComboPluginWarning)
+				otherComboPluginsDetected(otherComboPlugins);
+		}
+		else {
+			this.OtherComboPluginsActive = false;
 		}
 
 		return otherComboPlugins.Length;
