@@ -122,7 +122,7 @@ internal class DarkStalwartSoul: CustomCombo {
 
 internal class DarkShadowbringerFeature: CustomCombo {
 	public override CustomComboPreset Preset { get; } = CustomComboPreset.DarkShadowbringerFeature;
-	public override uint[] ActionIDs { get; } = [DRK.EdgeOfShadow, DRK.FloodOfShadow];
+	public override uint[] ActionIDs { get; } = [DRK.EdgeOfDarkness, DRK.EdgeOfShadow, DRK.FloodOfDarkness, DRK.FloodOfShadow];
 
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 

@@ -401,7 +401,7 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Delirium Feature", "Replace Souleater and Stalwart Soul with Bloodspiller and Quietus when Delirium is active.", DRK.JobID)]
 	DarkDeliriumFeature = 32002,
 
-	[CustomComboInfo("Shadows Galore", "Replace Flood and Edge of Darkness with Shadowbringer when under Darkside with less than 6000 MP left.", DRK.JobID)]
+	[CustomComboInfo("Shadows Galore", "Replace Flood and Edge of Shadow and Darkness with Shadowbringer when under Darkside with less than 6000 MP left.", DRK.JobID)]
 	DarkShadowbringerFeature = 32004,
 
 	[CustomComboInfo("Blood Weapon Feature", "Replace Carve and Spit, and Abyssal Drain with Blood Weapon when available.", DRK.JobID)]
