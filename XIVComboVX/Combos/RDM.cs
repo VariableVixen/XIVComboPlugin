@@ -732,3 +732,25 @@ internal class RedMageGapControl: RedmageCombo {
 		return actionID;
 	}
 }
+
+internal class RedMageVerstone: RedmageCombo {
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.RedMageVerprocJolt;
+	public override uint[] ActionIDs { get; } = [RDM.Verstone];
+
+	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
+		if (level < RDM.Levels.Verstone || !SelfHasEffect(RDM.Buffs.VerstoneReady))
+			return RDM.Jolt;
+		return actionID;
+	}
+}
+
+internal class RedMageVerfire: RedmageCombo {
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.RedMageVerprocJolt;
+	public override uint[] ActionIDs { get; } = [RDM.Verfire];
+
+	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
+		if (level < RDM.Levels.Verfire || !SelfHasEffect(RDM.Buffs.VerfireReady))
+			return RDM.Jolt;
+		return actionID;
+	}
+}

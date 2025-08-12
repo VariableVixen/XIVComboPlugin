@@ -867,6 +867,11 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Swiftcast Verraise", "Verraise turns into Swiftcast when available and reasonable.", RDM.JobID)]
 	RedMageSwiftcastRaiserFeature = 35000,
 
+	[Conflicts(RedMageSmartcastSingleTarget)]
+	[CustomComboInfo("Verproc into Jolt", "Automatically replaces Verstone/Verfire with Jolt when you do not have the buff to use them, or are too low level.", RDM.JobID)]
+	RedMageVerprocJolt = 35049,
+
+	[Conflicts(RedMageVerprocJolt)]
 	[CustomComboInfo("Smartcast Single Target", "Dynamically replaces Verstone/Verfire with the appropriate spell based on your job gauge.\nVeraero and Verthunder are replaced with one or the other accordingly, for openers.", RDM.JobID)]
 	RedMageSmartcastSingleTarget = 35009,
 
