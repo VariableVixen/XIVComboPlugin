@@ -188,23 +188,21 @@ public sealed class Plugin: IDalamudPlugin {
 	private void onActivePluginsChanged(IActivePluginsChangedEventArgs e) => CheckForOtherComboPlugins();
 
 	public static int CheckForOtherComboPlugins() {
-		IExposedPlugin[] others = Service.Interface.InstalledPlugins
+		string[] otherComboPlugins = Service.Interface.InstalledPlugins
 			// ignore unloaded plugins, they have no effect
 			.Where(p => p.IsLoaded)
 			// ignore us, we don't conflict with ourselves
 			.Where(p => p.InternalName != Service.Interface.InternalName)
 			// any false positives reported go in here to be ignored
 			.Where(p => !nonConflictingPluginIds.Contains(p.InternalName))
-			// convert to an array so we don't re-run the above filters multiple times
-			.ToArray();
-		string[] otherComboPlugins = others
 			// check the internal and display names for any (case-insensitive) substrings that look like problems
-			.Where(p => conflictingPluginIdSubstrings.Any(s => p.InternalName.Contains(s, StringComparison.OrdinalIgnoreCase)))
-			.Concat(others
-				.Where(p => conflictingPluginNameSubstrings.Any(s => p.Name.Contains(s, StringComparison.OrdinalIgnoreCase)))
+			.Where(p =>
+				conflictingPluginIdSubstrings.Any(s => p.InternalName.Contains(s, StringComparison.OrdinalIgnoreCase))
+				|| conflictingPluginNameSubstrings.Any(s => p.Name.Contains(s, StringComparison.OrdinalIgnoreCase))
 			)
 			// the list is used for user-facing display, so we only need the display name
 			.Select(p => p.Name)
+			// solidify into an array
 			.ToArray();
 
 		if (otherComboPlugins.Length > 0) {
