@@ -141,22 +141,18 @@ internal class ReaperSlice: CustomCombo {
 				return RPR.Soulsow;
 		}
 
-		if (enshrouded) {
+		if (IsEnabled(CustomComboPreset.ReaperSliceLemuresFeature)) {
+			if (enshrouded && level >= RPR.Levels.EnhancedShroud && gauge.VoidShroud >= 2)
+				return RPR.LemuresSlice;
+		}
 
-			if (IsEnabled(CustomComboPreset.ReaperSliceLemuresFeature)) {
-				if (level >= RPR.Levels.EnhancedShroud && gauge.VoidShroud >= 2)
-					return RPR.LemuresSlice;
+		if (IsEnabled(CustomComboPreset.ReaperSliceCommunioFeature)) {
+			if (level >= RPR.Levels.Communio) {
+				if (enshrouded && gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
+					return RPR.Communio;
+				if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
+					return RPR.Perfectio;
 			}
-
-			if (IsEnabled(CustomComboPreset.ReaperSliceCommunioFeature)) {
-				if (level >= RPR.Levels.Communio) {
-					if (gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
-						return RPR.Communio;
-					if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
-						return RPR.Perfectio;
-				}
-			}
-
 		}
 
 		if (reaving || enshrouded || executing) {
@@ -252,22 +248,18 @@ internal class ReaperScythe: CustomCombo {
 			}
 		}
 
-		if (enshrouded) {
+		if (IsEnabled(CustomComboPreset.ReaperScytheLemuresFeature)) {
+			if (enshrouded && level >= RPR.Levels.LemuresScythe && gauge.VoidShroud >= 2)
+				return RPR.LemuresScythe;
+		}
 
-			if (IsEnabled(CustomComboPreset.ReaperScytheLemuresFeature)) {
-				if (level >= RPR.Levels.LemuresScythe && gauge.VoidShroud >= 2)
-					return RPR.LemuresScythe;
+		if (IsEnabled(CustomComboPreset.ReaperScytheCommunioFeature)) {
+			if (level >= RPR.Levels.Communio) {
+				if (enshrouded && gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
+					return RPR.Communio;
+				if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
+					return RPR.Perfectio;
 			}
-
-			if (IsEnabled(CustomComboPreset.ReaperScytheCommunioFeature)) {
-				if (level >= RPR.Levels.Communio) {
-					if (gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
-						return RPR.Communio;
-					if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
-						return RPR.Perfectio;
-				}
-			}
-
 		}
 
 		if (IsEnabled(CustomComboPreset.ReaperScytheGuillotineFeature)) {
@@ -341,22 +333,18 @@ internal class ReaperSoulSlice: CustomCombo {
 			}
 		}
 
-		if (enshrouded) {
+		if (IsEnabled(CustomComboPreset.ReaperSoulSliceLemuresFeature)) {
+			if (enshrouded && level >= RPR.Levels.EnhancedShroud && gauge.VoidShroud >= 2)
+				return RPR.LemuresSlice;
+		}
 
-			if (IsEnabled(CustomComboPreset.ReaperSoulSliceLemuresFeature)) {
-				if (level >= RPR.Levels.EnhancedShroud && gauge.VoidShroud >= 2)
-					return RPR.LemuresSlice;
+		if (IsEnabled(CustomComboPreset.ReaperSoulSliceCommunioFeature)) {
+			if (level >= RPR.Levels.Communio) {
+				if (enshrouded && gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
+					return RPR.Communio;
+				if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
+					return RPR.Perfectio;
 			}
-
-			if (IsEnabled(CustomComboPreset.ReaperSoulSliceCommunioFeature)) {
-				if (level >= RPR.Levels.Communio) {
-					if (gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
-						return RPR.Communio;
-					if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
-						return RPR.Perfectio;
-				}
-			}
-
 		}
 
 		if (reaving || enshrouded || executing) {
@@ -473,6 +461,11 @@ internal class ReaperGibbetGallows: CustomCombo {
 		bool enshrouded = level >= RPR.Levels.Enshroud && gauge.EnshroudedTimeRemaining > 0;
 		bool executing = level >= RPR.Levels.Executions && SelfHasEffect(RPR.Buffs.Executioner);
 
+		if (IsEnabled(CustomComboPreset.ReaperCommunioSoulReaverFeature)) {
+			if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
+				return RPR.Perfectio;
+		}
+
 		if (reaving || enshrouded || executing) {
 
 			if (IsEnabled(CustomComboPreset.ReaperLemuresSoulReaverFeature)) {
@@ -484,8 +477,6 @@ internal class ReaperGibbetGallows: CustomCombo {
 				if (level >= RPR.Levels.Communio) {
 					if (gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
 						return RPR.Communio;
-					if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
-						return RPR.Perfectio;
 				}
 			}
 
@@ -513,11 +504,12 @@ internal class ReaperGuillotine: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 		RPRGauge gauge = GetJobGauge<RPRGauge>();
 
-		if (level >= RPR.Levels.Enshroud && gauge.EnshroudedTimeRemaining > 0) {
+		if (level >= RPR.Levels.Enshroud) {
+			bool enshrouded = gauge.EnshroudedTimeRemaining > 0;
 
 			if (IsEnabled(CustomComboPreset.ReaperCommunioSoulReaverFeature)) {
 				if (level >= RPR.Levels.Communio) {
-					if (gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
+					if (enshrouded && gauge.LemureShroud == 1 && gauge.VoidShroud == 0)
 						return RPR.Communio;
 					if (level >= RPR.Levels.Perfectio && SelfHasEffect(RPR.Buffs.PerfectioParata))
 						return RPR.Perfectio;
@@ -525,7 +517,7 @@ internal class ReaperGuillotine: CustomCombo {
 			}
 
 			if (IsEnabled(CustomComboPreset.ReaperLemuresSoulReaverFeature)) {
-				if (level >= RPR.Levels.LemuresScythe && gauge.VoidShroud >= 2)
+				if (enshrouded && level >= RPR.Levels.LemuresScythe && gauge.VoidShroud >= 2)
 					return RPR.LemuresScythe;
 			}
 
