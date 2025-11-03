@@ -511,11 +511,9 @@ public class ConfigWindow: Window {
 		ImGui.PopTextWrapPos();
 
 		if (hasDetails && enabled) {
-			const int memWidth = sizeof(double);
-			nint ptrVal = Marshal.AllocHGlobal(memWidth);
-			nint ptrMin = Marshal.AllocHGlobal(memWidth);
-			nint ptrMax = Marshal.AllocHGlobal(memWidth);
-			nint ptrStep = Marshal.AllocHGlobal(memWidth);
+			double dVal;
+			ulong uVal;
+			long lVal;
 			bool shift = ImGui.IsKeyDown(ImGuiKey.ModShift);
 			bool ctrl = ImGui.IsKeyDown(ImGuiKey.ModCtrl);
 			byte multShift = (byte)(shift ? 100 : 1);
@@ -525,52 +523,84 @@ public class ConfigWindow: Window {
 				if (detail is not null) {
 					double range = detail.Max - detail.Min;
 					bool useSlider = range <= 40;
-					string fmt;
+					bool changed = false;
+					Service.TickLogger.Debug($"{LogTag.ConfigWindow} {detail.Label} ({detail.Type.Name}/{detail.ImGuiType}) {detail.Min} <= [{detail.Val}] <= {detail.Max} ({range})");
 					switch (detail.ImGuiType) {
 						case ImGuiDataType.Double:
-							fmt = $"%.{detail.Precision}f";
-							Marshal.Copy(BitConverter.GetBytes((double)detail.Val), 0, ptrVal, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((double)detail.Min), 0, ptrMin, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((double)detail.Max), 0, ptrMax, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((double)mult), 0, ptrStep, memWidth);
+							dVal = (double)detail.Val;
+							changed = useSlider
+								? ImGui.SliderScalar(
+									detail.Label + $"##{detail.Combo}",
+									detail.ImGuiType,
+									ref dVal,
+									detail.Min,
+									detail.Max,
+									"%.2f",
+									ImGuiSliderFlags.AlwaysClamp
+								)
+								: ImGui.InputScalar(
+									detail.Label + $"##{detail.Combo}",
+									detail.ImGuiType,
+									ref dVal,
+									detail.Min,
+									detail.Max,
+									"%.2f",
+									ImGuiInputTextFlags.AutoSelectAll
+								);
+							if (changed)
+								detail.Val = Math.Round(dVal, detail.Precision); // setter handles min/max bounding
 							break;
 						case ImGuiDataType.U64:
-							fmt = "%u";
-							Marshal.Copy(BitConverter.GetBytes((ulong)detail.Val), 0, ptrVal, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((ulong)detail.Min), 0, ptrMin, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((ulong)detail.Max), 0, ptrMax, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((ulong)mult), 0, ptrStep, memWidth);
+							uVal = (ulong)detail.Val;
+							changed = useSlider
+								? ImGui.SliderScalar(
+									detail.Label + $"##{detail.Combo}",
+									detail.ImGuiType,
+									ref uVal,
+									(ulong)detail.Min,
+									(ulong)detail.Max,
+									"%u",
+									ImGuiSliderFlags.AlwaysClamp
+								)
+								: ImGui.InputScalar(
+									detail.Label + $"##{detail.Combo}",
+									detail.ImGuiType,
+									ref uVal,
+									(ulong)detail.Min,
+									(ulong)detail.Max,
+									"%u",
+									ImGuiInputTextFlags.AutoSelectAll
+								);
+							if (changed)
+								detail.Val = uVal;
 							break;
 						case ImGuiDataType.S64:
-							fmt = "%i";
-							Marshal.Copy(BitConverter.GetBytes((long)detail.Val), 0, ptrVal, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((long)detail.Min), 0, ptrMin, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((long)detail.Max), 0, ptrMax, memWidth);
-							Marshal.Copy(BitConverter.GetBytes((long)mult), 0, ptrStep, memWidth);
+							lVal = (long)detail.Val;
+							changed = useSlider
+								? ImGui.SliderScalar(
+									detail.Label + $"##{detail.Combo}",
+									detail.ImGuiType,
+									ref lVal,
+									(long)detail.Min,
+									(long)detail.Max,
+									"%i",
+									ImGuiSliderFlags.AlwaysClamp
+								)
+								: ImGui.InputScalar(
+									detail.Label + $"##{detail.Combo}",
+									detail.ImGuiType,
+									ref lVal,
+									(long)detail.Min,
+									(long)detail.Max,
+									"%i",
+									ImGuiInputTextFlags.AutoSelectAll
+								);
+							if (changed)
+								detail.Val = lVal;
 							break;
 						default:
 							throw new FormatException($"Invalid detail type {detail.ImGuiType}");
 					}
-					Service.TickLogger.Debug($"{LogTag.ConfigWindow} {detail.Label} ({detail.Type.Name}/{detail.ImGuiType}) {detail.Min} <= [{detail.Val}] <= {detail.Max} ({range})");
-					bool changed = useSlider
-						? ImGui.SliderScalar(
-							detail.Label + $"##{detail.Combo}",
-							detail.ImGuiType,
-							ref ptrVal,
-							ptrMin,
-							ptrMax,
-							fmt,
-							ImGuiSliderFlags.AlwaysClamp
-						)
-						: ImGui.InputScalar(
-							detail.Label + $"##{detail.Combo}",
-							detail.ImGuiType,
-							ref ptrVal,
-							ptrStep,
-							ptrStep,
-							fmt,
-							ImGuiInputTextFlags.AutoSelectAll
-						);
 					if (ImGui.IsItemHovered()) {
 						ImGui.BeginTooltip();
 						ImGui.PushTextWrapPos(400);
@@ -593,24 +623,10 @@ public class ConfigWindow: Window {
 						ImGui.PopTextWrapPos();
 						ImGui.EndTooltip();
 					}
-					if (changed) {
-						byte[] value = new byte[memWidth];
-						Marshal.Copy(ptrVal, value, 0, memWidth);
-						double val = detail.ImGuiType switch {
-							ImGuiDataType.Double => BitConverter.ToDouble(value),
-							ImGuiDataType.U64 => BitConverter.ToUInt64(value),
-							ImGuiDataType.S64 => BitConverter.ToInt64(value),
-							_ => throw new FormatException($"Invalid detail type {detail.ImGuiType}"), // theoretically unpossible
-						};
-						detail.Val = Math.Round(val, detail.Precision); // setter handles min/max bounding
+					if (changed)
 						Service.Configuration.Save();
-					}
 				}
 			}
-			Marshal.FreeHGlobal(ptrVal);
-			Marshal.FreeHGlobal(ptrMin);
-			Marshal.FreeHGlobal(ptrMax);
-			Marshal.FreeHGlobal(ptrStep);
 		}
 
 		ImGui.Spacing();
