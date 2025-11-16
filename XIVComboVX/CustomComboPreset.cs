@@ -1377,19 +1377,23 @@ public enum CustomComboPreset {
 	[CustomComboInfo("Ruin Feature", "Change Ruin into Gemburst when attuned.", SMN.JobID)]
 	SummonerRuinFeature = 27006,
 
-	[CustomComboInfo("Titan's Favor Ruin Feature", "UNTESTED: Change Ruin into Mountain Buster (oGCD) when available.", SMN.JobID)]
+	[Experimental]
+	[CustomComboInfo("Titan's Favor Ruin Feature", "Change Ruin into Mountain Buster (oGCD) when available.", SMN.JobID)]
 	SummonerRuinTitansFavorFeature = 27013,
 
-	[CustomComboInfo("Further Ruin Feature", "UNTESTED: Change Ruin into Ruin4 when available and appropriate.", SMN.JobID)]
+	[Experimental]
+	[CustomComboInfo("Further Ruin Feature", "Change Ruin into Ruin4 when available and appropriate.", SMN.JobID)]
 	SummonerFurtherRuinFeature = 27008,
 
 	[CustomComboInfo("Outburst Feature", "Change Outburst into Precious Brilliance when attuned.", SMN.JobID)]
 	SummonerOutburstFeature = 27007,
 
-	[CustomComboInfo("Titan's Favor Outburst Feature", "UNTESTED: Change Outburst into Mountain Buster (oGCD) when available.", SMN.JobID)]
+	[Experimental]
+	[CustomComboInfo("Titan's Favor Outburst Feature", "Change Outburst into Mountain Buster (oGCD) when available.", SMN.JobID)]
 	SummonerOutburstTitansFavorFeature = 27014,
 
-	[CustomComboInfo("Further Outburst Feature", "UNTESTED: Change Outburst into Ruin4 when available and appropriate.", SMN.JobID)]
+	[Experimental]
+	[CustomComboInfo("Further Outburst Feature", "Change Outburst into Ruin4 when available and appropriate.", SMN.JobID)]
 	SummonerFurtherOutburstFeature = 27009,
 
 	//[CustomComboInfo("Shiny Titan's Favour", "Change Ruin into Ruin4 when available and appropriate.", SMN.JobID)]
