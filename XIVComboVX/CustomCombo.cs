@@ -29,6 +29,8 @@ namespace VariableVixen.XIVComboVX;
 internal abstract class CustomCombo {
 	public const uint InvalidObjectID = 0xE000_0000;
 
+	#region Core internals
+
 	public abstract CustomComboPreset Preset { get; }
 	public virtual uint[] ActionIDs { get; } = [];
 	private readonly HashSet<uint> affectedIDs;
@@ -100,19 +102,7 @@ internal abstract class CustomCombo {
 	}
 	protected abstract uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level);
 
-	protected static bool IsEnabled(CustomComboPreset preset) {
-		if ((int)preset < 0) {
-			Service.TickLogger.Info($"{LogTag.Combo} Aborting is-enabled check, {preset.GetDebugLabel()} is forcibly disabled");
-			return false;
-		}
-		if ((int)preset < 100) {
-			Service.TickLogger.Info($"{LogTag.Combo} Bypassing is-enabled check for preset {preset.GetDebugLabel()}");
-			return true;
-		}
-		bool enabled = Service.Configuration.IsEnabled(preset);
-		Service.TickLogger.Info($"{LogTag.Combo} Checking status of preset {preset.GetDebugLabel()} - {enabled}");
-		return enabled;
-	}
+	#endregion
 
 	#region Caching
 
@@ -169,6 +159,20 @@ internal abstract class CustomCombo {
 #pragma warning disable IDE0045 // Convert to conditional expression - helper function readability
 
 	#region Common calculations and shortcuts
+
+	protected static bool IsEnabled(CustomComboPreset preset) {
+		if ((int)preset < 0) {
+			Service.TickLogger.Info($"{LogTag.Combo} Aborting is-enabled check, {preset.GetDebugLabel()} is forcibly disabled");
+			return false;
+		}
+		if ((int)preset < 100) {
+			Service.TickLogger.Info($"{LogTag.Combo} Bypassing is-enabled check for preset {preset.GetDebugLabel()}");
+			return true;
+		}
+		bool enabled = Service.Configuration.IsEnabled(preset);
+		Service.TickLogger.Info($"{LogTag.Combo} Checking status of preset {preset.GetDebugLabel()} - {enabled}");
+		return enabled;
+	}
 
 	protected static bool CheckLucidWeave(CustomComboPreset preset, byte level, uint manaThreshold, uint baseAction) {
 
