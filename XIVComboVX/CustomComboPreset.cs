@@ -1371,8 +1371,8 @@ public enum CustomComboPreset {
 	[CustomComboInfo("ED Fester", "Change Fester into Energy Drain when out of Aetherflow stacks.", SMN.JobID)]
 	SummonerEDFesterCombo = 27004,
 
-	//[CustomComboInfo("ES Painflare", "Change Painflare into Energy Syphon when out of Aetherflow stacks.", SMN.JobID)]
-	//SummonerESPainflareCombo = 27005,
+	[CustomComboInfo("ES Painflare", "Change Painflare into Energy Syphon when out of Aetherflow stacks.", SMN.JobID)]
+	SummonerESPainflareCombo = 27005,
 
 	[CustomComboInfo("Ruin Feature", "Change Ruin into Gemburst when attuned.", SMN.JobID)]
 	SummonerRuinFeature = 27006,

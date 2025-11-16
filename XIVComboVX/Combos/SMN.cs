@@ -118,7 +118,7 @@ internal class SummonerEDFesterCombo: CustomCombo {
 		return actionID;
 	}
 }
-/*
+
 internal class SummonerESPainflareCombo: CustomCombo {
 	public override CustomComboPreset Preset => CustomComboPreset.SummonerESPainflareCombo;
 	public override uint[] ActionIDs { get; } = [SMN.Painflare];
@@ -128,13 +128,13 @@ internal class SummonerESPainflareCombo: CustomCombo {
 		if (level >= SMN.Levels.EnergySyphon && !GetJobGauge<SMNGauge>().HasAetherflowStacks)
 			return SMN.EnergySyphon;
 
-		if (level < SMN.Levels.Painflare)
+		if (level < SMN.Levels.EnergySyphon && !GetJobGauge<SMNGauge>().HasAetherflowStacks)
 			return SMN.EnergyDrain;
 
 		return actionID;
 	}
 }
-*/
+
 internal class SummonerRuinFeature: CustomCombo {
 	public override CustomComboPreset Preset { get; } = CustomComboPreset.SmnAny;
 	public override uint[] ActionIDs { get; } = [SMN.Ruin, SMN.Ruin2, SMN.Ruin3];
