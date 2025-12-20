@@ -129,7 +129,7 @@ internal abstract class CustomCombo {
 		get {
 			IPlayerCharacter? player = LocalPlayer;
 			if (player?.IsValid() is not true) {
-				player = Service.Client.LocalPlayer;
+				player = Service.ObjectTable.LocalPlayer;
 				LocalPlayer = player!;
 			}
 			return player;

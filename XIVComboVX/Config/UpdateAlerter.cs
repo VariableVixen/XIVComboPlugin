@@ -120,7 +120,7 @@ internal class UpdateAlerter: IDisposable {
 	private async void onLogin() {
 		do {
 			await Task.Delay(LoginDelayMs);
-		} while (!Service.Client.IsLoggedIn || Service.Client.LocalContentId == 0 || Service.Client.LocalPlayer is null);
+		} while (!Service.Client.IsLoggedIn || Service.PlayerState.ContentId == 0 || Service.ObjectTable.LocalPlayer is null);
 		this.CheckMessage();
 	}
 
