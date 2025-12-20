@@ -107,7 +107,7 @@ internal abstract class CustomCombo {
 	#region Caching
 
 	// Invalidate these
-	protected static readonly Dictionary<(uint StatusID, uint? TargetID, uint? SourceID), Status?> statusCache = [];
+	protected static readonly Dictionary<(uint StatusID, uint? TargetID, uint? SourceID), IStatus?> statusCache = [];
 	protected static readonly Dictionary<uint, CooldownData> cooldownCache = [];
 	protected static bool? canInterruptTarget = null;
 	protected static uint? dancerNextDanceStep = null;
@@ -370,10 +370,10 @@ internal abstract class CustomCombo {
 
 	#region Effects
 
-	protected static Status? FindEffect(uint statusID, IGameObject? actor, uint? sourceID) {
+	protected static IStatus? FindEffect(uint statusID, IGameObject? actor, uint? sourceID) {
 		(uint statusID, uint? ObjectId, uint? sourceID) key = (statusID, actor?.EntityId, sourceID);
 
-		if (statusCache.TryGetValue(key, out Status? found)) {
+		if (statusCache.TryGetValue(key, out IStatus? found)) {
 			Service.TickLogger.Info($"{LogTag.StatusEffect} Found cached status data for {Labels.Status(statusID)}: "
 				+ (found is null
 					? "not active"
@@ -388,7 +388,7 @@ internal abstract class CustomCombo {
 		if (actor is not IBattleChara chara)
 			return statusCache[key] = null;
 
-		foreach (Status? status in chara.StatusList) {
+		foreach (IStatus? status in chara.StatusList) {
 			if (status is null)
 				continue;
 			if (status.StatusId == statusID && (!sourceID.HasValue || status.SourceId is 0 or InvalidObjectID || status.SourceId == sourceID)) {
@@ -401,17 +401,17 @@ internal abstract class CustomCombo {
 		return statusCache[key] = null;
 	}
 
-	protected static Status? SelfFindEffect(ushort effectId) => FindEffect(effectId, LocalPlayer, null);
+	protected static IStatus? SelfFindEffect(ushort effectId) => FindEffect(effectId, LocalPlayer, null);
 	protected static bool SelfHasEffect(ushort effectId) => SelfFindEffect(effectId) is not null;
 	protected static float SelfEffectDuration(ushort effectId) => Math.Abs(SelfFindEffect(effectId)?.RemainingTime ?? 0);
 	protected static float SelfEffectStacks(ushort effectId) => Math.Abs(SelfFindEffect(effectId)?.Param ?? 0);
 
-	protected static Status? TargetFindAnyEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, null);
+	protected static IStatus? TargetFindAnyEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, null);
 	protected static bool TargetHasAnyEffect(ushort effectId) => TargetFindAnyEffect(effectId) is not null;
 	protected static float TargetAnyEffectDuration(ushort effectId) => Math.Abs(TargetFindAnyEffect(effectId)?.RemainingTime ?? 0);
 	protected static float TargetAnyEffectStacks(ushort effectId) => Math.Abs(TargetFindAnyEffect(effectId)?.Param ?? 0);
 
-	protected static Status? TargetFindOwnEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
+	protected static IStatus? TargetFindOwnEffect(ushort effectId) => FindEffect(effectId, CurrentTarget, LocalPlayer?.EntityId);
 	protected static bool TargetHasOwnEffect(ushort effectId) => TargetFindOwnEffect(effectId) is not null;
 	protected static float TargetOwnEffectDuration(ushort effectId) => Math.Abs(TargetFindOwnEffect(effectId)?.RemainingTime ?? 0);
 	protected static float TargetOwnEffectStacks(ushort effectId) => Math.Abs(TargetFindOwnEffect(effectId)?.Param ?? 0);
