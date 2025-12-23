@@ -13,7 +13,7 @@ internal unsafe class GameState: IDisposable {
 
 	internal AtkUnitBasePtr ChatLog {
 		get {
-			if (Service.Client.LocalPlayer is null)
+			if (Service.ObjectTable.LocalPlayer is null)
 				return null;
 			if (this.chatLogPointer.IsNull)
 				this.chatLogPointer = Service.GameGui.GetAddonByName("ChatLog", 1);

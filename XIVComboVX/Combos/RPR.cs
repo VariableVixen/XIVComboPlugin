@@ -567,7 +567,7 @@ internal class ReaperHellsIngressEgress: CustomCombo {
 	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
 
 		if (level >= RPR.Levels.Regress) {
-			Status? threshold = SelfFindEffect(RPR.Buffs.Threshold);
+			IStatus? threshold = SelfFindEffect(RPR.Buffs.Threshold);
 			if (threshold is not null) {
 				if (IsEnabled(CustomComboPreset.ReaperRegressDelayed)) {
 					if (threshold.RemainingTime <= Service.Configuration.ReaperThresholdBuffTime)

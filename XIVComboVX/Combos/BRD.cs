@@ -86,7 +86,7 @@ internal class BardHeavyBurstShot: CustomCombo {
 				BRDGauge gauge = GetJobGauge<BRDGauge>();
 
 				if (gauge.Song is Song.Wanderer && gauge.Repertoire > 0) {
-					Status? minuet = SelfFindEffect(BRD.Buffs.WanderersMinuet);
+					IStatus? minuet = SelfFindEffect(BRD.Buffs.WanderersMinuet);
 
 					if (gauge.SongTimer / 1000f <= Service.Configuration.BardWanderersMinuetBuffThreshold)
 						return BRD.PitchPerfect;
@@ -141,8 +141,8 @@ internal class BardHeavyBurstShot: CustomCombo {
 			uint windActionId = level >= BRD.Levels.BiteUpgrade
 				? BRD.Stormbite
 				: BRD.Windbite;
-			Status? poison = TargetFindOwnEffect(poisonStatusId);
-			Status? wind = level >= BRD.Levels.Windbite
+			IStatus? poison = TargetFindOwnEffect(poisonStatusId);
+			IStatus? wind = level >= BRD.Levels.Windbite
 				? TargetFindOwnEffect(windStatusId)
 				: null;
 
@@ -196,8 +196,8 @@ internal class BardIronJaws: CustomCombo {
 
 		if (level < BRD.Levels.IronJaws) {
 
-			Status? venomous = TargetFindOwnEffect(BRD.Debuffs.VenomousBite);
-			Status? windbite = TargetFindOwnEffect(BRD.Debuffs.Windbite);
+			IStatus? venomous = TargetFindOwnEffect(BRD.Debuffs.VenomousBite);
+			IStatus? windbite = TargetFindOwnEffect(BRD.Debuffs.Windbite);
 
 			return venomous is null
 				? BRD.VenomousBite

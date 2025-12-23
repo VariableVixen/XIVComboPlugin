@@ -265,7 +265,7 @@ internal class DancerSingleTargetMultibutton: DancerCombo {
 		}
 
 		if (IsEnabled(CustomComboPreset.DancerSingleTargetStarfall) && level >= DNC.Levels.StarfallDance) {
-			Status? starfall = SelfFindEffect(DNC.Buffs.FlourishingStarfall);
+			IStatus? starfall = SelfFindEffect(DNC.Buffs.FlourishingStarfall);
 			if (starfall is not null && starfall.RemainingTime <= Service.Configuration.DancerSingleTargetStarfallBuffThreshold)
 				return DNC.StarfallDance;
 		}
@@ -336,7 +336,7 @@ internal class DancerAoeMultibutton: DancerCombo {
 		}
 
 		if (IsEnabled(CustomComboPreset.DancerAoeStarfall) && level >= DNC.Levels.StarfallDance) {
-			Status? starfall = SelfFindEffect(DNC.Buffs.FlourishingStarfall);
+			IStatus? starfall = SelfFindEffect(DNC.Buffs.FlourishingStarfall);
 			if (starfall is not null && starfall.RemainingTime <= Service.Configuration.DancerAoeStarfallBuffThreshold)
 				return DNC.StarfallDance;
 		}

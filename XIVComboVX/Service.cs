@@ -44,5 +44,7 @@ internal class Service {
 	[PluginService] public static IGameGui GameGui { get; private set; } = null!;
 	[PluginService] public static IGameInteropProvider Interop { get; private set; } = null!;
 	[PluginService] public static INotificationManager Notifications { get; private set; } = null!;
+	[PluginService] public static IObjectTable ObjectTable { get; private set; } = null!;
+	[PluginService] public static IPlayerState PlayerState { get; private set; } = null!;
 
 }
