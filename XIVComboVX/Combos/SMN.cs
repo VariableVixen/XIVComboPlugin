@@ -128,7 +128,7 @@ internal class SummonerESPainflareCombo: CustomCombo {
 		if (level >= SMN.Levels.EnergySyphon && !GetJobGauge<SMNGauge>().HasAetherflowStacks)
 			return SMN.EnergySyphon;
 
-		if (level < SMN.Levels.EnergySyphon && GetJobGauge<SMNGauge>().HasAetherflowStacks)
+		if (level < SMN.Levels.EnergySyphon && !GetJobGauge<SMNGauge>().HasAetherflowStacks)
 			return SMN.EnergyDrain;
 
 		return actionID;
