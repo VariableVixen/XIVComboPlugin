@@ -81,7 +81,8 @@ internal static class DNC {
 			SaberDance = 76, // [sic] - should be Sabre but america
 			Tillana = 82,
 			FanDance4 = 86,
-			StarfallDance = 90;
+			StarfallDance = 90,
+			LastDance = 92;
 
 	}
 }
@@ -352,6 +353,19 @@ internal class DancerAoeMultibutton: DancerCombo {
 
 		if (lastComboMove is DNC.Windmill && level >= DNC.Levels.Bladeshower)
 			return DNC.Bladeshower;
+
+		return actionID;
+	}
+}
+
+internal class LastDanceFeature: DancerCombo {
+	public override CustomComboPreset Preset { get; } = CustomComboPreset.LastDanceFeature;
+	public override uint[] ActionIDs { get; } = [DNC.StandardStep];
+
+	protected override uint Invoke(uint actionID, uint lastComboMove, float comboTime, byte level) {
+
+		if (level >= DNC.Levels.LastDance && SelfHasEffect(DNC.Buffs.LastDanceReady))
+			return DNC.LastDance;
 
 		return actionID;
 	}
