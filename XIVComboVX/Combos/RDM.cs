@@ -59,6 +59,7 @@ internal static class RDM {
 			GrandImpactReady = 3877,
 			ThornedFlourish = 3876,
 			MagickedSwordplay = 3875,
+			Manafication = 1971,
 			PrefulgenceReady = 3878,
 			Dualcast = 1249;
 	}
@@ -272,6 +273,8 @@ internal abstract class RedmageCombo: CustomCombo {
 
 		return false;
 	}
+	
+	protected static new bool InMeleeRange => CustomCombo.InMeleeRange || (SelfHasEffect(RDM.Buffs.Manafication) && TargetDistance <= 25);
 
 #pragma warning restore IDE0045 // Convert to conditional expression
 }
