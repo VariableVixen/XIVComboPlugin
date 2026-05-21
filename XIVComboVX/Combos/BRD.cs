@@ -82,7 +82,7 @@ internal class BardHeavyBurstShot: CustomCombo {
 
 		if (CanWeave(actionID)) {
 
-			if (IsEnabled(CustomComboPreset.BardWeavePitchPerfect) && level >= BRD.Levels.PitchPerfect) {
+			/*if (IsEnabled(CustomComboPreset.BardWeavePitchPerfect) && level >= BRD.Levels.PitchPerfect) {
 				BRDGauge gauge = GetJobGauge<BRDGauge>();
 
 				if (gauge.Song is Song.Wanderer && gauge.Repertoire > 0) {
@@ -94,7 +94,7 @@ internal class BardHeavyBurstShot: CustomCombo {
 					if (gauge.Repertoire == 3)
 						return BRD.PitchPerfect;
 				}
-			}
+			}*/
 
 			if (IsEnabled(CustomComboPreset.BardWeaveBattleVoice) && level >= BRD.Levels.BattleVoice) {
 				if (CanUse(BRD.BattleVoice))

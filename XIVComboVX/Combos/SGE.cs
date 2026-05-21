@@ -208,7 +208,7 @@ internal class SagePhlegma: CustomCombo {
 			// Prioritise Icarus into Phlegma over Toxikon because Phlegma is higher potency
 			if (IsEnabled(CustomComboPreset.SagePhlegmaIcarus) && level >= SGE.Levels.Icarus) {
 				float maxRange = CurrentTarget is IBattleNpc target
-					&& target.BattleNpcKind is BattleNpcSubKind.Enemy or BattleNpcSubKind.BattleNpcPart
+					&& target.BattleNpcKind is BattleNpcSubKind.Combatant or BattleNpcSubKind.BNpcPart
 					? Service.Configuration.SagePhlegmaIcarusDistanceThresholdEnemy
 					: Service.Configuration.SagePhlegmaIcarusDistanceThresholdAlly;
 				if (TargetDistance > maxRange) {

@@ -63,14 +63,14 @@ public class PluginConfiguration: IPluginConfiguration {
 
 	#region BRD settings
 
-	[ComboDetailSetting(
+	/*[ComboDetailSetting(
 		CustomComboPreset.BardWeavePitchPerfect,
 		"Minimum song time left",
 		"When the Wanderer's Minuet has no more than this much time left, weave into Pitch Perfect",
 		3,
 		45
 	)]
-	public float BardWanderersMinuetBuffThreshold { get; set; } = 5;
+	public float BardWanderersMinuetBuffThreshold { get; set; } = 5;*/
 
 	[ComboDetailSetting(
 		CustomComboPreset.BardStraightShotIronJaws,

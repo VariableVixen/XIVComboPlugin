@@ -163,8 +163,8 @@ public enum CustomComboPreset {
 	// ====================================================================================
 	#region BARD (23xxx)
 
-	[CustomComboInfo("Weave: Pitch Perfect", "Replaces Heavy Shot with Pitch Perfect when weaving and either Wanderer's Minuet is about to expire or Pitch Perfect reaches three stacks.", BRD.JobID)]
-	BardWeavePitchPerfect = 23014,
+	//[CustomComboInfo("Weave: Pitch Perfect", "Replaces Heavy Shot with Pitch Perfect when weaving and either Wanderer's Minuet is about to expire or Pitch Perfect reaches three stacks.", BRD.JobID)]
+	//BardWeavePitchPerfect = 23014,
 
 	[CustomComboInfo("Weave: Battle Voice", "Replaces Heavy Shot with Battle Voice when weaving.", BRD.JobID)]
 	BardWeaveBattleVoice = 23015,

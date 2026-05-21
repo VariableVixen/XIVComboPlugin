@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -113,8 +114,8 @@ internal class UpdateAlerter: IDisposable {
 		Service.Client.Login -= this.onLogin;
 	}
 
-	private void onChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled) {
-		if (type is XivChatType.Urgent or XivChatType.Notice or XivChatType.SystemMessage)
+	private void onChatMessage(IHandleableChatMessage message) {
+		if (message.LogKind is XivChatType.Urgent or XivChatType.Notice or XivChatType.SystemMessage)
 			this.CheckMessage();
 	}
 	private async void onLogin() {
