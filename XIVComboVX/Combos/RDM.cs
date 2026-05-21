@@ -25,11 +25,11 @@ internal static class RDM {
 		Embolden = 7520,
 		Manafication = 7521,
 		Redoublement = 7516,
-		EnchantedRedoublement = 7529,
+		//EnchantedRedoublement = 7529, // short range version
 		Zwerchhau = 7512,
-		EnchantedZwerchhau = 7528,
+		//EnchantedZwerchhau = 7528, // short range version
 		Riposte = 7504,
-		EnchantedRiposte = 7527,
+		//EnchantedRiposte = 7527, // short range version
 		Jolt = 7503,
 		Verstone = 7511,
 		Verfire = 7510,
@@ -173,18 +173,18 @@ internal abstract class RedmageCombo: CustomCombo {
 			: (byte)0;
 		bool buff = level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay);
 
-		if (lastComboMove is RDM.Zwerchhau or RDM.EnchantedZwerchhau && level >= RDM.Levels.Redoublement && (buff || mana >= RDM.ManaCostMelee3)) {
-			actionID = RDM.EnchantedRedoublement;
+		if (lastComboMove is RDM.Zwerchhau && level >= RDM.Levels.Redoublement && (buff || mana >= RDM.ManaCostMelee3)) {
+			actionID = RDM.Redoublement;
 			return true;
 		}
 
-		if (lastComboMove is RDM.Riposte or RDM.EnchantedRiposte && level >= RDM.Levels.Zwerchhau && (buff || mana >= RDM.ManaCostMelee2)) {
-			actionID = RDM.EnchantedZwerchhau;
+		if (lastComboMove is RDM.Riposte && level >= RDM.Levels.Zwerchhau && (buff || mana >= RDM.ManaCostMelee2)) {
+			actionID = RDM.Zwerchhau;
 			return true;
 		}
 
 		if (checkComboStart && (buff || mana >= ManaForMeleeChain(level))) {
-			actionID = RDM.EnchantedRiposte;
+			actionID = RDM.Riposte;
 			return true;
 		}
 
@@ -505,7 +505,7 @@ internal class RedmageSmartcastSingleComboFull: RedmageCombo {
 			&& CheckMeleeST(ref actionID, lastComboActionId, level, IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeComboStarter));
 		bool shouldCloseGap = meleeCombo && !isClose
 			&& (
-				actionID is RDM.EnchantedZwerchhau or RDM.EnchantedRedoublement
+				actionID is RDM.Zwerchhau or RDM.Redoublement
 				|| IsEnabled(CustomComboPreset.RedMageSmartcastSingleTargetMeleeComboStarterCloser)
 			);
 		meleeCombo &= isClose;
@@ -599,7 +599,7 @@ internal class RedmageSmartcastSingleComboFull: RedmageCombo {
 			return RDM.Corpsacorps;
 
 		if (meleeCombo)
-			return actionID; // meleeCombo is only true if the helper function assigned the appropriate actionID value
+			return OriginalHook(actionID); // meleeCombo is only true if the helper function assigned the appropriate actionID value
 
 		if (smartMove) {
 			// Can't slowcast spells if you're moving, so we have to fall back to instants.
@@ -691,7 +691,7 @@ internal class RedMageManafication: RedmageCombo {
 
 	protected override uint Invoke(uint actionID, uint lastComboActionId, float comboTime, byte level) {
 		bool melee = (level >= RDM.Levels.Manafication && SelfHasEffect(RDM.Buffs.MagickedSwordplay))
-			|| lastComboActionId is RDM.EnchantedRiposte or RDM.EnchantedZwerchhau;
+			|| lastComboActionId is RDM.Riposte or RDM.Zwerchhau;
 
 		if (IsEnabled(CustomComboPreset.RedMageManaficationIntoMeleeGauge) && !melee) {
 			RDMGauge gauge = GetJobGauge<RDMGauge>();
@@ -706,12 +706,12 @@ internal class RedMageManafication: RedmageCombo {
 			if (IsEnabled(CustomComboPreset.RedMageMeleeComboCloser) && level >= RDM.Levels.Corpsacorps && HasTarget && !InMeleeRange)
 				return RDM.Corpsacorps;
 
-			if (level >= RDM.Levels.Redoublement && lastComboActionId is RDM.Zwerchhau or RDM.EnchantedZwerchhau)
-				return RDM.EnchantedRedoublement;
-			if (level >= RDM.Levels.Zwerchhau && lastComboActionId is RDM.Riposte or RDM.EnchantedRiposte)
-				return RDM.EnchantedZwerchhau;
+			if (level >= RDM.Levels.Redoublement && lastComboActionId is RDM.Zwerchhau)
+				return OriginalHook(RDM.Redoublement);
+			if (level >= RDM.Levels.Zwerchhau && lastComboActionId is RDM.Riposte)
+				return OriginalHook(RDM.Zwerchhau);
 
-			return RDM.EnchantedRiposte;
+			return OriginalHook(RDM.Riposte);
 		}
 
 		if (IsEnabled(CustomComboPreset.RedMageManaficationIntoMeleeFinisherFollowup))
